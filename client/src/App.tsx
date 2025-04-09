@@ -1,13 +1,13 @@
-import { Button} from 'antd';
-
+import Header from './components/Header';
 
 function App() {
-
   return (
     <>
-       <Button type="primary">Primary Button</Button>
-<h1 className='text-2xl font-bold underline text-red-600'>Merhaba Tailwind!</h1>
-    </>       
+      <Header />
+      <div className="pt-[88px]">
+        {/* Content will go here */}
+      </div>
+    </>
   )
 }
 

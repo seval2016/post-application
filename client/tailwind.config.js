@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        electrolize: ['Electrolize', 'sans-serif'],
+        sans: ['Electrolize', 'sans-serif'],
       },
     },
   },
