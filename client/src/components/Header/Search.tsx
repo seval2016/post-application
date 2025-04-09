@@ -3,7 +3,7 @@ import { SearchOutlined } from '@ant-design/icons';
 
 const Search = () => {
   return (
-    <div className="search-wrapper w-[300px] sm:w-[400px] md:w-[600px]">
+    <div className="search-wrapper  flex-1 flex justify-center ">
       <Input 
         size="large" 
         placeholder="Ürün Ara..." 
