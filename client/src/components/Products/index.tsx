@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { Button, message } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { addToCart } from '../../redux/cartSlice';
 import productsData from '../../data/products.json';
 
 interface Product {
@@ -15,6 +19,7 @@ interface ProductsProps {
 
 const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const filteredProducts = selectedCategory
@@ -22,6 +27,17 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
       : productsData.products;
     setProducts(filteredProducts);
   }, [selectedCategory]);
+
+  const handleAddToCart = (product: Product) => {
+    dispatch(addToCart({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+      quantity: 1
+    }));
+    message.success('Ürün sepete eklendi');
+  };
 
   return (
     <div className="products bg-white px-4 py-6 rounded-lg shadow-sm h-[calc(100vh-100px)]">
@@ -31,7 +47,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
           {products.map((product) => (
             <div
               key={product.id}
-              className="product-card bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              className="product-card bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="relative w-full pt-[56.25%] mb-3">
                 <img
@@ -45,9 +61,15 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
                 <span className="text-lg font-semibold text-green-600">
                   ₺{product.price.toFixed(2)}
                 </span>
-                <button className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                  +
-                </button>
+                <Button
+                  type="primary"
+                  size="middle"
+                  icon={<PlusOutlined />}
+                  onClick={() => handleAddToCart(product)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                
+                </Button>
               </div>
             </div>
           ))}
