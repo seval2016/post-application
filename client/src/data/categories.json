@@ -1,0 +1,79 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "title": "Yiyecek",
+      "image": "https://img.icons8.com/color/96/hamburger.png"
+    },
+    {
+      "id": 2,
+      "title": "İçecek",
+      "image": "https://img.icons8.com/color/96/coffee.png"
+    },
+    {
+      "id": 3,
+      "title": "Tatlılar",
+      "image": "https://img.icons8.com/color/96/cake.png"
+    },
+    {
+      "id": 4,
+      "title": "Atıştırmalık",
+      "image": "https://img.icons8.com/color/96/popcorn.png"
+    },
+    {
+      "id": 5,
+      "title": "Soslar",
+      "image": "https://img.icons8.com/color/96/sauce.png"
+    },
+    {
+      "id": 6,
+      "title": "Pizzalar",
+      "image": "https://img.icons8.com/color/96/pizza.png"
+    },
+    {
+      "id": 7,
+      "title": "Salatalar",
+      "image": "https://img.icons8.com/color/96/salad.png"
+    },
+    {
+      "id": 8,
+      "title": "Makarnalar",
+      "image": "https://img.icons8.com/color/96/spaghetti.png"
+    },
+    {
+      "id": 9,
+      "title": "Çorbalar",
+      "image": "https://img.icons8.com/color/96/soup-plate.png"
+    },
+    {
+      "id": 10,
+      "title": "Dönerler",
+      "image": "https://img.icons8.com/color/96/kebab.png"
+    },
+    {
+      "id": 11,
+      "title": "Pideler",
+      "image": "https://img.icons8.com/color/96/bread.png"
+    },
+    {
+      "id": 12,
+      "title": "Izgaralar",
+      "image": "https://img.icons8.com/color/96/steak.png"
+    },
+    {
+      "id": 13,
+      "title": "Kahvaltılık",
+      "image": "https://img.icons8.com/color/96/breakfast.png"
+    },
+    {
+      "id": 14,
+      "title": "Deniz Ürünleri",
+      "image": "https://img.icons8.com/color/96/fish.png"
+    },
+    {
+      "id": 15,
+      "title": "Yan Ürünler",
+      "image": "https://img.icons8.com/color/96/french-fries.png"
+    }
+  ]
+} 

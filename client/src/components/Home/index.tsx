@@ -1,16 +1,19 @@
-import Categories from './Categories';
-import Products from './Products';
-import CartTotals from './CartTotals';
+import { useState } from 'react';
+import Categories from '../Categories';
+import Products from '../Products';
+import CartTotals from '../CartTotals';
 
 const Home = () => {
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+
   return (
-    <div className="home px-6 flex justify-between gap-10">
-      <div className="categories-wrapper min-w-[200px]">
-        <Categories />
+    <div className="home flex gap-6 p-6">
+      <div className="categories-wrapper min-w-[220px] max-w-[220px]">
+        <Categories onCategorySelect={setSelectedCategory} />
       </div>
       
       <div className="products-wrapper flex-1">
-        <Products />
+        <Products selectedCategory={selectedCategory} />
       </div>
       
       <div className="cart-totals-wrapper min-w-[300px]">
