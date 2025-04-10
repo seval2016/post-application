@@ -41,58 +41,39 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
 
   return (
     <div className="products bg-white px-4 py-6 rounded-lg shadow-sm h-[calc(100vh-100px)]">
-      <h2 className="text-lg font-semibold mb-4">Ürünler</h2>
-      <div className="products-wrapper overflow-y-auto h-[calc(100%-3rem)] pr-2">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+        <h2 className="text-lg font-medium text-gray-700">Ürünler</h2>
+        <span className="text-sm text-gray-500">{products.length} ürün</span>
+      </div>
+      <div className="products-wrapper overflow-y-auto h-[calc(100%-4rem)] pr-2 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-md [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-md [&::-webkit-scrollbar-thumb:hover]:bg-gray-400">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {products.map((product) => (
             <div
               key={product.id}
-              className="product-card bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              className="product-card bg-white p-2 md:p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="relative w-full pt-[56.25%] mb-3">
+              <div className="relative w-full pt-[56.25%] mb-2 md:mb-3">
                 <img
                   src={product.image}
                   alt={product.title}
                   className="absolute inset-0 w-full h-full object-cover rounded-lg"
                 />
               </div>
-              <h3 className="text-gray-700 font-medium text-base mb-2 h-12 line-clamp-2">{product.title}</h3>
+              <h3 className="text-gray-700 font-medium text-sm md:text-base mb-2 h-8 md:h-12 line-clamp-2">{product.title}</h3>
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-green-600">
-                  ₺{product.price.toFixed(2)}
-                </span>
+                <span className="text-base md:text-lg font-semibold text-green-600">₺{product.price.toFixed(2)}</span>
                 <Button
                   type="primary"
-                  size="middle"
-                  icon={<PlusOutlined />}
+                  size="small"
+                  icon={<PlusOutlined className="text-xs md:text-sm" />}
                   onClick={() => handleAddToCart(product)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                
-                </Button>
+                  className="bg-blue-600 hover:bg-blue-700 flex items-center justify-center w-6 h-6 md:w-8 md:h-8 min-w-[1.5rem] md:min-w-[2rem]"
+                />
               </div>
             </div>
           ))}
         </div>
       </div>
-      <style>
-        {`
-          .products-wrapper::-webkit-scrollbar {
-            width: 6px;
-          }
-          .products-wrapper::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-          }
-          .products-wrapper::-webkit-scrollbar-thumb {
-            background: #ddd;
-            border-radius: 3px;
-          }
-          .products-wrapper::-webkit-scrollbar-thumb:hover {
-            background: #ccc;
-          }
-        `}
-      </style>
     </div>
   );
 };

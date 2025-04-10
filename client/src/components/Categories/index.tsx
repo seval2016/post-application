@@ -25,15 +25,18 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
   };
 
   return (
-    <div className="categories bg-white px-4 py-6 rounded-lg shadow-sm h-[calc(100vh-100px)] sticky top-[84px]">
-      <h2 className="text-lg font-semibold mb-4">Kategoriler</h2>
-      <div className="flex flex-col gap-3 overflow-y-auto h-[calc(100%-3rem)] pr-2 category-list">
+    <div className="categories bg-white p-4 rounded-lg shadow-sm md:h-[calc(100vh-100px)] md:sticky md:top-[84px]">
+      <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+        <h2 className="text-lg font-medium text-gray-700">Kategoriler</h2>
+        <span className="text-sm text-gray-500">{categories.length + 1}</span>
+      </div>
+      <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:h-[calc(100%-4rem)] md:pr-2 category-list [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-md [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-md [&::-webkit-scrollbar-thumb:hover]:bg-gray-400">
         <div
-          className={`category-card p-3 cursor-pointer transition-all select-none rounded-lg flex items-center gap-3 shadow-sm border border-gray-200 
+          className={`category-card p-3 cursor-pointer transition-all select-none rounded-lg flex items-center gap-3 shadow-sm border border-gray-200 min-w-[150px] md:min-w-0
             ${selectedCategory === null 
               ? 'bg-blue-100 hover:bg-blue-200 border-blue-200' 
               : 'bg-gray-50 hover:bg-gray-100'
-            }`}
+           }`}
           onClick={() => handleCategoryClick(null)}
         >
           <div className="w-8 h-8 min-w-[2rem] rounded-full bg-white p-1 shadow-sm flex items-center justify-center">
@@ -41,13 +44,13 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
             </svg>
           </div>
-          <span className="text-gray-700 text-sm font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">Tümü</span>
+          <span className="text-gray-700 text-sm font-medium whitespace-nowrap">Tümü</span>
         </div>
 
         {categories.map((category) => (
           <div
             key={category.id}
-            className={`category-card p-3 cursor-pointer transition-all select-none rounded-lg flex items-center gap-3 shadow-sm border border-gray-200 
+            className={`category-card p-3 cursor-pointer transition-all select-none rounded-lg flex items-center gap-3 shadow-sm border border-gray-200 min-w-[150px] md:min-w-0
               ${selectedCategory === category.id 
                 ? 'bg-blue-100 hover:bg-blue-200 border-blue-200' 
                 : 'bg-gray-50 hover:bg-gray-100'
@@ -57,28 +60,10 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
             <div className="w-8 h-8 min-w-[2rem] rounded-full bg-white p-1 shadow-sm flex items-center justify-center">
               <img src={category.image} alt={category.title} className="w-6 h-6 object-contain" />
             </div>
-            <span className="text-gray-700 text-sm font-medium whitespace-nowrap overflow-hidden overflow-ellipsis">{category.title}</span>
+            <span className="text-gray-700 text-sm font-medium whitespace-nowrap">{category.title}</span>
           </div>
         ))}
       </div>
-      <style>
-        {`
-          .category-list::-webkit-scrollbar {
-            width: 6px;
-          }
-          .category-list::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-          }
-          .category-list::-webkit-scrollbar-thumb {
-            background: #ddd;
-            border-radius: 3px;
-          }
-          .category-list::-webkit-scrollbar-thumb:hover {
-            background: #ccc;
-          }
-        `}
-      </style>
     </div>
   );
 };
