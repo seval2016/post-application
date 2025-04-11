@@ -1,6 +1,6 @@
 import Logo from './Logo';
 import Search from './Search';
-import NavigationMenu from './NavigationMenu';
+import { HeaderNavigation, BottomNavigation } from '../NavigationMenu';
 
 const Header = () => {
   return (
@@ -12,14 +12,12 @@ const Header = () => {
             <Search />
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden sm:block">
-              <NavigationMenu />
-            </div>
+            <HeaderNavigation />
           </div>
         </header>
       </div>
       <div className="sm:hidden">
-        <NavigationMenu />
+        <BottomNavigation />
       </div>
     </>
   );

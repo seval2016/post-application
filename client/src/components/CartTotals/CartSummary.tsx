@@ -1,7 +1,10 @@
 import { Button } from 'antd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ClearOutlined } from '@ant-design/icons';
 import { clearCart } from '../../redux/cartSlice';
+import { useState } from 'react';
+import OrderModal from '../../common/OrderModal';
+import { RootState } from '../../redux/store';
 
 interface CartSummaryProps {
   subtotal: number;
@@ -11,6 +14,21 @@ interface CartSummaryProps {
 
 const CartSummary = ({ subtotal, vat, total }: CartSummaryProps) => {
   const dispatch = useDispatch();
+  const [orderModalVisible, setOrderModalVisible] = useState(false);
+  const { items } = useSelector((state: RootState) => state.cart);
+
+  const handleOrderClick = () => {
+    if (items.length === 0) {
+      // Sepet boşsa kullanıcıya bilgi ver
+      return;
+    }
+    setOrderModalVisible(true);
+  };
+
+  const handleOrderSuccess = () => {
+    setOrderModalVisible(false);
+    dispatch(clearCart());
+  };
 
   return (
     <div className="border-t pt-4 mt-4 space-y-2">
@@ -26,7 +44,14 @@ const CartSummary = ({ subtotal, vat, total }: CartSummaryProps) => {
         <span>Toplam</span>
         <span className="text-green-600">₺{total.toFixed(2)}</span>
       </div>
-      <Button type="primary" block size="large" className="bg-blue-600 h-12 mt-4">
+      <Button 
+        type="primary" 
+        block 
+        size="large" 
+        className="bg-blue-600 h-12 mt-4"
+        onClick={handleOrderClick}
+        disabled={items.length === 0}
+      >
         Sipariş Oluştur
       </Button>
       <Button 
@@ -37,9 +62,16 @@ const CartSummary = ({ subtotal, vat, total }: CartSummaryProps) => {
         icon={<ClearOutlined />}
         className="h-12"
         onClick={() => dispatch(clearCart())}
+        disabled={items.length === 0}
       >
         Sepeti Temizle
       </Button>
+
+      <OrderModal 
+        isVisible={orderModalVisible}
+        onCancel={() => setOrderModalVisible(false)}
+        onSuccess={handleOrderSuccess}
+      />
     </div>
   );
 };

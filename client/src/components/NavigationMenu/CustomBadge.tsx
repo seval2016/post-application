@@ -24,7 +24,6 @@ const CustomBadge = ({ count, children, offset = [8, -4] }: CustomBadgeProps) =>
         alignItems: 'center',
         justifyContent: 'center',
         padding: 0,
-   
       }}
       offset={offset}
     >
