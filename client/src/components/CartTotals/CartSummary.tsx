@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ClearOutlined } from '@ant-design/icons';
 import { clearCart } from '../../redux/cartSlice';
 import { useState } from 'react';
-import OrderModal from '../../common/OrderModal';
+import OrderModal from '../../common/modals/OrderModal';
 import { RootState } from '../../redux/store';
 
 interface CartSummaryProps {

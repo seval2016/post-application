@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { Button, Input, Select } from 'antd';
 import { RootState } from '../../redux/store';
 import { useState } from 'react';
-import OrderModal from '../../common/OrderModal';
+import OrderModal from '../../common/modals/OrderModal';
 
 const OrderSummary = () => {
   const { items, total } = useSelector((state: RootState) => state.cart);

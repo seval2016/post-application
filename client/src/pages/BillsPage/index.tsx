@@ -13,7 +13,7 @@ import {
 } from '@ant-design/icons';
 import Header from '../../components/Header';
 import { billService, Bill } from '../../services/billService';
-import { BillsTable, BillsFilters } from '../../components/Bills';
+import { BillsTable, BillsFilters, PaymentTerms } from '../../components/Bills';
 
 const { Title, Text } = Typography;
 
@@ -97,6 +97,8 @@ const BillsPage = () => {
             </Button>
           </div>
         </div>
+
+        <PaymentTerms />
 
         <Card className="shadow-sm mb-6">
           <BillsFilters

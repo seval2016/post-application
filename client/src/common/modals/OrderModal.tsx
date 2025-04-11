@@ -23,7 +23,7 @@ import {
   DownloadOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "../../redux/store";
 import jsPDF from "jspdf";
 
 const { Text, Title } = Typography;
