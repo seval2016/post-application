@@ -27,8 +27,8 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
   return (
     <div className="categories bg-white p-4 rounded-lg shadow-sm md:h-[calc(100vh-100px)] md:sticky md:top-[84px]">
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
-        <h2 className="text-lg font-medium text-gray-700">Kategoriler</h2>
-        <span className="text-sm text-gray-500">{categories.length + 1}</span>
+        <h2 className="text-base font-medium text-gray-700">Kategoriler</h2>
+        <span className="text-xs text-gray-500">{categories.length + 1}</span>
       </div>
       <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:h-[calc(100%-4rem)] md:pr-2 category-list [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-md [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-md [&::-webkit-scrollbar-thumb:hover]:bg-gray-400">
         <div

@@ -1,15 +1,8 @@
-import Header from './components/Header';
-import Home from './components/Home';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './router';
 
 function App() {
-  return (
-    <div className="h-screen overflow-hidden">
-      <Header />
-      <div className="content pt-[72px] h-[calc(100vh-72px)]">
-        <Home />
-      </div>
-    </div>
-  )
+  return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;
