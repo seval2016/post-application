@@ -2,6 +2,7 @@ import React from 'react';
 import { Table, Space, Button, Tooltip, Tag } from 'antd';
 import { EyeOutlined, DownloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import { Bill } from '../../services/billService';
+import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
 
 interface BillsTableProps {
   bills: Bill[];
@@ -30,6 +31,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
       dataIndex: 'id',
       key: 'id',
       sorter: (a: Bill, b: Bill) => a.id.localeCompare(b.id),
+      responsive: ['md' as Breakpoint],
     },
     {
       title: 'Tarih',
@@ -37,6 +39,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
       key: 'date',
       sorter: (a: Bill, b: Bill) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       render: (date: string) => new Date(date).toLocaleDateString('tr-TR'),
+      responsive: ['sm' as Breakpoint],
     },
     {
       title: 'Müşteri',
@@ -49,6 +52,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
       dataIndex: 'items',
       key: 'items',
       sorter: (a: Bill, b: Bill) => a.items - b.items,
+      responsive: ['md' as Breakpoint],
     },
     {
       title: 'Tutar',
@@ -86,17 +90,20 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
   ];
 
   return (
-    <Table 
-      columns={columns} 
-      dataSource={bills} 
-      rowKey="id"
-      loading={loading}
-      pagination={{ 
-        pageSize: 10,
-        showSizeChanger: true,
-        showTotal: (total) => `Toplam ${total} fatura`
-      }}
-    />
+    <div className="overflow-x-auto">
+      <Table 
+        columns={columns} 
+        dataSource={bills} 
+        rowKey="id"
+        loading={loading}
+        pagination={{ 
+          pageSize: 10,
+          showSizeChanger: true,
+          showTotal: (total) => `Toplam ${total} fatura`
+        }}
+        scroll={{ x: 'max-content' }}
+      />
+    </div>
   );
 };
 
