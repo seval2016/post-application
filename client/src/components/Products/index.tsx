@@ -40,7 +40,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   };
 
   return (
-    <div className="products bg-white px-4 py-6 rounded-lg shadow-sm h-[calc(100vh-100px)]">
+    <div className="products bg-white p-4 rounded-lg shadow-sm md:h-[calc(100vh-100px)] md:sticky md:top-[84px]">
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
         <h2 className="text-base font-medium text-gray-700">Ürünler</h2>
         <span className="text-xs text-gray-500">{products.length} ürün</span>
