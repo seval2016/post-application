@@ -53,6 +53,7 @@ const cartSlice = createSlice({
       if (item) {
         item.quantity += 1;
         state.total += item.price;
+        saveCartState(state);
       }
     },
     decreaseQuantity: (state, action: PayloadAction<number>) => {
@@ -60,6 +61,7 @@ const cartSlice = createSlice({
       if (item && item.quantity > 1) {
         item.quantity -= 1;
         state.total -= item.price;
+        saveCartState(state);
       }
     },
     removeFromCart: (state, action: PayloadAction<number>) => {
@@ -67,6 +69,7 @@ const cartSlice = createSlice({
       if (item) {
         state.total -= item.price * item.quantity;
         state.items = state.items.filter(item => item.id !== action.payload);
+        saveCartState(state);
       }
     },
     addToCart: (state, action: PayloadAction<CartItem>) => {

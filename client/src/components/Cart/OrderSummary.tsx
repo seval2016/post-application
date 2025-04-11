@@ -1,9 +1,12 @@
 import { useSelector } from 'react-redux';
 import { Button, Input, Select } from 'antd';
 import { RootState } from '../../redux/store';
+import { useState } from 'react';
+import OrderModal from '../../common/OrderModal';
 
 const OrderSummary = () => {
   const { items, total } = useSelector((state: RootState) => state.cart);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // KDV oranı %8 olarak hesaplanıyor
   const VAT_RATE = 0.08;
@@ -11,6 +14,19 @@ const OrderSummary = () => {
   const shipping = 0; // Ücretsiz kargo
   const vat = subtotal * VAT_RATE;
   const grandTotal = subtotal + vat + shipping;
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleOrderSuccess = () => {
+    // Sipariş başarılı olduğunda yapılacak işlemler
+    console.log('Sipariş başarıyla tamamlandı');
+  };
 
   return (
     <div className="lg:w-[400px]">
@@ -73,12 +89,19 @@ const OrderSummary = () => {
         </div>
 
         {/* Ödeme Butonu */}
-        <Button type="primary" size="large" block className="bg-indigo-600 mt-6">
+        <Button type="primary" size="large" block className="bg-indigo-600 mt-6" onClick={showModal}>
           ÖDEME YAP
         </Button>
       </div>
+
+      {/* Sipariş Modalı */}
+      <OrderModal 
+        isVisible={isModalVisible}
+        onCancel={handleCancel}
+        onSuccess={handleOrderSuccess}
+      />
     </div>
   );
 };
 
-export default OrderSummary; 
+export default OrderSummary;
