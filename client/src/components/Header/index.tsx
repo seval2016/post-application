@@ -1,6 +1,6 @@
 import Logo from './Logo';
 import Search from './Search';
-import NavigationMenu, { CartIcon } from './NavigationMenu';
+import NavigationMenu from './NavigationMenu';
 
 const Header = () => {
   return (
@@ -12,7 +12,6 @@ const Header = () => {
             <Search />
           </div>
           <div className="flex items-center gap-4">
-            <CartIcon />
             <div className="hidden sm:block">
               <NavigationMenu />
             </div>

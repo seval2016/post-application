@@ -2,7 +2,7 @@
 const Logo = () => {
   return (
     <div className="logo">
-      <a href="/" className="text-2xl font-bold">POS SİSTEMİ</a>
+      <a href="/" className="text-2xl font-bold">LOGO</a>
     </div>
   );
 };

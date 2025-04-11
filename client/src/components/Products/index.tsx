@@ -40,13 +40,13 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   };
 
   return (
-    <div className="products bg-white p-4 rounded-lg shadow-sm md:h-[calc(100vh-100px)] md:sticky md:top-[84px]">
+    <div className="products bg-white p-4 rounded-lg shadow-sm h-[400px] md:h-[calc(100vh-100px)] md:sticky md:top-[84px]">
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
         <h2 className="text-base font-medium text-gray-700">Ürünler</h2>
         <span className="text-xs text-gray-500">{products.length} ürün</span>
       </div>
       <div className="products-wrapper overflow-y-auto h-[calc(100%-4rem)] pr-2 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-md [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-md [&::-webkit-scrollbar-thumb:hover]:bg-gray-400">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 gap-2 md:gap-3 lg:grid-cols-4 lg:gap-4">
           {products.map((product) => (
             <div
               key={product.id}
