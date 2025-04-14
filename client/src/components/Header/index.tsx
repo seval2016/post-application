@@ -1,25 +1,20 @@
+import React from 'react';
+import { Layout } from 'antd';
 import Logo from './Logo';
 import Search from './Search';
-import { HeaderNavigation, BottomNavigation } from '../NavigationMenu';
+import NavigationMenu from '../NavigationMenu';
 
-const Header = () => {
+const { Header: AntHeader } = Layout;
+
+const Header: React.FC = () => {
   return (
-    <>
-      <div className="border-b shadow-md bg-white fixed top-0 w-full z-50">
-        <header className="h-[72px] py-4 px-6 flex justify-between items-center container mx-auto">
-          <Logo />
-          <div className="flex-1 flex justify-center mx-2 sm:mx-4">
-            <Search />
-          </div>
-          <div className="flex items-center gap-4">
-            <HeaderNavigation />
-          </div>
-        </header>
+    <AntHeader className="bg-white px-4 flex items-center justify-between shadow-sm fixed w-full z-10">
+      <div className="flex items-center">
+        <Logo />
+        <Search />
       </div>
-      <div className="sm:hidden">
-        <BottomNavigation />
-      </div>
-    </>
+      <NavigationMenu />
+    </AntHeader>
   );
 };
 

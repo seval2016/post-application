@@ -7,7 +7,7 @@ interface CustomBadgeProps {
   offset?: [number, number];
 }
 
-const CustomBadge = ({ count, children, offset = [8, -4] }: CustomBadgeProps) => {
+const CustomBadge = ({ count, children, offset = [1, -1] }: CustomBadgeProps) => {
   return (
     <Badge 
       count={count}

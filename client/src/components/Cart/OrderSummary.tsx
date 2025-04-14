@@ -1,8 +1,10 @@
 import { useSelector } from 'react-redux';
-import { Button, Input, Select } from 'antd';
+import { Button, Input, Select, Typography } from 'antd';
 import { RootState } from '../../redux/store';
 import { useState } from 'react';
 import OrderModal from '../../common/modals/OrderModal';
+
+const { Text } = Typography;
 
 const OrderSummary = () => {
   const { items, total } = useSelector((state: RootState) => state.cart);
@@ -68,24 +70,24 @@ const OrderSummary = () => {
 
         {/* Fiyat Detayları */}
         <div className="space-y-3 mb-6">
-          <div className="flex justify-between text-gray-600">
-            <span>Ara Toplam</span>
-            <span>₺{subtotal.toFixed(2)}</span>
+          <div className="flex justify-between">
+            <Text>Ara Toplam</Text>
+            <Text>₺{subtotal.toFixed(2)}</Text>
           </div>
-          <div className="flex justify-between text-gray-600">
-            <span>Kargo</span>
-            <span>{shipping === 0 ? 'Ücretsiz' : `₺${shipping}`}</span>
+          <div className="flex justify-between">
+            <Text>Kargo</Text>
+            <Text>{shipping === 0 ? 'Ücretsiz' : `₺${shipping}`}</Text>
           </div>
-          <div className="flex justify-between text-gray-600">
-            <span>KDV (%8)</span>
-            <span>₺{vat.toFixed(2)}</span>
+          <div className="flex justify-between">
+            <Text>KDV (%8)</Text>
+            <Text>₺{vat.toFixed(2)}</Text>
           </div>
         </div>
 
         {/* Toplam */}
         <div className="flex justify-between items-center text-lg font-semibold border-t pt-4">
-          <span>Toplam</span>
-          <span>₺{grandTotal.toFixed(2)}</span>
+          <Text strong>Toplam</Text>
+          <Text strong>₺{grandTotal.toFixed(2)}</Text>
         </div>
 
         {/* Ödeme Butonu */}
