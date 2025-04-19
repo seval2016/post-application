@@ -31,24 +31,24 @@ const CartSummary = ({ subtotal, vat, total }: CartSummaryProps) => {
   };
 
   return (
-    <div className="border-t pt-4 mt-4 space-y-2">
-      <div className="flex justify-between items-center text-gray-600">
+    <div className="border-t pt-3 mt-2 space-y-1.5">
+      <div className="flex justify-between items-center text-gray-600 text-sm">
         <span>Ara Toplam</span>
         <span>₺{subtotal.toFixed(2)}</span>
       </div>
-      <div className="flex justify-between items-center text-red-500">
+      <div className="flex justify-between items-center text-red-500 text-sm">
         <span>KDV (%8)</span>
         <span>₺{vat.toFixed(2)}</span>
       </div>
-      <div className="flex justify-between items-center text-lg font-semibold mt-2 pt-2 border-t">
+      <div className="flex justify-between items-center text-base font-semibold mt-1.5 pt-1.5 border-t">
         <span>Toplam</span>
         <span className="text-green-600">₺{total.toFixed(2)}</span>
       </div>
       <Button 
         type="primary" 
         block 
-        size="large" 
-        className="bg-blue-600 h-12 mt-4"
+        size="middle" 
+        className="bg-blue-600 h-10 mt-3"
         onClick={handleOrderClick}
         disabled={items.length === 0}
       >
@@ -58,9 +58,9 @@ const CartSummary = ({ subtotal, vat, total }: CartSummaryProps) => {
         type="primary" 
         danger 
         block 
-        size="large" 
+        size="middle" 
         icon={<ClearOutlined />}
-        className="h-12"
+        className="h-10"
         onClick={() => dispatch(clearCart())}
         disabled={items.length === 0}
       >

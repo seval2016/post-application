@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "title": "Yönetici Paneli",
+      "description": "Güçlü yönetici araçlarıyla işletmenizi kolayca kontrol edin. Tüm işlemlerinizi tek bir yerden yönetin.",
+      "image": "/images/auth/admin.svg"
+    },
+    {
+      "title": "Müşteri Yönetimi",
+      "description": "Müşterilerinizi takip edin ve ilişkilerinizi güçlendirin. Müşteri veritabanı ve sadakat programları ile satışlarınızı artırın.",
+      "image": "/images/auth/customer.svg"
+    },
+    {
+      "title": "Responsive Tasarım",
+      "description": "Her cihazda mükemmel görüntüleme deneyimi. Mobil, tablet ve masaüstünde sorunsuz çalışan arayüz.",
+      "image": "/images/auth/responsive.svg"
+    },
+    {
+      "title": "Detaylı İstatistikler",
+      "description": "Satışlarınızı ve performansınızı analiz edin. Veriye dayalı kararlar alarak işletmenizi büyütün.",
+      "image": "/images/auth/statistic.svg"
+    }
+  ]
+} 
