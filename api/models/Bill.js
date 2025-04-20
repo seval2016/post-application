@@ -21,6 +21,10 @@ const billSchema = new mongoose.Schema({
             ref: 'Product',
             required: true
         },
+        title: {
+            type: String,
+            required: true
+        },
         quantity: {
             type: Number,
             required: true,
@@ -36,6 +40,10 @@ const billSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: 0
+    },
+    shipping: {
+        type: Number,
+        default: 0
     },
     vat: {
         type: Number,
@@ -54,8 +62,37 @@ const billSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
+        enum: ['creditCard', 'bankTransfer'],
         required: true
+    },
+    shippingAddress: {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String
+    },
+    billingAddress: {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String
+    },
+    notes: String,
+    paymentDetails: {
+        cardLastFourDigits: String,
+        installmentCount: Number,
+        installmentAmount: Number
     }
+});
+
+// Fatura numarası oluşturma
+billSchema.pre('save', function(next) {
+    if (!this.id) {
+        const year = new Date().getFullYear();
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        this.id = `INV-${year}-${random}`;
+    }
+    next();
 });
 
 const Bill = mongoose.model('Bill', billSchema);
