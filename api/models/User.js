@@ -5,29 +5,34 @@ const crypto = require('crypto');
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        required: true,
+        required: [true, 'Ad alanı zorunludur'],
         trim: true
     },
     lastName: {
         type: String,
-        required: true,
+        required: [true, 'Soyad alanı zorunludur'],
         trim: true
     },
     email: {
         type: String,
-        required: true,
+        required: [true, 'Email alanı zorunludur'],
         unique: true,
         trim: true,
-        lowercase: true
+        lowercase: true,
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Geçerli bir email adresi giriniz']
     },
     password: {
         type: String,
-        required: true,
-        minlength: 6
+        required: [true, 'Şifre alanı zorunludur'],
+        minlength: [6, 'Şifre en az 6 karakter olmalıdır']
+    },
+    phone: {
+        type: String,
+        trim: true
     },
     role: {
         type: String,
-        enum: ['admin', 'user'],
+        enum: ['user', 'admin'],
         default: 'user'
     },
     isVerified: {
@@ -36,17 +41,14 @@ const userSchema = new mongoose.Schema({
     },
     verificationToken: String,
     verificationTokenExpires: Date,
-    phone: {
-        type: String,
-        trim: true
-    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
     addresses: [{
-        type: {
+        title: {
             type: String,
-            enum: ['shipping', 'billing'],
             required: true
         },
-        street: {
+        address: {
             type: String,
             required: true
         },
@@ -70,39 +72,33 @@ const userSchema = new mongoose.Schema({
     paymentMethods: [{
         type: {
             type: String,
-            enum: ['creditCard', 'bankTransfer'],
+            enum: ['credit_card', 'debit_card'],
             required: true
         },
         cardNumber: {
             type: String,
-            required: function() {
-                return this.type === 'creditCard';
-            }
+            required: true
         },
         cardHolderName: {
             type: String,
-            required: function() {
-                return this.type === 'creditCard';
-            }
+            required: true
         },
         expiryDate: {
             type: String,
-            required: function() {
-                return this.type === 'creditCard';
-            }
+            required: true
         },
         isDefault: {
             type: Boolean,
             default: false
         }
     }],
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    lastLogin: {
-        type: Date
+    lastLogin: Date,
+    isActive: {
+        type: Boolean,
+        default: true
     }
+}, {
+    timestamps: true
 });
 
 // Şifre hashleme middleware
@@ -127,7 +123,18 @@ userSchema.methods.generateVerificationToken = function() {
 
 // Şifre karşılaştırma metodu
 userSchema.methods.comparePassword = async function(candidatePassword) {
-    return bcrypt.compare(candidatePassword, this.password);
+    return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Kullanıcı bilgilerini JSON'a çevirirken hassas bilgileri çıkar
+userSchema.methods.toJSON = function() {
+    const user = this.toObject();
+    delete user.password;
+    delete user.verificationToken;
+    delete user.verificationTokenExpires;
+    delete user.resetPasswordToken;
+    delete user.resetPasswordExpires;
+    return user;
 };
 
 // Tam ad getter metodu

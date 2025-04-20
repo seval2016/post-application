@@ -1,16 +1,7 @@
 const mongoose = require('mongoose');
 
 const billSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    date: {
-        type: Date,
-        default: Date.now
-    },
-    customer: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -21,80 +12,76 @@ const billSchema = new mongoose.Schema({
             ref: 'Product',
             required: true
         },
-        title: {
-            type: String,
-            required: true
-        },
         quantity: {
             type: Number,
             required: true,
             min: 1
         },
-        price: {
+        unitPrice: {
+            type: Number,
+            required: true,
+            min: 0
+        },
+        totalPrice: {
             type: Number,
             required: true,
             min: 0
         }
     }],
-    subtotal: {
+    totalAmount: {
         type: Number,
         required: true,
         min: 0
-    },
-    shipping: {
-        type: Number,
-        default: 0
-    },
-    vat: {
-        type: Number,
-        required: true,
-        min: 0
-    },
-    total: {
-        type: Number,
-        required: true,
-        min: 0
-    },
-    status: {
-        type: String,
-        enum: ['Ödendi', 'Beklemede', 'İptal Edildi'],
-        default: 'Beklemede'
     },
     paymentMethod: {
         type: String,
-        enum: ['creditCard', 'bankTransfer'],
-        required: true
+        required: true,
+        enum: ['credit_card', 'bank_transfer', 'cash']
     },
     shippingAddress: {
-        street: String,
-        city: String,
-        state: String,
-        zipCode: String
+        street: {
+            type: String,
+            required: true
+        },
+        city: {
+            type: String,
+            required: true
+        },
+        state: {
+            type: String,
+            required: true
+        },
+        zipCode: {
+            type: String,
+            required: true
+        },
+        country: {
+            type: String,
+            required: true
+        }
     },
-    billingAddress: {
-        street: String,
-        city: String,
-        state: String,
-        zipCode: String
+    status: {
+        type: String,
+        required: true,
+        enum: ['pending', 'paid', 'shipped', 'delivered', 'cancelled'],
+        default: 'pending'
     },
-    notes: String,
-    paymentDetails: {
-        cardLastFourDigits: String,
-        installmentCount: Number,
-        installmentAmount: Number
+    notes: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 
-// Fatura numarası oluşturma
+// Fatura oluşturulurken toplam tutarı hesapla
 billSchema.pre('save', function(next) {
-    if (!this.id) {
-        const year = new Date().getFullYear();
-        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        this.id = `INV-${year}-${random}`;
+    if (this.isModified('items')) {
+        this.totalAmount = this.items.reduce((total, item) => {
+            item.totalPrice = item.quantity * item.unitPrice;
+            return total + item.totalPrice;
+        }, 0);
     }
     next();
 });
 
-const Bill = mongoose.model('Bill', billSchema);
-
-module.exports = Bill; 
+module.exports = mongoose.model('Bill', billSchema); 

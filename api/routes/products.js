@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
+const { auth, isAdmin } = require('../middleware/auth');
 
 // Tüm ürünleri getir
 router.get('/', async (req, res) => {
@@ -8,13 +9,13 @@ router.get('/', async (req, res) => {
         const { category, search, sort, page = 1, limit = 10 } = req.query;
         
         // Filtreleme koşulları
-        const filter = {};
+        const filter = { isActive: true };
         if (category) {
             filter.category = category;
         }
         if (search) {
             filter.$or = [
-                { name: { $regex: search, $options: 'i' } },
+                { title: { $regex: search, $options: 'i' } },
                 { description: { $regex: search, $options: 'i' } }
             ];
         }
@@ -30,10 +31,10 @@ router.get('/', async (req, res) => {
                     sortOption = { price: -1 };
                     break;
                 case 'name_asc':
-                    sortOption = { name: 1 };
+                    sortOption = { title: 1 };
                     break;
                 case 'name_desc':
-                    sortOption = { name: -1 };
+                    sortOption = { title: -1 };
                     break;
                 case 'newest':
                     sortOption = { createdAt: -1 };
@@ -100,21 +101,20 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Yeni ürün oluştur
-router.post('/', async (req, res) => {
+// Yeni ürün oluştur (admin için)
+router.post('/', isAdmin, async (req, res) => {
     try {
         const product = new Product({
-            name: req.body.name,
+            title: req.body.title,
             description: req.body.description,
             price: req.body.price,
             category: req.body.category,
-            stock: req.body.stock,
-            images: req.body.images,
-            attributes: req.body.attributes,
-            isActive: req.body.isActive !== undefined ? req.body.isActive : true
+            image: req.body.image,
+            stock: req.body.stock || 0
         });
-        
+
         const newProduct = await product.save();
+        
         res.status(201).json({
             success: true,
             message: 'Ürün başarıyla oluşturuldu',
@@ -129,30 +129,31 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Ürün güncelle
-router.patch('/:id', async (req, res) => {
+// Ürün güncelle (admin için)
+router.patch('/:id', isAdmin, async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
+        
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: 'Ürün bulunamadı'
             });
         }
-        
-        // Güncellenebilir alanlar
+
         const updateFields = [
-            'name', 'description', 'price', 'category', 
-            'stock', 'images', 'attributes', 'isActive'
+            'title', 'description', 'price', 'category', 
+            'image', 'stock', 'isActive'
         ];
-        
+
         updateFields.forEach(field => {
             if (req.body[field] !== undefined) {
                 product[field] = req.body[field];
             }
         });
-        
+
         const updatedProduct = await product.save();
+        
         res.json({
             success: true,
             message: 'Ürün başarıyla güncellendi',
@@ -167,18 +168,22 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-// Ürün sil
-router.delete('/:id', async (req, res) => {
+// Ürün sil (admin için)
+router.delete('/:id', isAdmin, async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
+        
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: 'Ürün bulunamadı'
             });
         }
+
+        // Ürünü tamamen silmek yerine isActive'i false yap
+        product.isActive = false;
+        await product.save();
         
-        await product.deleteOne();
         res.json({
             success: true,
             message: 'Ürün başarıyla silindi'

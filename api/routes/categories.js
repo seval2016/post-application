@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Category = require('../models/Category');
+const { auth, isAdmin } = require('../middleware/auth');
 
 // Tüm kategorileri getir
 router.get('/', async (req, res) => {
     try {
-        const categories = await Category.find().sort({ name: 1 });
+        const categories = await Category.find({ isActive: true }).sort({ name: 1 });
         res.json({
             success: true,
             message: 'Kategoriler başarıyla getirildi',
@@ -44,12 +45,13 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Yeni kategori oluştur
-router.post('/', async (req, res) => {
+// Yeni kategori oluştur (admin için)
+router.post('/', isAdmin, async (req, res) => {
     try {
         const category = new Category({
             name: req.body.name,
-            description: req.body.description
+            description: req.body.description,
+            icon: req.body.icon || 'default-icon'
         });
 
         const newCategory = await category.save();
@@ -67,8 +69,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Kategori güncelle
-router.patch('/:id', async (req, res) => {
+// Kategori güncelle (admin için)
+router.patch('/:id', isAdmin, async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
         if (!category) {
@@ -83,6 +85,12 @@ router.patch('/:id', async (req, res) => {
         }
         if (req.body.description) {
             category.description = req.body.description;
+        }
+        if (req.body.icon) {
+            category.icon = req.body.icon;
+        }
+        if (req.body.isActive !== undefined) {
+            category.isActive = req.body.isActive;
         }
 
         const updatedCategory = await category.save();
@@ -100,8 +108,8 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-// Kategori sil
-router.delete('/:id', async (req, res) => {
+// Kategori sil (admin için)
+router.delete('/:id', isAdmin, async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
         if (!category) {
@@ -111,7 +119,10 @@ router.delete('/:id', async (req, res) => {
             });
         }
 
-        await category.deleteOne();
+        // Kategoriyi tamamen silmek yerine isActive'i false yap
+        category.isActive = false;
+        await category.save();
+
         res.json({
             success: true,
             message: 'Kategori başarıyla silindi'
