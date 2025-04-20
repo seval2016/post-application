@@ -1,73 +1,138 @@
-import React from 'react';
-import { Card, Row, Col } from 'antd';
+import { Row, Col } from 'antd';
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
-  LineChart,
-  Line,
-  ResponsiveContainer
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Scatter
 } from 'recharts';
 
-// Sample data - In a real application, this would come from your API
+// Örnek veri
 const salesData = [
-  { name: 'Ocak', sales: 4000, orders: 2400 },
-  { name: 'Şubat', sales: 3000, orders: 1398 },
-  { name: 'Mart', sales: 2000, orders: 9800 },
-  { name: 'Nisan', sales: 2780, orders: 3908 },
-  { name: 'Mayıs', sales: 1890, orders: 4800 },
-  { name: 'Haziran', sales: 2390, orders: 3800 },
+  { month: 'Ocak', value: 4000 },
+  { month: 'Şubat', value: 3000 },
+  { month: 'Mart', value: 5000 },
+  { month: 'Nisan', value: 4500 },
+  { month: 'Mayıs', value: 6000 },
+  { month: 'Haziran', value: 5500 },
+  { month: 'Temmuz', value: 7000 },
+  { month: 'Ağustos', value: 6500 },
+  { month: 'Eylül', value: 8000 },
+  { month: 'Ekim', value: 7500 },
+  { month: 'Kasım', value: 9000 },
+  { month: 'Aralık', value: 8500 }
 ];
 
 const customerData = [
-  { name: 'Ocak', customers: 100 },
-  { name: 'Şubat', customers: 150 },
-  { name: 'Mart', customers: 200 },
-  { name: 'Nisan', customers: 250 },
-  { name: 'Mayıs', customers: 300 },
-  { name: 'Haziran', customers: 350 },
+  { name: 'Yeni', value: 400 },
+  { name: 'Aktif', value: 300 },
+  { name: 'Pasif', value: 200 },
+  { name: 'VIP', value: 100 }
 ];
 
-const StatisticsCharts: React.FC = () => {
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+const RADIAN = Math.PI / 180;
+
+interface LabelProps {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  percent: number;
+}
+
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: LabelProps) => {
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
   return (
-    <Row gutter={[24, 24]} className="mt-6">
-      <Col xs={24} lg={12}>
-        <Card title="Satış ve Sipariş İstatistikleri" className="shadow-sm">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={salesData}>
+    <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
+
+const StatisticsCharts = () => {
+  return (
+    <Row gutter={[16, 16]}>
+      <Col xs={24} lg={16}>
+        <div className="bg-white p-4 rounded-lg shadow-sm h-[400px]">
+          <h3 className="text-lg font-medium mb-4">Aylık Satışlar</h3>
+          <ResponsiveContainer width="100%" height="85%">
+            <LineChart 
+              data={salesData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+              <XAxis 
+                dataKey="month" 
+                tick={{ fontSize: 12 }}
+                interval={0}
+              />
+              <YAxis 
+                tick={{ fontSize: 12 }}
+                domain={[0, 'auto']}
+              />
+              <Tooltip 
+                formatter={(value) => [`${value} TL`, 'Satış']}
+                labelStyle={{ fontWeight: 'bold' }}
+              />
               <Legend />
-              <Bar dataKey="sales" fill="#8884d8" name="Satışlar" />
-              <Bar dataKey="orders" fill="#82ca9d" name="Siparişler" />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-      </Col>
-      <Col xs={24} lg={12}>
-        <Card title="Müşteri Büyümesi" className="shadow-sm">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={customerData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="customers"
-                stroke="#8884d8"
-                name="Müşteriler"
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                name="Satış" 
+                stroke="#6366f1" 
+                strokeWidth={2} 
+                dot={false}
+                activeDot={{ r: 8 }}
+              />
+              <Scatter 
+                dataKey="value" 
+                name="Satış" 
+                fill="#6366f1" 
+                stroke="#6366f1" 
+                strokeWidth={2}
               />
             </LineChart>
           </ResponsiveContainer>
-        </Card>
+        </div>
+      </Col>
+      <Col xs={24} lg={8}>
+        <div className="bg-white p-4 rounded-lg shadow-sm h-[400px]">
+          <h3 className="text-lg font-medium mb-4">Müşteri Dağılımı</h3>
+          <ResponsiveContainer width="100%" height="85%">
+            <PieChart>
+              <Pie
+                data={customerData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={renderCustomizedLabel}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+                nameKey="name"
+              >
+                {customerData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </Col>
     </Row>
   );

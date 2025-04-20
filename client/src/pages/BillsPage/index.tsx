@@ -1,129 +1,170 @@
-import { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Button, 
-  Typography, 
-  Empty,
-  Spin,
-  message
-} from 'antd';
-import { 
-  FileTextOutlined,
-  ReloadOutlined
-} from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Table, Input, Select, DatePicker, Button, Space, Tag, message } from 'antd';
+import { SearchOutlined, ReloadOutlined, FileTextOutlined } from '@ant-design/icons';
+import type { Dayjs } from 'dayjs';
 import Header from '../../components/Header';
+import PageHeader from '../../common/components/PageHeader';
 import { billService, Bill } from '../../services/billService';
-import { BillsTable, BillsFilters, PaymentTerms } from '../../components/Bills';
 
-const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
 
 const BillsPage = () => {
   const [searchText, setSearchText] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<[string, string] | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(false);
-  
-  // Faturaları yükle
+
+  useEffect(() => {
+    fetchBills();
+  }, []);
+
   const fetchBills = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const data = await billService.getAllBills();
       setBills(data);
-    } catch (error) {
+    } catch {
       message.error('Faturalar yüklenirken bir hata oluştu');
-      console.error('Fatura yükleme hatası:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Sayfa yüklendiğinde faturaları getir
-  useEffect(() => {
-    fetchBills();
-  }, []);
-  
-  // Filtreleme işlemi
-  const filteredBills = bills.filter(bill => {
-    // Metin araması
-    const matchesSearch = 
-      bill.id.toLowerCase().includes(searchText.toLowerCase()) ||
-      bill.customer.toLowerCase().includes(searchText.toLowerCase());
-    
-    // Durum filtresi
-    const matchesStatus = filterStatus ? bill.status === filterStatus : true;
-    
-    // Tarih aralığı filtresi
-    let matchesDate = true;
-    if (dateRange) {
-      const billDate = new Date(bill.date);
-      const startDate = new Date(dateRange[0]);
-      const endDate = new Date(dateRange[1]);
-      matchesDate = billDate >= startDate && billDate <= endDate;
-    }
-    
-    return matchesSearch && matchesStatus && matchesDate;
-  });
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+  };
 
-  // Filtreleri temizle
-  const clearFilters = () => {
+  const handleStatusFilter = (value: string) => {
+    setFilterStatus(value);
+  };
+
+  const handleDateRangeChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
+    setDateRange(dates);
+  };
+
+  const handleClearFilters = () => {
     setSearchText('');
-    setFilterStatus(null);
+    setFilterStatus('all');
     setDateRange(null);
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Ödendi':
+        return 'success';
+      case 'Beklemede':
+        return 'warning';
+      case 'İptal Edildi':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  const columns = [
+    {
+      title: 'Fatura No',
+      dataIndex: 'id',
+      key: 'id',
+      sorter: (a: Bill, b: Bill) => a.id.localeCompare(b.id),
+    },
+    {
+      title: 'Müşteri',
+      dataIndex: 'customer',
+      key: 'customer',
+      sorter: (a: Bill, b: Bill) => a.customer.localeCompare(b.customer),
+    },
+    {
+      title: 'Tarih',
+      dataIndex: 'date',
+      key: 'date',
+      sorter: (a: Bill, b: Bill) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    },
+    {
+      title: 'Tutar',
+      dataIndex: 'amount',
+      key: 'amount',
+      sorter: (a: Bill, b: Bill) => a.amount - b.amount,
+      render: (amount: number) => `₺${amount.toFixed(2)}`,
+    },
+    {
+      title: 'Durum',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)}>{status}</Tag>
+      ),
+    },
+  ];
+
+  const filteredBills = bills.filter(bill => {
+    const matchesSearch = bill.customer.toLowerCase().includes(searchText.toLowerCase()) ||
+                         bill.id.toLowerCase().includes(searchText.toLowerCase());
+    
+    const matchesStatus = filterStatus === 'all' || bill.status === filterStatus;
+    
+    const matchesDateRange = !dateRange || !dateRange[0] || !dateRange[1] || (
+      new Date(bill.date) >= dateRange[0].toDate() &&
+      new Date(bill.date) <= dateRange[1].toDate()
+    );
+
+    return matchesSearch && matchesStatus && matchesDateRange;
+  });
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
       <Header />
-      <div className="container mx-auto px-4 pt-24 pb-16">
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <Title level={2} className="mb-0 flex items-center">
-              <FileTextOutlined className="mr-2" />
-              Faturalar
-            </Title>
-            <Text type="secondary">Tüm faturalarınızı buradan yönetebilirsiniz</Text>
-          </div>
-          <div className="flex gap-2">
+      <div className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full mt-[84px] overflow-y-auto">
+        <PageHeader 
+          icon={FileTextOutlined}
+          title="Faturalar"
+              subtitle="Müşteri faturalarını görüntüleyin ve yönetin"
+        />
+        
+        <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+          <Space className="w-full mb-4" size="middle">
+            <Input
+              placeholder="Fatura veya müşteri ara..."
+              prefix={<SearchOutlined />}
+              onChange={e => handleSearch(e.target.value)}
+              value={searchText}
+              className="max-w-xs"
+            />
+            <Select
+              defaultValue="all"
+              style={{ width: 120 }}
+              onChange={handleStatusFilter}
+              value={filterStatus}
+              options={[
+                { value: 'all', label: 'Tüm Durumlar' },
+                { value: 'Ödendi', label: 'Ödendi' },
+                { value: 'Beklemede', label: 'Beklemede' },
+                { value: 'İptal Edildi', label: 'İptal Edildi' },
+              ]}
+            />
+            <RangePicker onChange={handleDateRangeChange} />
             <Button 
               icon={<ReloadOutlined />} 
-              onClick={fetchBills}
-              loading={loading}
+              onClick={handleClearFilters}
             >
-              Yenile
+              Filtreleri Temizle
             </Button>
-            <Button type="primary" icon={<FileTextOutlined />}>
-              Yeni Fatura Oluştur
-            </Button>
-          </div>
-        </div>
+          </Space>
 
-        <PaymentTerms />
-
-        <Card className="shadow-sm mb-6">
-          <BillsFilters
-            searchText={searchText}
-            setSearchText={setSearchText}
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-            dateRange={dateRange}
-            setDateRange={setDateRange}
-            clearFilters={clearFilters}
+          <Table
+            columns={columns}
+            dataSource={filteredBills}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              total: filteredBills.length,
+              pageSize: 10,
+              showSizeChanger: true,
+              showTotal: (total) => `Toplam ${total} fatura`,
+            }}
           />
-
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <Spin size="large" />
-            </div>
-          ) : filteredBills.length > 0 ? (
-            <BillsTable bills={filteredBills} loading={loading} />
-          ) : (
-            <Empty 
-              description="Fatura bulunamadı" 
-              image={Empty.PRESENTED_IMAGE_SIMPLE} 
-            />
-          )}
-        </Card>
+        </div>
       </div>
     </div>
   );

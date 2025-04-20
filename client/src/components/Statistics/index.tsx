@@ -1,9 +1,8 @@
 import React from 'react';
-import { Typography, DatePicker } from 'antd';
+import { DatePicker } from 'antd';
 import StatisticsCards from './StatisticsCards';
 import StatisticsCharts from './StatisticsCharts';
 
-const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 // Örnek veriler - gerçek uygulamada API'den gelecek
@@ -18,16 +17,19 @@ const statisticsData = {
   orderValueGrowth: 3.2
 };
 
-const Statistics: React.FC = () => {
+const Statistics = () => {
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center mb-6">
-        <Title level={2}>İstatistikler</Title>
-        <RangePicker className="mb-4" />
+      <div className="flex justify-end items-center mb-4 sm:mb-6">
+        <RangePicker className="w-full sm:w-auto" />
       </div>
-
-      <StatisticsCards data={statisticsData} />
-      <StatisticsCharts />
+      <div className="space-y-6 sm:space-y-8">
+        <StatisticsCards data={statisticsData} />
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm">
+          <h3 className="text-lg font-medium mb-4 sm:mb-6">Satış ve Müşteri İstatistikleri</h3>
+          <StatisticsCharts />
+        </div>
+      </div>
     </div>
   );
 };
