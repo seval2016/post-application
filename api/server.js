@@ -11,26 +11,33 @@ app.use(express.json());
 // MongoDB bağlantı URL'i
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// MongoDB'ye bağlanma fonksiyonu
-const connectDB = async () => {
-    try {
-        console.log('MongoDB bağlantısı başlatılıyor...');
-        console.log('MONGODB_URI:', MONGODB_URI);
-        
-        await mongoose.connect(MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        
-        console.log("MongoDB'ye başarıyla bağlandı");
-    } catch (error) {
-        console.error("MongoDB bağlantı hatası:", error);
-        process.exit(1);
-    }
-};
+// MongoDB bağlantısı
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // 5 saniye timeout
+  socketTimeoutMS: 45000, // 45 saniye socket timeout
+})
+.then(() => {
+  console.log('MongoDB bağlantısı başarılı');
+})
+.catch((err) => {
+  console.error('MongoDB bağlantı hatası:', err);
+  process.exit(1); // Bağlantı başarısız olursa uygulamayı sonlandır
+});
 
-// Veritabanına bağlan
-connectDB();
+// MongoDB bağlantı durumunu izle
+mongoose.connection.on('error', err => {
+  console.error('MongoDB bağlantı hatası:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB bağlantısı kesildi');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('MongoDB bağlantısı yeniden kuruldu');
+});
 
 // Route'ları import et
 const authRoutes = require('./routes/auth');

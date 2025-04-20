@@ -123,7 +123,19 @@ userSchema.methods.generateVerificationToken = function() {
 
 // Şifre karşılaştırma metodu
 userSchema.methods.comparePassword = async function(candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
+    try {
+        console.log('Comparing passwords:');
+        console.log('Candidate password:', candidatePassword);
+        console.log('Stored hashed password:', this.password);
+        
+        const isMatch = await bcrypt.compare(candidatePassword, this.password);
+        console.log('Password comparison result:', isMatch);
+        
+        return isMatch;
+    } catch (error) {
+        console.error('Password comparison error:', error);
+        throw error;
+    }
 };
 
 // Kullanıcı bilgilerini JSON'a çevirirken hassas bilgileri çıkar

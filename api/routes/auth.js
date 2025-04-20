@@ -239,32 +239,42 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log('Login attempt - Request body:', req.body);
+
     // Validation
     if (!email || !password) {
+      console.log('Validation failed - Missing email or password');
       return res.status(400).json({
         success: false,
         message: 'Email ve şifre gereklidir'
       });
     }
 
-    console.log('Login attempt for email:', email); // Hata ayıklama için
+    console.log('Searching for user with email:', email);
 
     // Kullanıcıyı bul
     const user = await User.findOne({ email });
     
     if (!user) {
-      console.log('User not found:', email); // Hata ayıklama için
+      console.log('User not found with email:', email);
       return res.status(401).json({
         success: false,
         message: 'Geçersiz email veya şifre'
       });
     }
 
+    console.log('User found:', {
+      id: user._id,
+      email: user.email,
+      hasPassword: !!user.password
+    });
+
     // Şifreyi kontrol et
-    const isMatch = await user.comparePassword(password);
-    console.log('Password match result:', isMatch); // Hata ayıklama için
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password comparison result:', isMatch);
 
     if (!isMatch) {
+      console.log('Password mismatch for user:', email);
       return res.status(401).json({
         success: false,
         message: 'Geçersiz email veya şifre'
@@ -277,6 +287,7 @@ router.post('/login', async (req, res) => {
 
     // Token oluştur
     const token = generateToken(user._id);
+    console.log('Token generated successfully for user:', email);
 
     res.json({
       success: true,
@@ -295,7 +306,7 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Login error:', error); // Hata ayıklama için
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
       message: 'Giriş işlemi sırasında bir hata oluştu',
