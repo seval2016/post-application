@@ -1,0 +1,68 @@
+/* Card Container */
+.customer-form-card {
+  @apply shadow-sm;
+}
+
+/* Header Section */
+.customer-form-header {
+  @apply mb-6;
+}
+
+.customer-form-title {
+  @apply text-lg font-medium mb-0;
+}
+
+.customer-form-subtitle {
+  @apply text-gray-500 text-sm;
+}
+
+/* Form Elements */
+.customer-form {
+  @apply space-y-4;
+}
+
+.customer-form-input {
+  @apply w-full rounded-lg border-gray-300;
+}
+
+.customer-form-input-prefix {
+  @apply text-gray-400;
+}
+
+.customer-form-textarea {
+  @apply w-full rounded-lg border-gray-300 resize-none;
+}
+
+.customer-form-select {
+  @apply w-full rounded-lg border-gray-300;
+}
+
+/* Form Actions */
+.customer-form-actions {
+  @apply flex gap-2 mt-6;
+}
+
+.customer-form-submit-button {
+  @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors;
+}
+
+.customer-form-cancel-button {
+  @apply bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors;
+}
+
+/* Error States */
+.customer-form-error {
+  @apply text-red-500 text-sm mt-1;
+}
+
+/* Loading State */
+.customer-form-loading {
+  @apply opacity-70 pointer-events-none;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .customer-form-card {
+    @apply max-w-2xl mx-auto;
+  }
+} 

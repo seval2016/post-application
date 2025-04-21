@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input, Select, DatePicker, Button, Space } from 'antd';
 import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import '../../styles/components/Bills/BillsFilters.css';
 
 const { RangePicker } = DatePicker;
 
@@ -24,18 +25,18 @@ const BillsFilters: React.FC<BillsFiltersProps> = ({
   clearFilters
 }) => {
   return (
-    <Space className="w-full flex flex-wrap gap-4 mb-4">
+    <Space className="bills-filters-container">
       <Input
         placeholder="Fatura No veya Müşteri Ara"
         prefix={<SearchOutlined />}
         value={searchText}
         onChange={e => setSearchText(e.target.value)}
-        className="w-full md:w-64"
+        className="bills-search-input"
       />
       <Select
         placeholder="Durum Filtrele"
         allowClear
-        style={{ width: '100%', maxWidth: '200px' }}
+        className="bills-status-select"
         value={filterStatus}
         onChange={value => setFilterStatus(value)}
       >
@@ -55,9 +56,9 @@ const BillsFilters: React.FC<BillsFiltersProps> = ({
             setDateRange(null);
           }
         }}
-        className="w-full md:w-auto"
+        className="bills-date-picker"
       />
-      <Button icon={<FilterOutlined />} onClick={clearFilters}>
+      <Button icon={<FilterOutlined />} onClick={clearFilters} className="bills-clear-button">
         Filtreleri Temizle
       </Button>
     </Space>

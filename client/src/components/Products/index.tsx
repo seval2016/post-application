@@ -4,6 +4,7 @@ import { Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { addToCart } from '../../redux/cartSlice';
 import productsData from '../../data/products.json';
+import '../../styles/components/Products/Products.css';
 
 interface Product {
   id: number;
@@ -40,34 +41,31 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   };
 
   return (
-    <div className="products bg-white p-4 rounded-lg shadow-sm h-[400px] md:h-[calc(100vh-100px)] md:sticky md:top-[84px]">
-      <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
-        <h2 className="text-base font-medium text-gray-700">Ürünler</h2>
-        <span className="text-xs text-gray-500">{products.length} ürün</span>
+    <div className="products">
+      <div className="products-header">
+        <h2 className="products-title">Ürünler</h2>
+        <span className="products-count">{products.length} ürün</span>
       </div>
-      <div className="products-wrapper overflow-y-auto h-[calc(100%-4rem)] pr-2 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-md [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-md [&::-webkit-scrollbar-thumb:hover]:bg-gray-400">
-        <div className="grid grid-cols-2 gap-2 md:gap-3 lg:grid-cols-4 lg:gap-4">
+      <div className="products-wrapper">
+        <div className="products-grid">
           {products.map((product) => (
-            <div
-              key={product.id}
-              className="product-card bg-white p-2 md:p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="relative w-full pt-[56.25%] mb-2 md:mb-3">
+            <div key={product.id} className="product-card">
+              <div className="product-image-container">
                 <img
                   src={product.image}
                   alt={product.title}
-                  className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                  className="product-image"
                 />
               </div>
-              <h3 className="text-gray-700 font-medium text-xs md:text-sm mb-2 h-8 md:h-12 line-clamp-2">{product.title}</h3>
-              <div className="flex justify-between items-center">
-                <span className="text-sm md:text-base font-semibold text-green-600">₺{product.price.toFixed(2)}</span>
+              <h3 className="product-title">{product.title}</h3>
+              <div className="product-footer">
+                <span className="product-price">₺{product.price.toFixed(2)}</span>
                 <Button
                   type="primary"
                   size="small"
-                  icon={<PlusOutlined className="text-xs" />}
+                  icon={<PlusOutlined className="add-to-cart-icon" />}
                   onClick={() => handleAddToCart(product)}
-                  className="bg-blue-600 hover:bg-blue-700 flex items-center justify-center w-6 h-6 md:w-8 md:h-8 min-w-[1.5rem] md:min-w-[2rem]"
+                  className="add-to-cart-button"
                 />
               </div>
             </div>

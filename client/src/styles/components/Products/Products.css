@@ -1,0 +1,99 @@
+.products {
+  @apply bg-white p-4 rounded-lg shadow-sm h-[400px] md:h-[calc(100vh-100px)] md:sticky md:top-[84px];
+}
+
+.products-header {
+  @apply flex items-center justify-between mb-4 pb-4 border-b border-gray-100;
+}
+
+.products-title {
+  @apply text-base font-medium text-gray-700;
+}
+
+.products-count {
+  @apply text-xs text-gray-500;
+}
+
+.products-wrapper {
+  @apply overflow-y-auto h-[calc(100%-4rem)] pr-2;
+  @apply [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-md;
+  @apply [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-md [&::-webkit-scrollbar-thumb:hover]:bg-gray-400;
+}
+
+.products-grid {
+  @apply grid grid-cols-2 gap-2 md:gap-3 lg:grid-cols-4 lg:gap-4;
+}
+
+.product-card {
+  @apply bg-white p-2 md:p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow;
+}
+
+.product-image-container {
+  @apply relative w-full pt-[56.25%] mb-2 md:mb-3;
+}
+
+.product-image {
+  @apply absolute inset-0 w-full h-full object-cover rounded-lg;
+}
+
+.product-title {
+  @apply text-gray-700 font-medium text-xs md:text-sm mb-2 h-8 md:h-12 line-clamp-2;
+}
+
+.product-footer {
+  @apply flex justify-between items-center;
+}
+
+.product-price {
+  @apply text-sm md:text-base font-semibold text-green-600;
+}
+
+.add-to-cart-button {
+  @apply bg-blue-600 hover:bg-blue-700 flex items-center justify-center w-6 h-6 md:w-8 md:h-8 min-w-[1.5rem] md:min-w-[2rem];
+}
+
+.add-to-cart-icon {
+  @apply text-xs;
+}
+
+/* Loading state */
+.products-loading {
+  @apply flex items-center justify-center min-h-[200px];
+}
+
+/* Empty state */
+.products-empty {
+  @apply flex flex-col items-center justify-center min-h-[300px] text-gray-500;
+}
+
+/* Error state */
+.products-error {
+  @apply flex flex-col items-center justify-center min-h-[300px] text-red-500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .products-container {
+    @apply p-3;
+  }
+
+  .products-grid {
+    @apply gap-3;
+  }
+
+  .product-content {
+    @apply p-3;
+  }
+
+  .product-title {
+    @apply text-xs;
+  }
+
+  .product-price {
+    @apply text-base;
+  }
+
+  .add-to-cart {
+    @apply py-1.5 text-xs;
+  }
+} 

@@ -1,0 +1,90 @@
+/* Main Container */
+.customer-details-container {
+  @apply space-y-6;
+}
+
+/* Card Styles */
+.customer-details-card {
+  @apply shadow-sm;
+}
+
+/* Header Section */
+.customer-details-header {
+  @apply flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4;
+}
+
+.customer-details-title-container {
+  @apply mb-0 flex items-center;
+}
+
+.customer-details-title-icon {
+  @apply mr-2;
+}
+
+.customer-details-subtitle {
+  @apply text-gray-500;
+}
+
+/* Action Buttons */
+.customer-details-actions {
+  @apply flex gap-2;
+}
+
+.customer-details-edit-button {
+  @apply flex items-center gap-2;
+}
+
+.customer-details-delete-button {
+  @apply flex items-center gap-2 text-red-500;
+}
+
+/* Description List */
+.customer-details-description {
+  @apply border rounded-lg p-4;
+}
+
+.customer-details-description-item {
+  @apply flex items-center gap-2 py-2;
+}
+
+.customer-details-description-icon {
+  @apply text-gray-500;
+}
+
+/* Status Tags */
+.customer-details-status-active {
+  @apply bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm;
+}
+
+.customer-details-status-inactive {
+  @apply bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm;
+}
+
+/* Order History Section */
+.customer-orders-card {
+  @apply shadow-sm;
+}
+
+.customer-orders-title {
+  @apply text-lg font-medium mb-6;
+}
+
+/* Order Status Tags */
+.order-status-completed {
+  @apply bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm;
+}
+
+.order-status-pending {
+  @apply bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-sm;
+}
+
+.order-status-cancelled {
+  @apply bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .customer-details-header {
+    @apply flex-row items-center;
+  }
+} 

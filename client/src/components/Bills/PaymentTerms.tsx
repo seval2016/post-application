@@ -1,12 +1,13 @@
 import React from 'react';
 import { Card, Typography } from 'antd';
+import '../../styles/components/Bills/PaymentTerms.css';
 
 const { Text } = Typography;
 
 const PaymentTerms: React.FC = () => {
   return (
-    <Card className="shadow-sm mb-6">
-      <Text>
+    <Card className="payment-terms-card">
+      <Text className="payment-terms-text">
         Ödeme koşulları 14 gündür. Paketlenmemiş Borçların Geç
         Ödenmesi Yasası 0000'e göre, serbest çalışanların bu süreden
         sonra borçların ödenmemesi durumunda 00.00 gecikme ücreti

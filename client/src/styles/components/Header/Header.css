@@ -1,0 +1,61 @@
+.header {
+  @apply bg-white px-4 md:px-6 flex items-center justify-between shadow-sm fixed w-full z-10 h-14 md:h-16;
+}
+
+.header-left {
+  @apply flex items-center flex-1;
+}
+
+.header-right {
+  @apply flex items-center gap-4;
+}
+
+.cart-icon {
+  @apply text-gray-600 hover:text-blue-600 transition-colors;
+}
+
+.desktop-cart-icon {
+  @apply flex items-center;
+}
+
+.logo {
+  @apply text-2xl font-bold;
+}
+
+.search-wrapper {
+  @apply flex-1 flex justify-center items-center px-4;
+}
+
+.search-input {
+  @apply rounded-full w-full max-w-2xl;
+}
+
+/* Desktop Menu Styles */
+.desktop-menu {
+  @apply hidden sm:flex items-center gap-8;
+}
+
+.menu-item {
+  @apply hover:text-blue-600 transition-all duration-300 ease-in-out flex flex-col items-center gap-1;
+}
+
+.menu-icon {
+  @apply text-lg transition-all duration-300;
+}
+
+.menu-text {
+  @apply text-xs;
+}
+
+/* Mobile Menu Styles */
+.mobile-menu {
+  @apply fixed bottom-0 left-0 right-0 bg-white border-t py-2 sm:hidden z-50;
+}
+
+.mobile-menu-container {
+  @apply flex items-center justify-around;
+}
+
+.logout-button {
+  @apply hover:text-red-500 transition-all duration-300 ease-in-out flex flex-col items-center gap-1;
+} 

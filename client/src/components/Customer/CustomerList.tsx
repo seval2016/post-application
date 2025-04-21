@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Button, Input, Space, Tag, Typography, Spin, message } from 'antd';
+import { Table, Card, Button, Input, Space, Tag, Typography, Spin, message, Modal } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import '../../../styles/components/Customer/CustomerList.css';
 
 const { Title, Text } = Typography;
 
@@ -101,18 +102,21 @@ const CustomerList: React.FC = () => {
       title: 'Müşteri Adı',
       dataIndex: 'name',
       key: 'name',
+      className: 'customer-name-cell',
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: 'E-posta',
       dataIndex: 'email',
       key: 'email',
+      className: 'customer-email-cell',
       sorter: (a, b) => a.email.localeCompare(b.email),
     },
     {
       title: 'Telefon',
       dataIndex: 'phone',
       key: 'phone',
+      className: 'customer-phone-cell',
     },
     {
       title: 'Adres',
@@ -125,8 +129,8 @@ const CustomerList: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <Tag color={status === 'active' ? 'green' : 'red'}>
-          {status === 'active' ? 'Aktif' : 'Pasif'}
+        <Tag className={`status-${status.toLowerCase()}`}>
+          {status}
         </Tag>
       ),
     },
@@ -134,6 +138,7 @@ const CustomerList: React.FC = () => {
       title: 'Kayıt Tarihi',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      className: 'customer-date-cell',
       render: (date: string) => new Date(date).toLocaleDateString('tr-TR'),
       responsive: ['md'],
     },
@@ -141,39 +146,84 @@ const CustomerList: React.FC = () => {
       title: 'İşlemler',
       key: 'actions',
       render: (_, record) => (
-        <Space size="middle">
-          <Button type="text" icon={<EyeOutlined />} onClick={() => console.log(`View customer: ${record.id}`)} />
-          <Button type="text" icon={<EditOutlined />} onClick={() => console.log(`Edit customer: ${record.id}`)} />
-          <Button type="text" danger icon={<DeleteOutlined />} onClick={() => console.log(`Delete customer: ${record.id}`)} />
+        <Space className="customer-action-buttons">
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
+            className="action-button-view"
+            onClick={() => handleView(record)}
+          />
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            className="action-button-edit"
+            onClick={() => handleEdit(record)}
+          />
+          <Button
+            type="text"
+            icon={<DeleteOutlined />}
+            className="action-button-delete"
+            onClick={() => handleDelete(record)}
+          />
         </Space>
       ),
     },
   ];
 
+  const handleView = (record: Customer) => {
+    // View customer details
+    console.log('View customer:', record);
+  };
+
+  const handleEdit = (record: Customer) => {
+    // Edit customer
+    console.log('Edit customer:', record);
+  };
+
+  const handleDelete = (record: Customer) => {
+    Modal.confirm({
+      title: 'Are you sure you want to delete this customer?',
+      content: 'This action cannot be undone.',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        // Delete customer
+        console.log('Delete customer:', record);
+        message.success('Customer deleted successfully');
+      },
+    });
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    // Implement search logic here
+  };
+
   return (
-    <Card className="shadow-sm">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <Title level={4} className="mb-0">Müşteriler</Title>
-          <Text type="secondary">Tüm müşterilerinizi buradan yönetebilirsiniz</Text>
+    <Card className="customer-list-container">
+      <div className="customer-list-header">
+        <div className="customer-list-title-wrapper">
+          <Title level={4} className="customer-list-title">Müşteriler</Title>
+          <Text type="secondary" className="customer-list-subtitle">Tüm müşterilerinizi buradan yönetebilirsiniz</Text>
         </div>
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Button type="primary" icon={<PlusOutlined />} className="customer-list-add-button">
           Yeni Müşteri Ekle
         </Button>
       </div>
 
-      <div className="mb-4">
+      <div className="customer-list-search">
         <Input
           placeholder="Müşteri Ara"
           prefix={<SearchOutlined />}
           value={searchText}
-          onChange={e => setSearchText(e.target.value)}
-          className="w-full md:w-64"
+          onChange={(e) => handleSearch(e.target.value)}
+          className="customer-list-search-input"
         />
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8">
+        <div className="customer-list-loading">
           <Spin size="large" />
         </div>
       ) : (
@@ -181,12 +231,21 @@ const CustomerList: React.FC = () => {
           columns={columns} 
           dataSource={filteredCustomers} 
           rowKey="id"
+          className="customer-list-table"
           pagination={{ 
             pageSize: 10,
             showSizeChanger: true,
-            showTotal: (total) => `Toplam ${total} müşteri`
+            showTotal: (total) => `Toplam ${total} müşteri`,
+            className: "customer-list-pagination"
           }}
           scroll={{ x: 'max-content' }}
+          locale={{
+            emptyText: (
+              <div className="customer-list-empty">
+                <p>No customers found</p>
+              </div>
+            ),
+          }}
         />
       )}
     </Card>

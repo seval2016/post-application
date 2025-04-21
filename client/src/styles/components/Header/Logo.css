@@ -1,0 +1,11 @@
+.logo {
+  @apply text-2xl font-bold text-blue-600;
+}
+
+.logo-link {
+  @apply flex items-center gap-2 hover:opacity-80 transition-opacity;
+}
+
+.logo-text {
+  @apply text-xl font-bold;
+} 

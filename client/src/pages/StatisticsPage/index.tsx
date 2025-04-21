@@ -1,14 +1,55 @@
-import React from 'react';
-import { Avatar, Space } from 'antd';
+import { Avatar, Space, Card, Table, Spin } from 'antd';
 import { UserOutlined, BarChartOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import Header from '../../components/Header';
-import Statistics from '../../components/Statistics';
 import { RootState } from '../../redux/store';
 import PageHeader from '../../common/components/PageHeader';
+import '../../styles/pages/StatisticsPage.css';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const StatisticsPage = () => {
   const admin = useSelector((state: RootState) => state.auth.user);
+  const loading = false;
+  const error = null;
+
+  const data = [
+    { name: 'Ocak', value: 400 },
+    { name: 'Şubat', value: 300 },
+    { name: 'Mart', value: 600 },
+    { name: 'Nisan', value: 800 },
+    { name: 'Mayıs', value: 500 },
+    { name: 'Haziran', value: 700 },
+  ];
+
+  const columns = [
+    {
+      title: 'Ay',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Satış',
+      dataIndex: 'value',
+      key: 'value',
+      render: (value: number) => `₺${value.toFixed(2)}`,
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="statistics-page-loading">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="statistics-page-error">
+        <p>Bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
@@ -31,7 +72,33 @@ const StatisticsPage = () => {
           icon={BarChartOutlined}
           title="İstatistikler"
         />
-        <Statistics />
+        <div className="statistics-page-content">
+          <Card className="statistics-page-card">
+            <h2 className="statistics-page-card-title">Aylık Satışlar</h2>
+            <div className="statistics-page-chart">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#4f46e5" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card className="statistics-page-card">
+            <h2 className="statistics-page-card-title">Satış Detayları</h2>
+            <Table
+              className="statistics-page-table"
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+            />
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { Form, Input, Button, Checkbox, message } from "antd";
 import { Link } from "react-router-dom";
 import Logo from "../Header/Logo";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import '../../styles/components/auth/LoginForm.css';
 
 interface LoginFormData {
   email: string;
@@ -24,34 +25,28 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="w-full xl:w-1/2 min-h-screen bg-white flex flex-col justify-between py-8 lg:py-0">
-      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-12">
-        <div className="w-full max-w-[400px] mx-auto">
-          <div className="flex justify-center mb-6 lg:mb-8">
+    <div className="login-container">
+      <div className="login-content">
+        <div className="login-form-wrapper">
+          <div className="login-logo">
             <Logo />
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
-            Hoş Geldiniz
-          </h2>
-          <p className="mt-2 sm:mt-3 text-sm text-gray-600 text-center">
+          <h2 className="login-title">Hoş Geldiniz</h2>
+          <p className="login-subtitle">
             veya{" "}
-            <Link
-              to="/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
+            <Link to="/register" className="login-link">
               hesabınız yoksa kayıt olun
             </Link>
           </p>
 
-          <div className="mt-6 sm:mt-8">
+          <div className="login-form">
             <Form
               form={form}
               name="login"
               onFinish={onFinish}
               layout="vertical"
               size="large"
-              className="space-y-4 sm:space-y-5"
             >
               <Form.Item
                 name="email"
@@ -65,12 +60,12 @@ const LoginForm = () => {
                     message: "Geçerli bir email adresi giriniz!",
                   },
                 ]}
-                className="mb-4 sm:mb-6"
+                className="login-form-item"
               >
                 <Input
-                  prefix={<UserOutlined className="text-gray-400" />}
+                  prefix={<UserOutlined className="login-icon" />}
                   placeholder="Email"
-                  className="rounded-lg h-11 sm:h-12 hover:border-indigo-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                  className="login-input"
                 />
               </Form.Item>
 
@@ -79,30 +74,27 @@ const LoginForm = () => {
                 rules={[
                   { required: true, message: "Lütfen şifrenizi giriniz!" },
                 ]}
-                className="mb-4 sm:mb-6"
+                className="login-form-item"
               >
                 <Input.Password
-                  prefix={<LockOutlined className="text-gray-400" />}
+                  prefix={<LockOutlined className="login-icon" />}
                   placeholder="Şifre"
-                  className="rounded-lg h-11 sm:h-12 hover:border-indigo-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                  className="login-input"
                 />
               </Form.Item>
 
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center justify-between login-form-item">
                 <Form.Item
                   name="rememberMe"
                   valuePropName="checked"
                   className="mb-0"
                 >
-                  <Checkbox className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                  <Checkbox className="login-checkbox-text">
                     Beni hatırla
                   </Checkbox>
                 </Form.Item>
 
-                <Link
-                  to="/forgot-password"
-                  className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
-                >
+                <Link to="/forgot-password" className="login-link">
                   Şifremi unuttum
                 </Link>
               </div>
@@ -111,7 +103,7 @@ const LoginForm = () => {
                 <Button
                   type="primary"
                   htmlType="submit"
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 h-11 sm:h-12 text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="login-submit-button"
                 >
                   Giriş Yap
                 </Button>
@@ -121,7 +113,7 @@ const LoginForm = () => {
         </div>
       </div>
 
-      <div className="py-3 sm:py-4 px-4 bg-gray-50 text-center text-xs sm:text-sm text-gray-600">
+      <div className="login-footer">
         © 2023 - 2023 POS (Point Of Sales) v1.0.0
         <br />
         Designed & Developed by: MIRA IutaR-furaS

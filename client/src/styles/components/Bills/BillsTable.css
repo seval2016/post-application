@@ -1,0 +1,59 @@
+.bills-table-container {
+  @apply overflow-x-auto;
+}
+
+.bills-table-wrapper {
+  @apply w-full;
+}
+
+.bills-table-cell {
+  @apply whitespace-nowrap;
+}
+
+.bills-status-tag {
+  @apply px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.bills-status-tag-paid {
+  @apply bg-green-100 text-green-800;
+}
+
+.bills-status-tag-pending {
+  @apply bg-orange-100 text-orange-800;
+}
+
+.bills-status-tag-cancelled {
+  @apply bg-red-100 text-red-800;
+}
+
+.bills-action-button {
+  @apply text-gray-600 hover:text-blue-600 transition-colors duration-200;
+}
+
+.bills-action-buttons {
+  @apply flex gap-2;
+}
+
+/* Scrollbar Styles */
+.bills-table-container::-webkit-scrollbar {
+  @apply h-2 w-2;
+}
+
+.bills-table-container::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+.bills-table-container::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+.bills-table-container::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bills-table-wrapper {
+    @apply min-w-[600px];
+  }
+} 

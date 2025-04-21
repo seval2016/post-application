@@ -1,0 +1,52 @@
+.search-wrapper {
+  @apply max-w-xl mx-auto w-full px-4;
+}
+
+.search-input {
+  @apply h-11 text-[15px];
+}
+
+.search-input.ant-input-affix-wrapper {
+  @apply bg-white border border-gray-200 rounded-lg transition-all duration-200;
+  @apply hover:border-gray-300;
+  @apply focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-50;
+}
+
+.search-input input.ant-input {
+  @apply bg-transparent py-2.5 pl-4;
+  @apply placeholder:text-gray-400;
+}
+
+.search-input .ant-input-suffix {
+  @apply flex items-center gap-2 pr-4;
+}
+
+.search-input .search-icon {
+  @apply text-lg text-gray-400;
+  @apply hover:text-blue-500 transition-colors cursor-pointer;
+}
+
+.search-input .ant-input-clear-icon {
+  @apply text-gray-400 hover:text-gray-600 transition-colors;
+}
+
+/* Loading spinner stili */
+.search-wrapper .ant-input-search-loading {
+  @apply text-blue-500;
+}
+
+/* Enter tuşu container'ı */
+.search-wrapper .ant-input-search-button {
+  @apply hidden;
+}
+
+/* Mobil görünüm */
+@media (max-width: 768px) {
+  .search-input {
+    @apply h-10;
+  }
+  
+  .search-input input.ant-input {
+    @apply text-sm py-2;
+  }
+} 

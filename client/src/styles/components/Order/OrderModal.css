@@ -1,0 +1,131 @@
+.order-modal-container {
+  @apply max-w-4xl mx-auto;
+}
+
+.order-modal-header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.order-modal-title {
+  @apply text-lg font-medium;
+}
+
+.order-modal-close {
+  @apply text-gray-500 hover:text-gray-700;
+}
+
+.order-modal-content {
+  @apply space-y-6;
+}
+
+.order-modal-section {
+  @apply bg-white p-6 rounded-lg shadow-sm;
+}
+
+.order-modal-section-title {
+  @apply text-base font-medium mb-4;
+}
+
+.order-modal-form {
+  @apply space-y-4;
+}
+
+.order-modal-form-item {
+  @apply flex flex-col gap-2;
+}
+
+.order-modal-form-label {
+  @apply text-gray-600;
+}
+
+.order-modal-form-input {
+  @apply w-full rounded-lg border-gray-300;
+}
+
+.order-modal-form-select {
+  @apply w-full rounded-lg border-gray-300;
+}
+
+.order-modal-form-textarea {
+  @apply w-full rounded-lg border-gray-300 resize-none;
+}
+
+.order-modal-table {
+  @apply w-full border-collapse;
+}
+
+.order-modal-table th {
+  @apply border p-2 text-left bg-gray-50;
+}
+
+.order-modal-table td {
+  @apply border p-2;
+}
+
+.order-modal-table-total {
+  @apply text-right font-medium;
+}
+
+.order-modal-actions {
+  @apply flex justify-end gap-4 mt-6;
+}
+
+.order-modal-button {
+  @apply h-10 px-8 rounded-lg;
+}
+
+.order-modal-button-cancel {
+  @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+}
+
+.order-modal-button-submit {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.order-modal-success {
+  @apply text-center py-8;
+}
+
+.order-modal-success-icon {
+  @apply text-green-500 text-4xl mb-4;
+}
+
+.order-modal-success-title {
+  @apply text-lg font-medium mb-2;
+}
+
+.order-modal-success-message {
+  @apply text-gray-600 block mb-6;
+}
+
+.order-modal-payment-methods {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+}
+
+.order-modal-payment-method {
+  @apply flex items-center gap-2 p-4 border rounded-lg cursor-pointer hover:border-blue-500;
+}
+
+.order-modal-payment-method-icon {
+  @apply text-xl mr-2;
+}
+
+.order-modal-payment-method-text {
+  @apply text-gray-600 block mb-6;
+}
+
+.order-modal-summary {
+  @apply text-right;
+}
+
+.order-modal-summary-row {
+  @apply flex justify-between items-center text-gray-600 text-sm;
+}
+
+.order-modal-summary-total {
+  @apply flex justify-between items-center text-base font-semibold mt-1.5 pt-1.5 border-t;
+}
+
+.order-modal-summary-amount {
+  @apply text-green-600;
+} 

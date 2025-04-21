@@ -1,17 +1,25 @@
+import React from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
+import '../../styles/components/Header/Search.css';
 
-const Search = () => {
+const SearchComponent: React.FC = () => {
+  const onSearch = (value: string) => {
+    if (!value.trim()) return;
+    console.log('Search value:', value);
+  };
+
   return (
-    <div className="search-wrapper flex-1 flex justify-center items-center px-4">
-      <Input 
-        size="large" 
-        placeholder="Ürün Ara..." 
-        prefix={<SearchOutlined className="text-gray-400" />}
-        className="rounded-full w-full max-w-2xl"
+    <div className="search-wrapper">
+      <Input
+        placeholder="Ürün ara..."
+        allowClear
+        onChange={(e) => onSearch(e.target.value)}
+        suffix={<SearchOutlined className="search-icon" />}
+        className="search-input"
       />
     </div>
   );
 };
 
-export default Search; 
+export default SearchComponent; 

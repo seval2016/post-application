@@ -66,9 +66,9 @@ const StatisticsCharts = () => {
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={16}>
-        <div className="bg-white p-4 rounded-lg shadow-sm h-[400px]">
-          <h3 className="text-lg font-medium mb-4">Aylık Satışlar</h3>
-          <ResponsiveContainer width="100%" height="85%">
+        <div className="chart-section">
+          <h3 className="chart-heading">Aylık Satışlar</h3>
+          <ResponsiveContainer width="100%" className="line-chart-container">
             <LineChart 
               data={salesData}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -109,9 +109,9 @@ const StatisticsCharts = () => {
         </div>
       </Col>
       <Col xs={24} lg={8}>
-        <div className="bg-white p-4 rounded-lg shadow-sm h-[400px]">
-          <h3 className="text-lg font-medium mb-4">Müşteri Dağılımı</h3>
-          <ResponsiveContainer width="100%" height="85%">
+        <div className="chart-section">
+          <h3 className="chart-heading">Müşteri Dağılımı</h3>
+          <ResponsiveContainer width="100%" className="pie-chart-container">
             <PieChart>
               <Pie
                 data={customerData}

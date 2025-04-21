@@ -2,6 +2,7 @@ import React from 'react';
 import { DatePicker } from 'antd';
 import StatisticsCards from './StatisticsCards';
 import StatisticsCharts from './StatisticsCharts';
+import '../../styles/components/Statistics/Statistics.css';
 
 const { RangePicker } = DatePicker;
 
@@ -19,14 +20,14 @@ const statisticsData = {
 
 const Statistics = () => {
   return (
-    <div className="w-full">
-      <div className="flex justify-end items-center mb-4 sm:mb-6">
-        <RangePicker className="w-full sm:w-auto" />
+    <div className="statistics-container">
+      <div className="statistics-header">
+        <RangePicker className="statistics-date-picker" />
       </div>
-      <div className="space-y-6 sm:space-y-8">
+      <div className="statistics-content">
         <StatisticsCards data={statisticsData} />
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm">
-          <h3 className="text-lg font-medium mb-4 sm:mb-6">Satış ve Müşteri İstatistikleri</h3>
+        <div className="charts-container">
+          <h3 className="charts-title">Satış ve Müşteri İstatistikleri</h3>
           <StatisticsCharts />
         </div>
       </div>

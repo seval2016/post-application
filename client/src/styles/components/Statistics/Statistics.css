@@ -1,0 +1,83 @@
+/* Ana Statistics container */
+.statistics-container {
+  @apply w-full;
+}
+
+.statistics-header {
+  @apply flex justify-end items-center mb-4 sm:mb-6;
+}
+
+.statistics-date-picker {
+  @apply w-full sm:w-auto;
+}
+
+.statistics-content {
+  @apply space-y-6 sm:space-y-8;
+}
+
+/* Statistics Cards */
+.statistics-card {
+  @apply shadow-sm;
+}
+
+.statistics-growth {
+  @apply text-xs mt-2;
+}
+
+.statistics-growth-green {
+  @apply text-green-500;
+}
+
+.statistics-growth-blue {
+  @apply text-blue-500;
+}
+
+.statistics-growth-purple {
+  @apply text-purple-500;
+}
+
+.statistics-growth-orange {
+  @apply text-orange-500;
+}
+
+/* Statistics Charts */
+.charts-container {
+  @apply bg-white p-3 sm:p-4 rounded-lg shadow-sm;
+}
+
+.charts-title {
+  @apply text-lg font-medium mb-4 sm:mb-6;
+}
+
+.chart-section {
+  @apply bg-white p-4 rounded-lg shadow-sm h-[400px];
+}
+
+.chart-heading {
+  @apply text-lg font-medium mb-4;
+}
+
+/* Line Chart Container */
+.line-chart-container {
+  @apply h-[85%];
+}
+
+/* Pie Chart Container */
+.pie-chart-container {
+  @apply h-[85%];
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .statistics-header {
+    @apply mb-4;
+  }
+
+  .charts-title {
+    @apply mb-4;
+  }
+
+  .chart-section {
+    @apply p-3;
+  }
+} 

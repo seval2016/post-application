@@ -1,9 +1,14 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ShopOutlined } from '@ant-design/icons';
+import '../../styles/components/Header/Logo.css';
 
-const Logo = () => {
+const Logo: React.FC = () => {
   return (
-    <div className="logo">
-      <a href="/" className="text-2xl font-bold">LOGO</a>
-    </div>
+    <Link to="/" className="logo-link">
+      <ShopOutlined className="logo" />
+      <span className="logo-text">LOGO</span>
+    </Link>
   );
 };
 

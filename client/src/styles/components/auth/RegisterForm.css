@@ -1,0 +1,65 @@
+/* RegisterForm Layout */
+.register-container {
+  @apply w-full lg:w-1/2 min-h-screen bg-white flex flex-col justify-between py-8 lg:py-0;
+}
+
+.register-content {
+  @apply flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-12;
+}
+
+.register-form-wrapper {
+  @apply w-full max-w-[400px] mx-auto;
+}
+
+.register-logo {
+  @apply flex justify-center mb-6 lg:mb-8;
+}
+
+.register-title {
+  @apply text-xl sm:text-2xl font-bold text-gray-900 text-center;
+}
+
+.register-subtitle {
+  @apply mt-2 sm:mt-3 text-sm text-gray-600 text-center;
+}
+
+.register-link {
+  @apply font-medium text-indigo-600 hover:text-indigo-500;
+}
+
+.register-form {
+  @apply mt-6 sm:mt-8 space-y-4 sm:space-y-5;
+}
+
+/* Form Elements */
+.register-input {
+  @apply rounded-lg h-11 sm:h-12 hover:border-indigo-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors;
+}
+
+.register-icon {
+  @apply text-gray-400;
+}
+
+.register-form-item {
+  @apply mb-4 sm:mb-6;
+}
+
+.register-checkbox-text {
+  @apply text-sm text-gray-600 hover:text-gray-900 transition-colors;
+}
+
+.register-submit-button {
+  @apply w-full bg-indigo-600 hover:bg-indigo-700 h-11 sm:h-12 text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-200;
+}
+
+/* Footer */
+.register-footer {
+  @apply py-3 sm:py-4 px-4 bg-gray-50 text-center text-xs sm:text-sm text-gray-600;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .register-container {
+    @apply w-full;
+  }
+} 

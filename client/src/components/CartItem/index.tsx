@@ -1,6 +1,7 @@
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { decreaseQuantity, increaseQuantity, removeFromCart } from '../../redux/cartSlice';
+import '../../styles/components/CartItem/CartItem.css';
 
 interface CartItemProps {
   id: number;
@@ -14,30 +15,30 @@ const CartItem: React.FC<CartItemProps> = ({ id, title, price, image, quantity }
   const dispatch = useDispatch();
 
   return (
-    <div className="flex gap-2 md:gap-4 items-center mb-4 pb-4 border-b border-gray-100 last:mb-0 last:pb-0 last:border-0">
-      <img src={image} alt={title} className="w-16 md:w-20 h-16 md:h-20 object-cover rounded-lg" />
-      <div className="flex-1">
-        <h3 className="text-xs md:text-sm font-medium text-gray-700 mb-1">{title}</h3>
-        <p className="text-xs text-gray-500 mb-2">{price}₺ x {quantity}</p>
-        <div className="flex items-center gap-2">
+    <div className="cart-item">
+      <img src={image} alt={title} className="cart-item-image" />
+      <div className="cart-item-content">
+        <h3 className="cart-item-title">{title}</h3>
+        <p className="cart-item-price">{price}₺ x {quantity}</p>
+        <div className="cart-item-controls">
           <button
             onClick={() => dispatch(decreaseQuantity(id))}
-            className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            className="cart-item-quantity-button"
           >
-            <MinusOutlined className="text-xs text-gray-600" />
+            <MinusOutlined className="cart-item-quantity-icon" />
           </button>
-          <span className="text-xs md:text-sm font-medium text-gray-700">{quantity}</span>
+          <span className="cart-item-quantity">{quantity}</span>
           <button
             onClick={() => dispatch(increaseQuantity(id))}
-            className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            className="cart-item-quantity-button"
           >
-            <PlusOutlined className="text-xs text-gray-600" />
+            <PlusOutlined className="cart-item-quantity-icon" />
           </button>
           <button
             onClick={() => dispatch(removeFromCart(id))}
-            className="ml-auto w-6 h-6 md:w-7 md:h-7 flex items-center justify-center text-red-500 hover:bg-red-50 rounded-md transition-colors"
+            className="cart-item-delete"
           >
-            <DeleteOutlined className="text-xs" />
+            <DeleteOutlined className="cart-item-delete-icon" />
           </button>
         </div>
       </div>

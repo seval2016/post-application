@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from 'react';
 import {
   Modal,
   Steps,
@@ -9,7 +9,7 @@ import {
   Radio,
   Input,
   message,
-  Badge,
+  Table,
 } from "antd";
 import {
   ShoppingOutlined,
@@ -25,6 +25,7 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import jsPDF from "jspdf";
+import "../../styles/components/Order/OrderModal.css";
 
 const { Text, Title } = Typography;
 
@@ -44,6 +45,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [invoiceModalVisible, setInvoiceModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
 
   // KDV oranı %8 olarak hesaplanıyor
   const VAT_RATE = 0.08;
@@ -67,24 +69,17 @@ const OrderModal: React.FC<OrderModalProps> = ({
     setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        console.log("Form values:", values);
-        // Burada sipariş işlemi gerçekleştirilecek
-        setOrderCompleted(true);
-        message.success("Siparişiniz başarıyla tamamlandı!");
-        onSuccess();
-      })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-      });
-  };
-
-  const generateInvoice = () => {
-    // Fatura modalını aç
-    setInvoiceModalVisible(true);
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      console.log("Form values:", values);
+      // Burada sipariş işlemi gerçekleştirilecek
+      setOrderCompleted(true);
+      message.success("Siparişiniz başarıyla tamamlandı!");
+      onSuccess();
+    } catch (error) {
+      console.error('Validation failed:', error);
+    }
   };
 
   const handleInvoiceModalClose = () => {
@@ -113,76 +108,168 @@ const OrderModal: React.FC<OrderModalProps> = ({
     shipping: shipping,
     vat: vat,
     grandTotal: grandTotal,
-    paymentMethod: form.getFieldValue("paymentMethod") || "Kredi Kartı",
+    paymentMethod: paymentMethod || "Kredi Kartı",
   };
+
+  const columns = [
+    {
+      title: 'Ürün',
+      dataIndex: 'title',
+      key: 'title',
+    },
+    {
+      title: 'Adet',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      align: 'right' as const,
+    },
+    {
+      title: 'Birim Fiyat',
+      dataIndex: 'price',
+      key: 'price',
+      align: 'right' as const,
+      render: (price: number) => `₺${price.toFixed(2)}`,
+    },
+    {
+      title: 'Toplam',
+      key: 'total',
+      align: 'right' as const,
+      render: (_: unknown, record: { price: number; quantity: number }) => `₺${(record.price * record.quantity).toFixed(2)}`,
+    },
+  ];
+
+  const renderStep1 = () => (
+    <div className="order-modal-content">
+      <div className="order-modal-section">
+        <h3 className="order-modal-section-title">Sipariş Özeti</h3>
+        <Table
+          className="order-modal-table"
+          columns={columns}
+          dataSource={items}
+          pagination={false}
+          summary={() => (
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} colSpan={3} className="order-modal-table-total">
+                Toplam
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={1} className="order-modal-table-total">
+                ₺{total.toFixed(2)}
+              </Table.Summary.Cell>
+            </Table.Summary.Row>
+          )}
+        />
+      </div>
+
+      <div className="order-modal-section">
+        <h3 className="order-modal-section-title">Ödeme Yöntemi</h3>
+        <div className="order-modal-payment-methods">
+          <div
+            className="order-modal-payment-method"
+            onClick={() => setPaymentMethod('credit_card')}
+          >
+            <CreditCardOutlined className="order-modal-payment-method-icon" />
+            <span>Kredi Kartı</span>
+          </div>
+          <div
+            className="order-modal-payment-method"
+            onClick={() => setPaymentMethod('bank_transfer')}
+          >
+            <FileTextOutlined className="order-modal-payment-method-icon" />
+            <span>Havale/EFT</span>
+          </div>
+          <div
+            className="order-modal-payment-method"
+            onClick={() => setPaymentMethod('cash')}
+          >
+            <ShoppingOutlined className="order-modal-payment-method-icon" />
+            <span>Nakit</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <div className="order-modal-content">
+      <Form
+        form={form}
+        layout="vertical"
+        className="order-modal-form"
+      >
+        <div className="order-modal-form-item">
+          <Text className="order-modal-form-label">Ad Soyad</Text>
+          <Input className="order-modal-form-input" />
+        </div>
+        <div className="order-modal-form-item">
+          <Text className="order-modal-form-label">E-posta</Text>
+          <Input className="order-modal-form-input" />
+        </div>
+        <div className="order-modal-form-item">
+          <Text className="order-modal-form-label">Telefon</Text>
+          <Input className="order-modal-form-input" />
+        </div>
+        <div className="order-modal-form-item">
+          <Text className="order-modal-form-label">Adres</Text>
+          <Input.TextArea className="order-modal-form-textarea" rows={3} />
+        </div>
+        {paymentMethod === 'credit_card' && (
+          <>
+            <div className="order-modal-form-item">
+              <Text className="order-modal-form-label">Kart Numarası</Text>
+              <Input className="order-modal-form-input" />
+            </div>
+            <div className="order-modal-form-item">
+              <Text className="order-modal-form-label">Son Kullanma Tarihi</Text>
+              <Input className="order-modal-form-input" />
+            </div>
+            <div className="order-modal-form-item">
+              <Text className="order-modal-form-label">CVV</Text>
+              <Input className="order-modal-form-input" />
+            </div>
+          </>
+        )}
+      </Form>
+
+      <div className="order-modal-actions">
+        <Button
+          className="order-modal-button order-modal-button-cancel"
+          onClick={() => setCurrentStep(0)}
+        >
+          Geri
+        </Button>
+        <Button
+          type="primary"
+          className="order-modal-button order-modal-button-submit"
+          onClick={handleSubmit}
+        >
+          Siparişi Tamamla
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderStep3 = () => (
+    <div className="order-modal-success">
+      <CheckCircleOutlined className="order-modal-success-icon" />
+      <h3 className="order-modal-success-title">Siparişiniz Alındı!</h3>
+      <Text className="order-modal-success-message">
+        Siparişiniz başarıyla oluşturuldu. Sipariş detaylarını e-posta adresinize gönderdik.
+      </Text>
+      <Button
+        type="primary"
+        className="order-modal-button order-modal-button-submit"
+        onClick={handleCancel}
+      >
+        Tamam
+      </Button>
+    </div>
+  );
 
   const steps = [
     {
       title: "Sipariş Özeti",
       icon: <ShoppingOutlined />,
-      content: (
-        <div className="space-y-6">
-          <Card
-            className="border-0 shadow-sm"
-            title={
-              <Title level={4} className="mb-0">
-                Sipariş Detayları
-              </Title>
-            }
-            extra={
-              <Badge
-                count={items.length}
-                style={{ backgroundColor: "#52c41a" }}
-              />
-            }
-          >
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <Text className="text-gray-600">Ürün Sayısı</Text>
-                <Text strong>{items.length} adet</Text>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <Text className="text-gray-600">Ara Toplam</Text>
-                <Text strong>₺{subtotal.toFixed(2)}</Text>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <Text className="text-gray-600">Kargo</Text>
-                <Text strong>
-                  {shipping === 0 ? "Ücretsiz" : `₺${shipping}`}
-                </Text>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <Text className="text-gray-600">KDV (%8)</Text>
-                <Text strong>₺{vat.toFixed(2)}</Text>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <Text strong className="text-lg">
-                  Toplam
-                </Text>
-                <Text strong className="text-lg text-indigo-600">
-                  ₺{grandTotal.toFixed(2)}
-                </Text>
-              </div>
-            </div>
-          </Card>
-
-          <Card
-            className="border-0 shadow-sm"
-            title={
-              <Title level={4} className="mb-0">
-                Promosyon Kodu
-              </Title>
-            }
-          >
-            <div className="flex gap-2">
-              <Input placeholder="Kodunuzu girin" className="h-10" />
-              <Button type="primary" className="bg-blue-500 h-10">
-                UYGULA
-              </Button>
-            </div>
-          </Card>
-        </div>
-      ),
+      content: renderStep1(),
     },
     {
       title: "Teslimat",
@@ -330,185 +417,12 @@ const OrderModal: React.FC<OrderModalProps> = ({
     {
       title: "Ödeme",
       icon: <CreditCardOutlined />,
-      content: (
-        <div className="space-y-6">
-          <Card
-            className="border-0 shadow-sm"
-            title={
-              <Title level={4} className="mb-0">
-                Ödeme Yöntemi
-              </Title>
-            }
-          >
-            <Form.Item
-              name="paymentMethod"
-              rules={[
-                { required: true, message: "Lütfen ödeme yöntemini seçin" },
-              ]}
-            >
-              <Radio.Group className="w-full">
-                <div className="space-y-4">
-                  <div className="border rounded-lg p-4 hover:border-indigo-500 transition-all cursor-pointer">
-                    <Radio value="creditCard" className="w-full">
-                      <div className="flex items-center">
-                        <CreditCardOutlined className="text-xl mr-2" />
-                        <Text strong>Kredi Kartı</Text>
-                      </div>
-                    </Radio>
-                  </div>
-                  <div className="border rounded-lg p-4 hover:border-indigo-500 transition-all cursor-pointer">
-                    <Radio value="bankTransfer" className="w-full">
-                      <div className="flex items-center">
-                        <FileTextOutlined className="text-xl mr-2" />
-                        <Text strong>Banka Havalesi</Text>
-                      </div>
-                    </Radio>
-                  </div>
-                  <div className="border rounded-lg p-4 hover:border-indigo-500 transition-all cursor-pointer">
-                    <Radio value="cashOnDelivery" className="w-full">
-                      <div className="flex items-center">
-                        <ShoppingOutlined className="text-xl mr-2" />
-                        <Text strong>Kapıda Ödeme</Text>
-                      </div>
-                    </Radio>
-                  </div>
-                </div>
-              </Radio.Group>
-            </Form.Item>
-          </Card>
-
-          <Card
-            className="border-0 shadow-sm"
-            title={
-              <Title level={4} className="mb-0">
-                Kart Bilgileri
-              </Title>
-            }
-          >
-            <Form layout="vertical">
-              <Form.Item
-                name="cardNumber"
-                label={<Text strong>Kart Numarası</Text>}
-                rules={[
-                  { required: true, message: "Lütfen kart numaranızı girin" },
-                ]}
-              >
-                <Input
-                  placeholder="1234 5678 9012 3456"
-                  maxLength={16}
-                  className="rounded-md"
-                />
-              </Form.Item>
-
-              <div className="grid grid-cols-2 gap-4">
-                <Form.Item
-                  name="expiryDate"
-                  label={<Text strong>Son Kullanma Tarihi</Text>}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Lütfen son kullanma tarihini girin",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="AA/YY"
-                    maxLength={5}
-                    className="rounded-md"
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="cvv"
-                  label={<Text strong>CVV</Text>}
-                  rules={[
-                    { required: true, message: "Lütfen CVV kodunu girin" },
-                  ]}
-                >
-                  <Input
-                    placeholder="123"
-                    maxLength={3}
-                    className="rounded-md"
-                  />
-                </Form.Item>
-              </div>
-
-              <Form.Item
-                name="cardName"
-                label={<Text strong>Kart Üzerindeki İsim</Text>}
-                rules={[
-                  {
-                    required: true,
-                    message: "Lütfen kart sahibinin adını girin",
-                  },
-                ]}
-              >
-                <Input placeholder="Ad Soyad" className="rounded-md" />
-              </Form.Item>
-            </Form>
-          </Card>
-        </div>
-      ),
+      content: renderStep2(),
     },
     {
       title: "Onay",
       icon: <CheckCircleOutlined />,
-      content: (
-        <div className="text-center py-8">
-          {orderCompleted ? (
-            <div className="space-y-6">
-              <div className="bg-green-50 p-8 rounded-full w-32 h-32 mx-auto flex items-center justify-center">
-                <CheckCircleOutlined
-                  style={{ fontSize: "64px", color: "#52c41a" }}
-                />
-              </div>
-              <Title level={3} className="mb-2">
-                Siparişiniz Başarıyla Tamamlandı!
-              </Title>
-              <Text className="text-gray-600 block mb-6">
-                Siparişiniz başarıyla alındı. Siparişiniz en kısa sürede
-                hazırlanacak ve kargoya verilecektir.
-              </Text>
-              <div className="pt-4">
-                <Button
-                  type="primary"
-                  icon={<FileTextOutlined />}
-                  size="large"
-                  onClick={generateInvoice}
-                  className="bg-green-500 h-12 px-8 rounded-full"
-                >
-                  Fatura Oluştur
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="bg-indigo-50 p-8 rounded-full w-32 h-32 mx-auto flex items-center justify-center">
-                <CheckCircleOutlined
-                  style={{ fontSize: "64px", color: "#4f46e5" }}
-                />
-              </div>
-              <Title level={3} className="mb-2">
-                Siparişinizi Onaylıyor musunuz?
-              </Title>
-              <Text className="text-gray-600 block mb-6">
-                Lütfen tüm bilgilerin doğru olduğundan emin olun. Siparişinizi
-                onayladıktan sonra ödeme işlemi gerçekleştirilecektir.
-              </Text>
-              <div className="pt-4">
-                <Button
-                  type="primary"
-                  size="large"
-                  onClick={handleSubmit}
-                  className="bg-indigo-600 h-12 px-8 rounded-full"
-                >
-                  Siparişi Onayla
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      ),
+      content: renderStep3(),
     },
   ];
 
@@ -516,9 +430,14 @@ const OrderModal: React.FC<OrderModalProps> = ({
     <>
       <Modal
         title={
-          <Title level={4} className="mb-0">
-            Sipariş Adımları
-          </Title>
+          <div className="order-modal-header">
+            <h2 className="order-modal-title">Sipariş Oluştur</h2>
+            <Button
+              type="text"
+              icon={<span className="order-modal-close">×</span>}
+              onClick={handleCancel}
+            />
+          </div>
         }
         open={isVisible}
         onCancel={handleCancel}
@@ -552,15 +471,6 @@ const OrderModal: React.FC<OrderModalProps> = ({
               className="bg-indigo-600 h-10 px-8"
             >
               İleri
-            </Button>
-          )}
-          {currentStep === steps.length - 1 && !orderCompleted && (
-            <Button
-              type="primary"
-              onClick={handleSubmit}
-              className="bg-indigo-600 h-10 px-8"
-            >
-              Siparişi Tamamla
             </Button>
           )}
           {orderCompleted && (

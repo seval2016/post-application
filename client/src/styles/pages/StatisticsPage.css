@@ -1,0 +1,63 @@
+.statistics-page-container {
+  @apply space-y-6;
+}
+
+.statistics-page-header {
+  @apply text-center sm:text-left;
+}
+
+.statistics-page-title {
+  @apply text-lg font-medium;
+}
+
+.statistics-page-subtitle {
+  @apply text-sm text-gray-500;
+}
+
+.statistics-page-content {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.statistics-page-card {
+  @apply bg-white p-6 rounded-lg shadow-sm;
+}
+
+.statistics-page-card-title {
+  @apply text-base font-medium mb-4;
+}
+
+.statistics-page-card-content {
+  @apply space-y-4;
+}
+
+.statistics-page-chart {
+  @apply h-64;
+}
+
+.statistics-page-table {
+  @apply w-full;
+}
+
+.statistics-page-table th {
+  @apply bg-gray-50 font-medium text-left p-2;
+}
+
+.statistics-page-table td {
+  @apply p-2 border-t;
+}
+
+.statistics-page-table tr:hover td {
+  @apply bg-gray-50;
+}
+
+.statistics-page-empty {
+  @apply text-center py-12 text-gray-500;
+}
+
+.statistics-page-loading {
+  @apply flex justify-center py-8;
+}
+
+.statistics-page-error {
+  @apply text-center py-12 text-red-500;
+} 

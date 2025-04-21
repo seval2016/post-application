@@ -1,18 +1,18 @@
+import React, { useState } from 'react';
+import '../../styles/components/Cart/CartTotals.css';
 import { Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { ClearOutlined } from '@ant-design/icons';
 import { clearCart } from '../../redux/cartSlice';
-import { useState } from 'react';
 import OrderModal from '../../common/modals/OrderModal';
 import { RootState } from '../../redux/store';
+import { ClearOutlined } from '@ant-design/icons';
 
 interface CartSummaryProps {
-  subtotal: number;
-  vat: number;
   total: number;
+  discount?: number;
 }
 
-const CartSummary = ({ subtotal, vat, total }: CartSummaryProps) => {
+const CartSummary: React.FC<CartSummaryProps> = ({ total, discount = 0 }) => {
   const dispatch = useDispatch();
   const [orderModalVisible, setOrderModalVisible] = useState(false);
   const { items } = useSelector((state: RootState) => state.cart);
@@ -31,22 +31,24 @@ const CartSummary = ({ subtotal, vat, total }: CartSummaryProps) => {
   };
 
   return (
-    <div className="border-t pt-3 mt-2 space-y-1.5">
-      <div className="flex justify-between items-center text-gray-600 text-sm">
+    <div className="cart-totals-summary">
+      <div className="cart-totals-row">
         <span>Ara Toplam</span>
-        <span>₺{subtotal.toFixed(2)}</span>
+        <span>₺{total.toFixed(2)}</span>
       </div>
-      <div className="flex justify-between items-center text-red-500 text-sm">
-        <span>KDV (%8)</span>
-        <span>₺{vat.toFixed(2)}</span>
-      </div>
-      <div className="flex justify-between items-center text-base font-semibold mt-1.5 pt-1.5 border-t">
+      {discount > 0 && (
+        <div className="cart-totals-discount">
+          <span>İndirim</span>
+          <span>-₺{discount.toFixed(2)}</span>
+        </div>
+      )}
+      <div className="cart-totals-total">
         <span>Toplam</span>
-        <span className="text-green-600">₺{total.toFixed(2)}</span>
+        <span className="cart-totals-amount">₺{(total - discount).toFixed(2)}</span>
       </div>
-      <Button 
-        type="primary" 
-        block 
+      <Button
+        type="primary"
+        block
         size="middle" 
         className="bg-blue-600 h-10 mt-3"
         onClick={handleOrderClick}

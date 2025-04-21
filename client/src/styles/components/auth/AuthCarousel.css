@@ -1,0 +1,47 @@
+/* AuthCarousel Layout */
+.carousel-container {
+  @apply hidden lg:block w-1/2 min-h-screen bg-gradient-to-br from-[#1677ff] to-[#4096ff] relative overflow-hidden;
+}
+
+.carousel-overlay {
+  @apply absolute inset-0 bg-[#1677ff] opacity-10;
+}
+
+.carousel-content {
+  @apply absolute inset-0 flex items-center justify-center;
+}
+
+.carousel-wrapper {
+  @apply w-full max-w-lg px-8;
+}
+
+.carousel-slide {
+  @apply py-12;
+}
+
+.carousel-image-wrapper {
+  @apply text-center;
+}
+
+.carousel-image {
+  @apply w-full max-w-md mx-auto mb-8 drop-shadow-xl;
+}
+
+.carousel-title {
+  @apply text-3xl font-bold mb-4 text-white drop-shadow-md;
+}
+
+.carousel-description {
+  @apply text-lg text-white/90 leading-relaxed drop-shadow-sm;
+}
+
+.carousel-login-button {
+  @apply absolute bottom-8 right-8 text-white hover:text-white/80 transition-colors text-sm font-medium;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .carousel-container {
+    @apply hidden;
+  }
+} 

@@ -1,0 +1,124 @@
+/* Container */
+.customer-list-container {
+  @apply shadow-sm;
+}
+
+/* Header Section */
+.customer-list-header {
+  @apply flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4;
+}
+
+.customer-list-title-wrapper {
+  @apply flex flex-col;
+}
+
+.customer-list-title {
+  @apply mb-0;
+}
+
+.customer-list-subtitle {
+  @apply text-gray-500;
+}
+
+.customer-list-add-button {
+  @apply flex items-center gap-2;
+}
+
+/* Search Section */
+.customer-list-search {
+  @apply mb-4;
+}
+
+.customer-list-search-input {
+  @apply w-full md:w-64;
+}
+
+/* Loading State */
+.customer-list-loading {
+  @apply flex justify-center py-8;
+}
+
+/* Table Styles */
+.customer-list-table {
+  @apply w-full;
+}
+
+.customer-list-table .ant-table-thead > tr > th {
+  @apply bg-gray-50 font-medium;
+}
+
+.customer-list-table .ant-table-tbody > tr:hover > td {
+  @apply bg-gray-50;
+}
+
+/* Status Tags */
+.status-active {
+  @apply bg-green-100 text-green-800 border-green-200;
+}
+
+.status-inactive {
+  @apply bg-red-100 text-red-800 border-red-200;
+}
+
+.status-pending {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+}
+
+/* Action Buttons */
+.customer-action-buttons {
+  @apply flex gap-2;
+}
+
+.action-button-view {
+  @apply text-blue-600 hover:text-blue-700;
+}
+
+.action-button-edit {
+  @apply text-green-600 hover:text-green-700;
+}
+
+.action-button-delete {
+  @apply text-red-600 hover:text-red-700;
+}
+
+/* Pagination */
+.customer-list-pagination {
+  @apply mt-4;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .customer-list-header {
+    @apply flex-col items-stretch;
+  }
+
+  .customer-list-search-input {
+    @apply w-full;
+  }
+
+  .customer-action-buttons {
+    @apply justify-start;
+  }
+}
+
+/* Empty State */
+.customer-list-empty {
+  @apply flex flex-col items-center justify-center py-12 text-gray-500;
+}
+
+/* Table Cell Content */
+.customer-name-cell {
+  @apply font-medium;
+}
+
+.customer-email-cell {
+  @apply text-gray-600;
+}
+
+.customer-phone-cell {
+  @apply font-mono;
+}
+
+.customer-date-cell {
+  @apply text-gray-600;
+} 

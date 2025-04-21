@@ -1,63 +1,59 @@
 import { Button } from 'antd';
-import { useDispatch } from 'react-redux';
-import {
-  PlusCircleOutlined,
-  MinusCircleOutlined,
-  DeleteOutlined,
-} from '@ant-design/icons';
-import { removeFromCart, updateQuantity } from '../../redux/cartSlice';
+import { MinusCircleOutlined, PlusCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import '../../styles/components/Cart/CartTotals.css';
 
 interface CartItemProps {
-  id: number;
-  title: string;
-  price: number;
-  image: string;
-  quantity: number;
+  item: {
+    id: number;
+    title: string;
+    price: number;
+    quantity: number;
+    image: string;
+  };
+  onQuantityChange: (id: number, quantity: number) => void;
+  onRemove: (id: number) => void;
 }
 
-const CartItem = ({ id, title, price, image, quantity }: CartItemProps) => {
-  const dispatch = useDispatch();
+const CartItem = ({ item, onQuantityChange, onRemove }: CartItemProps) => {
+  if (!item) {
+    return null;
+  }
+
+  const handleDecrease = () => {
+    if (item.quantity > 1) {
+      onQuantityChange(item.id, item.quantity - 1);
+    }
+  };
+
+  const handleIncrease = () => {
+    onQuantityChange(item.id, item.quantity + 1);
+  };
 
   return (
-    <div className="cart-item flex items-center gap-2 bg-gray-50 p-2 rounded-lg mb-2">
-      <img 
-        src={image} 
-        alt={title} 
-        className="w-12 h-12 object-cover rounded-lg"
-      />
-      <div className="flex-1">
-        <h3 className="text-gray-700 text-sm font-medium truncate">{title}</h3>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-green-600 text-sm font-semibold">
-            ₺{(price * quantity).toFixed(2)}
-          </span>
-          <div className="flex items-center gap-1">
-            <Button
-              type="text"
-              size="small"
-              icon={<MinusCircleOutlined className="text-xs" />}
-              onClick={() => dispatch(updateQuantity({ id, type: 'decrease' }))}
-              className="p-0 h-auto"
-            />
-            <span className="w-6 text-center text-xs">{quantity}</span>
-            <Button
-              type="text"
-              size="small"
-              icon={<PlusCircleOutlined className="text-xs" />}
-              onClick={() => dispatch(updateQuantity({ id, type: 'increase' }))}
-              className="p-0 h-auto"
-            />
-            <Button
-              type="text"
-              size="small"
-              danger
-              icon={<DeleteOutlined className="text-xs" />}
-              onClick={() => dispatch(removeFromCart(id))}
-              className="p-0 h-auto"
-            />
-          </div>
-        </div>
+    <div className="cart-item">
+      <img src={item.image} alt={item.title} className="cart-item-image" />
+      <div className="cart-item-content">
+        <h3 className="cart-item-title">{item.title}</h3>
+        <span className="cart-item-price">₺{item.price.toFixed(2)}</span>
       </div>
+      <div className="cart-item-quantity">
+        <Button
+          type="text"
+          icon={<MinusCircleOutlined className="cart-item-quantity-button" />}
+          onClick={handleDecrease}
+        />
+        <span className="cart-item-quantity-text">{item.quantity}</span>
+        <Button
+          type="text"
+          icon={<PlusCircleOutlined className="cart-item-quantity-button" />}
+          onClick={handleIncrease}
+        />
+      </div>
+      <Button
+        type="text"
+        icon={<DeleteOutlined className="cart-item-delete" />}
+        onClick={() => onRemove(item.id)}
+      />
     </div>
   );
 };

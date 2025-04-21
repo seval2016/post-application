@@ -1,0 +1,82 @@
+.categories-container {
+  @apply bg-white p-4 rounded-lg shadow-sm;
+}
+
+/* Header Styles */
+.categories-header {
+  @apply flex items-center justify-between mb-4 pb-4 border-b border-gray-100;
+}
+
+.categories-title {
+  @apply text-base font-medium text-gray-700;
+}
+
+.categories-count {
+  @apply text-xs text-gray-500;
+}
+
+/* List Container */
+.categories-list {
+  @apply flex gap-3 overflow-x-auto;
+}
+
+/* Category Card Styles */
+.category-card {
+  @apply p-3 cursor-pointer transition-all select-none rounded-lg flex items-center gap-3 shadow-sm border border-gray-200 min-w-[150px];
+}
+
+.category-card-selected {
+  @apply bg-blue-100 hover:bg-blue-200 border-blue-200;
+}
+
+.category-card-default {
+  @apply bg-gray-50 hover:bg-gray-100;
+}
+
+.category-icon-wrapper {
+  @apply w-8 h-8 min-w-[2rem] rounded-full bg-white p-1 shadow-sm flex items-center justify-center;
+}
+
+.category-icon {
+  @apply w-5 h-5 text-gray-600;
+}
+
+.category-image {
+  @apply w-6 h-6 object-contain;
+}
+
+.category-title {
+  @apply text-gray-700 text-sm font-medium whitespace-nowrap;
+}
+
+/* Scrollbar Styles */
+.categories-list::-webkit-scrollbar {
+  @apply w-[6px];
+}
+
+.categories-list::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-md;
+}
+
+.categories-list::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-md;
+}
+
+.categories-list::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .categories-container {
+    @apply h-[calc(100vh-100px)] sticky top-[84px];
+  }
+
+  .categories-list {
+    @apply flex-col overflow-y-auto h-[calc(100%-4rem)] pr-2;
+  }
+
+  .category-card {
+    @apply min-w-0;
+  }
+} 

@@ -1,9 +1,31 @@
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import CartItem from './CartItem';
 import CartSummary from './CartSummary';
+import '../../styles/components/Cart/CartTotals.css';
 
-const CartTotals = () => {
+interface CartItem {
+  id: number;
+  title: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+interface CartTotalsProps {
+  items: CartItem[];
+  total: number;
+  discount?: number;
+  onQuantityChange: (id: number, quantity: number) => void;
+  onRemoveItem: (id: number) => void;
+}
+
+const CartTotals: React.FC<CartTotalsProps> = ({
+  discount = 0,
+  onQuantityChange,
+  onRemoveItem,
+}) => {
   const { items, total } = useSelector((state: RootState) => state.cart);
 
   // KDV oranı %8 olarak hesaplanıyor
@@ -13,24 +35,25 @@ const CartTotals = () => {
   const grandTotal = subtotal + vat;
 
   return (
-    <div className="cart bg-white rounded-lg shadow-sm h-auto md:h-[calc(100vh-100px)] md:sticky md:top-[84px] flex flex-col mb-16 sm:mb-0">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200">
-        <h2 className="text-base font-medium text-gray-700">Sepetim</h2>
-        <span className="text-xs text-gray-500">{items.length} ürün</span>
+    <div className="cart-totals-container h-full flex flex-col">
+      <div className="cart-totals-header sticky top-0 bg-white z-10 py-2">
+        <h2 className="cart-totals-title">Sepetim</h2>
+        <span className="cart-totals-count">{items.length} ürün</span>
       </div>
-      
-      <div className={`flex-1 p-3 ${items.length > 2 ? 'overflow-y-auto max-h-[200px]' : ''} md:overflow-y-auto md:max-h-[calc(100vh-300px)] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full`}>
+
+      <div className="cart-totals-items overflow-y-auto flex-1" style={{ maxHeight: 'calc(100vh - 300px)' }}>
         {items.map((item) => (
-          <CartItem key={item.id} {...item} />
+          <CartItem
+            key={item.id}
+            item={item}
+            onQuantityChange={onQuantityChange}
+            onRemove={onRemoveItem}
+          />
         ))}
       </div>
 
-      <div className="p-3">
-        <CartSummary 
-          subtotal={subtotal}
-          vat={vat}
-          total={grandTotal}
-        />
+      <div className="cart-totals-summary sticky bottom-0 bg-white z-10 mt-auto">
+        <CartSummary total={grandTotal} discount={discount} />
       </div>
     </div>
   );

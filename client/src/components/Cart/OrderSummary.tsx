@@ -3,6 +3,7 @@ import { Button, Input, Select, Typography } from 'antd';
 import { RootState } from '../../redux/store';
 import { useState } from 'react';
 import OrderModal from '../../common/modals/OrderModal';
+import '../../styles/components/Cart/OrderSummary.css';
 
 const { Text } = Typography;
 
@@ -31,23 +32,23 @@ const OrderSummary = () => {
   };
 
   return (
-    <div className="lg:w-[400px]">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">Sipariş Özeti</h2>
+    <div className="order-summary-container">
+      <div className="order-summary-card">
+        <h2 className="order-summary-title">Sipariş Özeti</h2>
         
         {/* Ürün Sayısı */}
-        <div className="text-sm text-gray-600 mb-6">
+        <div className="order-item-count">
           ÜRÜN {items.length}
         </div>
 
         {/* Kargo Seçenekleri */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-600 mb-2">
+        <div className="order-section">
+          <label className="order-section-label">
             KARGO
           </label>
           <Select
             defaultValue="standard"
-            style={{ width: '100%' }}
+            className="order-shipping-select"
             options={[
               { value: 'standard', label: 'Standart Teslimat - Ücretsiz' },
               { value: 'express', label: 'Express Teslimat - ₺24.99' },
@@ -56,42 +57,42 @@ const OrderSummary = () => {
         </div>
 
         {/* Promosyon Kodu */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-600 mb-2">
+        <div className="order-section">
+          <label className="order-section-label">
             PROMOSYON KODU
           </label>
-          <div className="flex gap-2">
-            <Input placeholder="Kodunuzu girin" />
-            <Button type="primary" className="bg-blue-500">
+          <div className="order-promo-container">
+            <Input placeholder="Kodunuzu girin" className="order-promo-input" />
+            <Button type="primary" className="order-promo-button">
               UYGULA
             </Button>
           </div>
         </div>
 
         {/* Fiyat Detayları */}
-        <div className="space-y-3 mb-6">
-          <div className="flex justify-between">
+        <div className="order-details">
+          <div className="order-detail-row">
             <Text>Ara Toplam</Text>
             <Text>₺{subtotal.toFixed(2)}</Text>
           </div>
-          <div className="flex justify-between">
+          <div className="order-detail-row">
             <Text>Kargo</Text>
             <Text>{shipping === 0 ? 'Ücretsiz' : `₺${shipping}`}</Text>
           </div>
-          <div className="flex justify-between">
+          <div className="order-detail-row">
             <Text>KDV (%8)</Text>
             <Text>₺{vat.toFixed(2)}</Text>
           </div>
         </div>
 
         {/* Toplam */}
-        <div className="flex justify-between items-center text-lg font-semibold border-t pt-4">
+        <div className="order-total-container">
           <Text strong>Toplam</Text>
           <Text strong>₺{grandTotal.toFixed(2)}</Text>
         </div>
 
         {/* Ödeme Butonu */}
-        <Button type="primary" size="large" block className="bg-indigo-600 mt-6" onClick={showModal}>
+        <Button type="primary" size="large" className="order-submit-button" onClick={showModal}>
           ÖDEME YAP
         </Button>
       </div>

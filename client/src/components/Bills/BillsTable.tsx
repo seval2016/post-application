@@ -3,6 +3,7 @@ import { Table, Space, Button, Tooltip, Tag } from 'antd';
 import { EyeOutlined, DownloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import { Bill } from '../../services/billService';
 import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
+import '../../styles/components/Bills/BillsTable.css';
 
 interface BillsTableProps {
   bills: Bill[];
@@ -11,16 +12,16 @@ interface BillsTableProps {
 
 const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
   // Fatura durumuna göre renk belirleme
-  const getStatusColor = (status: string) => {
+  const getStatusClass = (status: string) => {
     switch (status) {
       case 'Ödendi':
-        return 'green';
+        return 'bills-status-tag bills-status-tag-paid';
       case 'Beklemede':
-        return 'orange';
+        return 'bills-status-tag bills-status-tag-pending';
       case 'İptal Edildi':
-        return 'red';
+        return 'bills-status-tag bills-status-tag-cancelled';
       default:
-        return 'default';
+        return 'bills-status-tag';
     }
   };
 
@@ -32,6 +33,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
       key: 'id',
       sorter: (a: Bill, b: Bill) => a.id.localeCompare(b.id),
       responsive: ['md' as Breakpoint],
+      className: 'bills-table-cell',
     },
     {
       title: 'Tarih',
@@ -40,12 +42,14 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
       sorter: (a: Bill, b: Bill) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       render: (date: string) => new Date(date).toLocaleDateString('tr-TR'),
       responsive: ['sm' as Breakpoint],
+      className: 'bills-table-cell',
     },
     {
       title: 'Müşteri',
       dataIndex: 'customer',
       key: 'customer',
       sorter: (a: Bill, b: Bill) => a.customer.localeCompare(b.customer),
+      className: 'bills-table-cell',
     },
     {
       title: 'Ürün Sayısı',
@@ -53,6 +57,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
       key: 'items',
       sorter: (a: Bill, b: Bill) => a.items - b.items,
       responsive: ['md' as Breakpoint],
+      className: 'bills-table-cell',
     },
     {
       title: 'Tutar',
@@ -60,6 +65,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
       key: 'amount',
       sorter: (a: Bill, b: Bill) => a.amount - b.amount,
       render: (amount: number) => `₺${amount.toFixed(2)}`,
+      className: 'bills-table-cell',
     },
     {
       title: 'Durum',
@@ -67,42 +73,46 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, loading }) => {
       key: 'status',
       sorter: (a: Bill, b: Bill) => a.status.localeCompare(b.status),
       render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{status}</Tag>
+        <Tag className={getStatusClass(status)}>{status}</Tag>
       ),
+      className: 'bills-table-cell',
     },
     {
       title: 'İşlemler',
       key: 'actions',
       render: (_: unknown, record: Bill) => (
-        <Space size="middle">
+        <Space className="bills-action-buttons">
           <Tooltip title="Görüntüle">
-            <Button type="text" icon={<EyeOutlined />} onClick={() => console.log(`View bill: ${record.id}`)} />
+            <Button type="text" icon={<EyeOutlined />} className="bills-action-button" onClick={() => console.log(`View bill: ${record.id}`)} />
           </Tooltip>
           <Tooltip title="İndir">
-            <Button type="text" icon={<DownloadOutlined />} onClick={() => console.log(`Download bill: ${record.id}`)} />
+            <Button type="text" icon={<DownloadOutlined />} className="bills-action-button" onClick={() => console.log(`Download bill: ${record.id}`)} />
           </Tooltip>
           <Tooltip title="Yazdır">
-            <Button type="text" icon={<PrinterOutlined />} onClick={() => console.log(`Print bill: ${record.id}`)} />
+            <Button type="text" icon={<PrinterOutlined />} className="bills-action-button" onClick={() => console.log(`Print bill: ${record.id}`)} />
           </Tooltip>
         </Space>
       ),
+      className: 'bills-table-cell',
     },
   ];
 
   return (
-    <div className="overflow-x-auto">
-      <Table 
-        columns={columns} 
-        dataSource={bills} 
-        rowKey="id"
-        loading={loading}
-        pagination={{ 
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `Toplam ${total} fatura`
-        }}
-        scroll={{ x: 'max-content' }}
-      />
+    <div className="bills-table-container">
+      <div className="bills-table-wrapper">
+        <Table 
+          columns={columns} 
+          dataSource={bills} 
+          rowKey="id"
+          loading={loading}
+          pagination={{ 
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total) => `Toplam ${total} fatura`
+          }}
+          scroll={{ x: 'max-content' }}
+        />
+      </div>
     </div>
   );
 };

@@ -1,0 +1,14 @@
+.payment-terms-card {
+  @apply shadow-sm mb-6;
+}
+
+.payment-terms-text {
+  @apply text-gray-700 text-sm leading-relaxed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .payment-terms-card {
+    @apply mx-4;
+  }
+} 
