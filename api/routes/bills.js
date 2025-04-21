@@ -1,92 +1,101 @@
 const express = require('express');
 const router = express.Router();
+const { verifyToken, isAdmin, isManager, isCashier, hasRole } = require('../middleware/authMiddleware');
 const Bill = require('../models/Bill');
-const { auth, isAdmin } = require('../middleware/auth');
 
-// Tüm faturaları getir (admin için)
-router.get('/', isAdmin, async (req, res) => {
+// Tüm faturaları getir (sadece admin ve manager)
+router.get('/', verifyToken, hasRole(['admin', 'manager']), async (req, res) => {
     try {
         const bills = await Bill.find()
             .populate('user', 'firstName lastName email')
             .sort({ createdAt: -1 });
         res.json(bills);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Faturalar getirilirken bir hata oluştu', error: error.message });
     }
 });
 
 // Kullanıcının kendi faturalarını getir
-router.get('/my-bills', auth, async (req, res) => {
+router.get('/my-bills', verifyToken, async (req, res) => {
     try {
         const bills = await Bill.find({ user: req.user.id })
             .sort({ createdAt: -1 });
         res.json(bills);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Faturalar getirilirken bir hata oluştu', error: error.message });
     }
 });
 
-// Tek bir faturayı getir
-router.get('/:id', auth, async (req, res) => {
+// Tek bir fatura getir
+router.get('/:id', verifyToken, async (req, res) => {
     try {
         const bill = await Bill.findById(req.params.id)
             .populate('user', 'firstName lastName email');
-        
+            
         if (!bill) {
             return res.status(404).json({ message: 'Fatura bulunamadı' });
         }
 
-        // Kullanıcı admin değilse ve fatura kendisine ait değilse erişimi engelle
-        if (req.user.role !== 'admin' && bill.user.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Bu faturaya erişim izniniz yok' });
+        // Sadece fatura sahibi veya admin/manager görebilir
+        if (bill.user._id.toString() !== req.user.id && 
+            !['admin', 'manager'].includes(req.user.role)) {
+            return res.status(403).json({ message: 'Bu faturayı görüntüleme yetkiniz yok' });
         }
 
         res.json(bill);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Fatura getirilirken bir hata oluştu', error: error.message });
     }
 });
 
-// Yeni fatura oluştur
-router.post('/', auth, async (req, res) => {
+// Yeni fatura oluştur (sadece admin, manager ve cashier)
+router.post('/', verifyToken, hasRole(['admin', 'manager', 'cashier']), async (req, res) => {
     try {
         const { items, totalAmount, paymentMethod, shippingAddress } = req.body;
-
+        
         const bill = new Bill({
             user: req.user.id,
             items,
             totalAmount,
             paymentMethod,
-            shippingAddress
+            shippingAddress,
+            status: 'pending'
         });
 
-        const savedBill = await bill.save();
-        res.status(201).json(savedBill);
+        await bill.save();
+        res.status(201).json(bill);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: 'Fatura oluşturulurken bir hata oluştu', error: error.message });
     }
 });
 
-// Fatura durumunu güncelle (sadece admin)
-router.patch('/:id/status', auth, isAdmin, async (req, res) => {
+// Fatura durumunu güncelle (sadece admin ve manager)
+router.patch('/:id/status', verifyToken, hasRole(['admin', 'manager']), async (req, res) => {
     try {
         const { status } = req.body;
         const bill = await Bill.findById(req.params.id);
-
+        
         if (!bill) {
             return res.status(404).json({ message: 'Fatura bulunamadı' });
         }
 
         bill.status = status;
-        const updatedBill = await bill.save();
-        res.json(updatedBill);
+        await bill.save();
+        
+        res.json({ 
+            message: 'Fatura durumu başarıyla güncellendi',
+            bill: {
+                id: bill._id,
+                status: bill.status
+            }
+        });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: 'Fatura durumu güncellenirken bir hata oluştu', error: error.message });
     }
 });
 
 // Fatura güncelle
-router.patch('/:id', auth, async (req, res) => {
+router.patch('/:id', verifyToken, async (req, res) => {
     try {
         const bill = await Bill.findById(req.params.id);
 
@@ -140,7 +149,7 @@ router.patch('/:id', auth, async (req, res) => {
 });
 
 // Fatura sil
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     try {
         const bill = await Bill.findById(req.params.id);
 

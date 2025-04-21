@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const { register, login, getCurrentUser, updateProfile, changePassword, makeAdmin } = require('../controllers/authController');
+const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -38,72 +40,14 @@ const sendVerificationEmail = async (email, token) => {
   console.log(`Doğrulama linki: http://localhost:3000/verify-email/${token}`);
 };
 
-// Kullanıcı kaydı
-router.post('/register', async (req, res) => {
-  try {
-    const { firstName, lastName, email, password, phone } = req.body;
+// Public routes
+router.post('/register', register);
+router.post('/login', login);
 
-    // Email kontrolü
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'Bu email adresi zaten kullanımda'
-      });
-    }
-
-    // Şifre hashleme
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Doğrulama tokeni oluşturma
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-
-    // Yeni kullanıcı oluşturma
-    const user = new User({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      phone,
-      verificationToken
-    });
-
-    // Kullanıcıyı kaydet
-    const savedUser = await user.save();
-    console.log('User saved successfully:', savedUser._id); // Hata ayıklama için
-
-    // JWT token oluştur
-    const token = generateToken(savedUser._id);
-    console.log('Token generated successfully'); // Hata ayıklama için
-
-    // Doğrulama emaili gönder
-    await sendVerificationEmail(email, verificationToken);
-
-    res.status(201).json({
-      success: true,
-      message: 'Kullanıcı başarıyla oluşturuldu',
-      data: {
-        user: {
-          id: savedUser._id,
-          firstName: savedUser.firstName,
-          lastName: savedUser.lastName,
-          email: savedUser.email,
-          phone: savedUser.phone,
-          role: savedUser.role
-        },
-        token
-      }
-    });
-  } catch (error) {
-    console.error('Registration error:', error); // Hata ayıklama için
-    res.status(500).json({
-      success: false,
-      message: 'Kullanıcı oluşturulurken bir hata oluştu',
-      error: error.message
-    });
-  }
-});
+// Protected routes
+router.get('/me', verifyToken, getCurrentUser);
+router.patch('/profile', verifyToken, updateProfile);
+router.patch('/change-password', verifyToken, changePassword);
 
 // Email doğrulama
 router.get('/verify-email/:token', async (req, res) => {
@@ -234,89 +178,8 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-// Kullanıcı girişi
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    console.log('Login attempt - Request body:', req.body);
-
-    // Validation
-    if (!email || !password) {
-      console.log('Validation failed - Missing email or password');
-      return res.status(400).json({
-        success: false,
-        message: 'Email ve şifre gereklidir'
-      });
-    }
-
-    console.log('Searching for user with email:', email);
-
-    // Kullanıcıyı bul
-    const user = await User.findOne({ email });
-    
-    if (!user) {
-      console.log('User not found with email:', email);
-      return res.status(401).json({
-        success: false,
-        message: 'Geçersiz email veya şifre'
-      });
-    }
-
-    console.log('User found:', {
-      id: user._id,
-      email: user.email,
-      hasPassword: !!user.password
-    });
-
-    // Şifreyi kontrol et
-    const isMatch = await bcrypt.compare(password, user.password);
-    console.log('Password comparison result:', isMatch);
-
-    if (!isMatch) {
-      console.log('Password mismatch for user:', email);
-      return res.status(401).json({
-        success: false,
-        message: 'Geçersiz email veya şifre'
-      });
-    }
-
-    // Son giriş tarihini güncelle
-    user.lastLogin = new Date();
-    await user.save();
-
-    // Token oluştur
-    const token = generateToken(user._id);
-    console.log('Token generated successfully for user:', email);
-
-    res.json({
-      success: true,
-      message: 'Giriş başarılı',
-      data: {
-        token,
-        user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phone: user.phone,
-          role: user.role
-        }
-      }
-    });
-
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Giriş işlemi sırasında bir hata oluştu',
-      error: error.message
-    });
-  }
-});
-
-// Tüm kullanıcıları getir (admin için)
-router.get('/', async (req, res) => {
+// Admin routes
+router.get('/', verifyToken, isAdmin, async (req, res) => {
     try {
         const users = await User.find().select('-password');
         res.json({
@@ -819,5 +682,8 @@ router.delete('/payment-methods/:paymentId', auth, async (req, res) => {
     });
   }
 });
+
+// Make user admin
+router.patch('/make-admin/:id', verifyToken, isAdmin, makeAdmin);
 
 module.exports = router; 

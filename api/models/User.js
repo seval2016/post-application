@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['admin', 'user', 'manager', 'cashier', 'staff', 'inventory'],
         default: 'user'
     },
     isVerified: {
@@ -72,25 +72,12 @@ const userSchema = new mongoose.Schema({
     paymentMethods: [{
         type: {
             type: String,
-            enum: ['credit_card', 'debit_card'],
-            required: true
+            enum: ['credit_card', 'debit_card', 'bank_account']
         },
-        cardNumber: {
-            type: String,
-            required: true
-        },
-        cardHolderName: {
-            type: String,
-            required: true
-        },
-        expiryDate: {
-            type: String,
-            required: true
-        },
-        isDefault: {
-            type: Boolean,
-            default: false
-        }
+        cardNumber: String,
+        expiryDate: String,
+        cardHolderName: String,
+        isDefault: Boolean
     }],
     lastLogin: Date,
     isActive: {
@@ -124,29 +111,21 @@ userSchema.methods.generateVerificationToken = function() {
 // Şifre karşılaştırma metodu
 userSchema.methods.comparePassword = async function(candidatePassword) {
     try {
-        console.log('Comparing passwords:');
-        console.log('Candidate password:', candidatePassword);
-        console.log('Stored hashed password:', this.password);
-        
-        const isMatch = await bcrypt.compare(candidatePassword, this.password);
-        console.log('Password comparison result:', isMatch);
-        
-        return isMatch;
+        return await bcrypt.compare(candidatePassword, this.password);
     } catch (error) {
-        console.error('Password comparison error:', error);
         throw error;
     }
 };
 
 // Kullanıcı bilgilerini JSON'a çevirirken hassas bilgileri çıkar
 userSchema.methods.toJSON = function() {
-    const user = this.toObject();
-    delete user.password;
-    delete user.verificationToken;
-    delete user.verificationTokenExpires;
-    delete user.resetPasswordToken;
-    delete user.resetPasswordExpires;
-    return user;
+    const obj = this.toObject();
+    delete obj.password;
+    delete obj.verificationToken;
+    delete obj.verificationTokenExpires;
+    delete obj.resetPasswordToken;
+    delete obj.resetPasswordExpires;
+    return obj;
 };
 
 // Tam ad getter metodu
