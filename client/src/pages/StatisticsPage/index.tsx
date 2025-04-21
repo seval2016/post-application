@@ -3,7 +3,7 @@ import { UserOutlined, BarChartOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import Header from '../../components/Header';
 import { RootState } from '../../redux/store';
-import PageHeader from '../../common/components/PageHeader';
+import PageHeader from '../../common/PageHeader';
 import '../../styles/pages/StatisticsPage.css';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 

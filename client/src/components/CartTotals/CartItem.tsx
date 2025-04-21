@@ -1,5 +1,5 @@
-import { Button } from 'antd';
-import { MinusCircleOutlined, PlusCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import React from 'react';
+import { MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import '../../styles/components/Cart/CartTotals.css';
 
 interface CartItemProps {
@@ -14,19 +14,15 @@ interface CartItemProps {
   onRemove: (id: number) => void;
 }
 
-const CartItem = ({ item, onQuantityChange, onRemove }: CartItemProps) => {
+const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove }) => {
   if (!item) {
     return null;
   }
 
-  const handleDecrease = () => {
-    if (item.quantity > 1) {
-      onQuantityChange(item.id, item.quantity - 1);
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity >= 1) {
+      onQuantityChange(item.id, newQuantity);
     }
-  };
-
-  const handleIncrease = () => {
-    onQuantityChange(item.id, item.quantity + 1);
   };
 
   return (
@@ -34,26 +30,29 @@ const CartItem = ({ item, onQuantityChange, onRemove }: CartItemProps) => {
       <img src={item.image} alt={item.title} className="cart-item-image" />
       <div className="cart-item-content">
         <h3 className="cart-item-title">{item.title}</h3>
-        <span className="cart-item-price">₺{item.price.toFixed(2)}</span>
+        <p className="cart-item-price">{item.price.toFixed(2)} TL</p>
+        <div className="cart-item-quantity">
+          <button
+            className="cart-item-quantity-button"
+            onClick={() => handleQuantityChange(item.quantity - 1)}
+          >
+            <MinusOutlined />
+          </button>
+          <span className="cart-item-quantity-text">{item.quantity}</span>
+          <button
+            className="cart-item-quantity-button"
+            onClick={() => handleQuantityChange(item.quantity + 1)}
+          >
+            <PlusOutlined />
+          </button>
+        </div>
       </div>
-      <div className="cart-item-quantity">
-        <Button
-          type="text"
-          icon={<MinusCircleOutlined className="cart-item-quantity-button" />}
-          onClick={handleDecrease}
-        />
-        <span className="cart-item-quantity-text">{item.quantity}</span>
-        <Button
-          type="text"
-          icon={<PlusCircleOutlined className="cart-item-quantity-button" />}
-          onClick={handleIncrease}
-        />
-      </div>
-      <Button
-        type="text"
-        icon={<DeleteOutlined className="cart-item-delete" />}
+      <button
+        className="cart-item-delete"
         onClick={() => onRemove(item.id)}
-      />
+      >
+        <DeleteOutlined />
+      </button>
     </div>
   );
 };

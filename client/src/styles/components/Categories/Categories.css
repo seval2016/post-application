@@ -1,5 +1,8 @@
 .categories-container {
-  @apply bg-white p-4 rounded-lg shadow-sm;
+  @apply bg-white p-4 rounded-lg shadow-sm relative;
+  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header Styles */
@@ -18,11 +21,16 @@
 /* List Container */
 .categories-list {
   @apply flex gap-3 overflow-x-auto;
+  flex: 1;
+}
+
+.categories-scroll-area {
+  @apply flex gap-3;
 }
 
 /* Category Card Styles */
 .category-card {
-  @apply p-3 cursor-pointer transition-all select-none rounded-lg flex items-center gap-3 shadow-sm border border-gray-200 min-w-[150px];
+  @apply p-3 cursor-pointer transition-all select-none rounded-lg flex items-center shadow-sm border border-gray-200 min-w-[150px];
 }
 
 .category-card-selected {
@@ -34,11 +42,11 @@
 }
 
 .category-icon-wrapper {
-  @apply w-8 h-8 min-w-[2rem] rounded-full bg-white p-1 shadow-sm flex items-center justify-center;
+  @apply w-8 h-8 min-w-[2rem] rounded-full bg-white p-1 shadow-sm flex items-center justify-center mr-2;
 }
 
 .category-icon {
-  @apply w-5 h-5 text-gray-600;
+  @apply w-5 h-5 object-contain;
 }
 
 .category-image {
@@ -46,7 +54,16 @@
 }
 
 .category-title {
-  @apply text-gray-700 text-sm font-medium whitespace-nowrap;
+  @apply text-gray-700 text-sm font-medium whitespace-nowrap flex-1;
+}
+
+/* Add Category Card */
+.add-category-wrapper {
+  @apply mt-4 pt-4 border-t border-gray-100;
+}
+
+.add-category-wrapper .category-card {
+  @apply justify-start pr-6;
 }
 
 /* Scrollbar Styles */
@@ -69,11 +86,15 @@
 /* Responsive Design */
 @media (min-width: 768px) {
   .categories-container {
-    @apply h-[calc(100vh-100px)] sticky top-[84px];
+    @apply sticky top-[84px];
   }
 
   .categories-list {
-    @apply flex-col overflow-y-auto h-[calc(100%-4rem)] pr-2;
+    @apply flex-col overflow-y-auto pr-2;
+  }
+
+  .categories-scroll-area {
+    @apply flex-col;
   }
 
   .category-card {

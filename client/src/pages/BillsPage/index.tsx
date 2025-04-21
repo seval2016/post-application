@@ -3,7 +3,7 @@ import { Table, Input, Select, DatePicker, Button, Space, Tag, message } from 'a
 import { SearchOutlined, ReloadOutlined, FileTextOutlined } from '@ant-design/icons';
 import type { Dayjs } from 'dayjs';
 import Header from '../../components/Header';
-import PageHeader from '../../common/components/PageHeader';
+import PageHeader from '../../common/PageHeader';
 import { billService, Bill } from '../../services/billService';
 
 const { RangePicker } = DatePicker;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, Descriptions, Button, Space, Tag, Typography, Table } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import '../../../styles/components/Customer/CustomerDetails.css';
 
 const { Title, Text } = Typography;
 
@@ -99,21 +100,21 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer, onEdit, onD
   ];
 
   return (
-    <div className="space-y-6">
-      <Card className="shadow-sm">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <div className="customer-details-container">
+      <Card className="customer-details-card">
+        <div className="customer-details-header">
           <div>
-            <Title level={4} className="mb-0 flex items-center">
-              <UserOutlined className="mr-2" />
+            <Title level={4} className="customer-details-title-container">
+              <UserOutlined className="customer-details-title-icon" />
               {customer.name}
             </Title>
-            <Text type="secondary">Müşteri Detayları</Text>
+            <Text type="secondary" className="customer-details-subtitle">Müşteri Detayları</Text>
           </div>
-          <Space>
-            <Button icon={<EditOutlined />} onClick={onEdit}>
+          <Space className="customer-details-actions">
+            <Button icon={<EditOutlined />} onClick={onEdit} className="customer-details-edit-button">
               Düzenle
             </Button>
-            <Button danger icon={<DeleteOutlined />} onClick={onDelete}>
+            <Button danger icon={<DeleteOutlined />} onClick={onDelete} className="customer-details-delete-button">
               Sil
             </Button>
           </Space>
@@ -127,15 +128,15 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer, onEdit, onD
             </Tag>
           </Descriptions.Item>
           <Descriptions.Item label="E-posta">
-            <MailOutlined className="mr-2" />
+            <MailOutlined className="customer-details-description-icon" />
             {customer.email}
           </Descriptions.Item>
           <Descriptions.Item label="Telefon">
-            <PhoneOutlined className="mr-2" />
+            <PhoneOutlined className="customer-details-description-icon" />
             {customer.phone}
           </Descriptions.Item>
           <Descriptions.Item label="Adres" span={2}>
-            <EnvironmentOutlined className="mr-2" />
+            <EnvironmentOutlined className="customer-details-description-icon" />
             {customer.address}
           </Descriptions.Item>
           <Descriptions.Item label="Kayıt Tarihi">
@@ -144,8 +145,8 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer, onEdit, onD
         </Descriptions>
       </Card>
 
-      <Card className="shadow-sm">
-        <Title level={4} className="mb-6">Sipariş Geçmişi</Title>
+      <Card className="customer-orders-card">
+        <Title level={4} className="customer-orders-title">Sipariş Geçmişi</Title>
         <Table 
           columns={columns} 
           dataSource={mockOrders} 

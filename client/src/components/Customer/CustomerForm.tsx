@@ -1,120 +1,143 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Card, Select, Space, Typography, message } from 'antd';
+import React from 'react';
+import { Form, Input, Select, Button, Card, Typography, message } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import '../../../styles/components/Customer/CustomerForm.css';
 
 const { Title, Text } = Typography;
-const { Option } = Select;
+const { TextArea } = Input;
 
-interface CustomerFormValues {
+interface Customer {
   id?: string;
   name: string;
   email: string;
   phone: string;
   address: string;
-  status: 'active' | 'inactive';
+  status: 'active' | 'inactive' | 'pending';
 }
 
 interface CustomerFormProps {
-  initialValues?: CustomerFormValues;
-  onSubmit: (values: CustomerFormValues) => void;
+  onSubmit: (values: Customer) => void;
   onCancel: () => void;
+  initialValues?: Partial<Customer>;
+  loading?: boolean;
 }
 
-const CustomerForm: React.FC<CustomerFormProps> = ({ initialValues, onSubmit, onCancel }) => {
+const CustomerForm: React.FC<CustomerFormProps> = ({
+  onSubmit,
+  onCancel,
+  initialValues,
+  loading = false,
+}) => {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (values: CustomerFormValues) => {
-    setLoading(true);
+  const handleSubmit = async (values: Customer) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      onSubmit(values);
+      await onSubmit(values);
       message.success('Müşteri başarıyla kaydedildi');
-    } catch (error) {
+      form.resetFields();
+    } catch {
       message.error('Müşteri kaydedilirken bir hata oluştu');
-      console.error('Müşteri kaydetme hatası:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <Card className="shadow-sm">
-      <div className="mb-6">
-        <Title level={4} className="mb-0">
-          {initialValues?.id ? 'Müşteri Düzenle' : 'Yeni Müşteri Ekle'}
+    <Card className="customer-form-card">
+      <div className="customer-form-header">
+        <Title level={4} className="customer-form-title">
+          Müşteri Bilgileri
         </Title>
-        <Text type="secondary">
-          {initialValues?.id 
-            ? 'Müşteri bilgilerini güncelleyin' 
-            : 'Yeni bir müşteri eklemek için aşağıdaki formu doldurun'}
+        <Text className="customer-form-subtitle">
+          Lütfen müşteri bilgilerini eksiksiz doldurun
         </Text>
       </div>
 
       <Form
         form={form}
         layout="vertical"
-        initialValues={initialValues}
         onFinish={handleSubmit}
+        initialValues={initialValues}
+        className="customer-form"
       >
         <Form.Item
           name="name"
-          label="Müşteri Adı"
-          rules={[{ required: true, message: 'Lütfen müşteri adını girin' }]}
+          label="Ad Soyad"
+          rules={[{ required: true, message: 'Lütfen ad soyad giriniz' }]}
         >
-          <Input prefix={<UserOutlined />} placeholder="Müşteri adı" />
+          <Input
+            prefix={<UserOutlined className="customer-form-input-prefix" />}
+            placeholder="Ad Soyad"
+            className="customer-form-input"
+          />
         </Form.Item>
 
         <Form.Item
           name="email"
           label="E-posta"
           rules={[
-            { required: true, message: 'Lütfen e-posta adresini girin' },
-            { type: 'email', message: 'Geçerli bir e-posta adresi girin' }
+            { required: true, message: 'Lütfen e-posta giriniz' },
+            { type: 'email', message: 'Geçerli bir e-posta adresi giriniz' },
           ]}
         >
-          <Input prefix={<MailOutlined />} placeholder="E-posta adresi" />
+          <Input
+            prefix={<MailOutlined className="customer-form-input-prefix" />}
+            placeholder="E-posta"
+            className="customer-form-input"
+          />
         </Form.Item>
 
         <Form.Item
           name="phone"
           label="Telefon"
-          rules={[{ required: true, message: 'Lütfen telefon numarasını girin' }]}
+          rules={[{ required: true, message: 'Lütfen telefon giriniz' }]}
         >
-          <Input prefix={<PhoneOutlined />} placeholder="Telefon numarası" />
+          <Input
+            prefix={<PhoneOutlined className="customer-form-input-prefix" />}
+            placeholder="Telefon"
+            className="customer-form-input"
+          />
         </Form.Item>
 
         <Form.Item
           name="address"
           label="Adres"
-          rules={[{ required: true, message: 'Lütfen adresi girin' }]}
+          rules={[{ required: true, message: 'Lütfen adres giriniz' }]}
         >
-          <Input.TextArea 
-            placeholder="Adres" 
-            rows={3}
+          <TextArea
+            placeholder="Adres"
+            rows={4}
+            className="customer-form-textarea"
           />
         </Form.Item>
 
         <Form.Item
           name="status"
           label="Durum"
-          rules={[{ required: true, message: 'Lütfen durumu seçin' }]}
+          rules={[{ required: true, message: 'Lütfen durum seçiniz' }]}
         >
-          <Select placeholder="Durum seçin">
-            <Option value="active">Aktif</Option>
-            <Option value="inactive">Pasif</Option>
-          </Select>
+          <Select
+            placeholder="Durum seçiniz"
+            className="customer-form-select"
+            options={[
+              { value: 'active', label: 'Aktif' },
+              { value: 'inactive', label: 'Pasif' },
+              { value: 'pending', label: 'Beklemede' },
+            ]}
+          />
         </Form.Item>
 
-        <Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              {initialValues?.id ? 'Güncelle' : 'Kaydet'}
-            </Button>
-            <Button onClick={onCancel}>İptal</Button>
-          </Space>
-        </Form.Item>
+        <div className="customer-form-actions">
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            className="customer-form-submit-button"
+          >
+            Kaydet
+          </Button>
+          <Button onClick={onCancel} className="customer-form-cancel-button">
+            İptal
+          </Button>
+        </div>
       </Form>
     </Card>
   );

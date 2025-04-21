@@ -72,11 +72,11 @@ const OrderModal: React.FC<OrderModalProps> = ({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Form values:", values);
-      // Burada sipariş işlemi gerçekleştirilecek
-      setOrderCompleted(true);
-      message.success("Siparişiniz başarıyla tamamlandı!");
-      onSuccess();
+        console.log("Form values:", values);
+        // Burada sipariş işlemi gerçekleştirilecek
+        setOrderCompleted(true);
+        message.success("Siparişiniz başarıyla tamamlandı!");
+        onSuccess();
     } catch (error) {
       console.error('Validation failed:', error);
     }

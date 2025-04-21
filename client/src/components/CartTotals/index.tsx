@@ -35,13 +35,13 @@ const CartTotals: React.FC<CartTotalsProps> = ({
   const grandTotal = subtotal + vat;
 
   return (
-    <div className="cart-totals-container h-full flex flex-col">
-      <div className="cart-totals-header sticky top-0 bg-white z-10 py-2">
+    <div className="cart-totals-container">
+      <div className="cart-totals-header">
         <h2 className="cart-totals-title">Sepetim</h2>
         <span className="cart-totals-count">{items.length} ürün</span>
       </div>
 
-      <div className="cart-totals-items overflow-y-auto flex-1" style={{ maxHeight: 'calc(100vh - 300px)' }}>
+      <div className="cart-totals-items">
         {items.map((item) => (
           <CartItem
             key={item.id}
@@ -52,7 +52,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
         ))}
       </div>
 
-      <div className="cart-totals-summary sticky bottom-0 bg-white z-10 mt-auto">
+      <div className="cart-totals-summary">
         <CartSummary total={grandTotal} discount={discount} />
       </div>
     </div>

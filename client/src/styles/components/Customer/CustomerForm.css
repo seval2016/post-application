@@ -9,11 +9,11 @@
 }
 
 .customer-form-title {
-  @apply text-lg font-medium mb-0;
+  @apply mb-0;
 }
 
 .customer-form-subtitle {
-  @apply text-gray-500 text-sm;
+  @apply text-gray-500;
 }
 
 /* Form Elements */
@@ -22,7 +22,7 @@
 }
 
 .customer-form-input {
-  @apply w-full rounded-lg border-gray-300;
+  @apply w-full;
 }
 
 .customer-form-input-prefix {
@@ -30,24 +30,24 @@
 }
 
 .customer-form-textarea {
-  @apply w-full rounded-lg border-gray-300 resize-none;
+  @apply w-full;
 }
 
 .customer-form-select {
-  @apply w-full rounded-lg border-gray-300;
+  @apply w-full;
 }
 
 /* Form Actions */
 .customer-form-actions {
-  @apply flex gap-2 mt-6;
+  @apply mt-6;
 }
 
 .customer-form-submit-button {
-  @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors;
+  @apply bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200;
 }
 
 .customer-form-cancel-button {
-  @apply bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors;
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-colors duration-200;
 }
 
 /* Error States */
@@ -61,8 +61,29 @@
 }
 
 /* Responsive Design */
-@media (min-width: 768px) {
+@media (max-width: 640px) {
   .customer-form-card {
-    @apply max-w-2xl mx-auto;
+    @apply p-4;
+  }
+
+  .customer-form-header {
+    @apply mb-4;
+  }
+
+  .customer-form-title {
+    @apply text-lg;
+  }
+
+  .customer-form-subtitle {
+    @apply text-sm;
+  }
+
+  .customer-form-actions {
+    @apply mt-4;
+  }
+
+  .customer-form-submit-button,
+  .customer-form-cancel-button {
+    @apply w-full;
   }
 } 

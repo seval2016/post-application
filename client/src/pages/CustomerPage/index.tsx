@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Table, Button, Modal, Form, Input, Space, Tag, message } from 'antd';
 import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import Header from '../../components/Header';
-import PageHeader from '../../common/components/PageHeader';
+import PageHeader from '../../common/PageHeader';
 
 interface Customer {
   id: string;
