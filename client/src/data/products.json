@@ -2,142 +2,142 @@
   "products": [
     {
       "id": 1,
-      "title": "Adana Kebap",
-      "price": 180.00,
-      "category": 12,
-      "image": "/images/products/adana-kebap.jpg"
+      "title": "Margarita",
+      "price": 89.90,
+      "category": "1",
+      "image": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 2,
-      "title": "Türk Kahvesi",
-      "price": 30.00,
-      "category": 2,
-      "image": "/images/products/turk-kahvesi.jpg"
+      "title": "Pepperoni",
+      "price": 99.90,
+      "category": "1",
+      "image": "https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 3,
-      "title": "Fıstıklı Baklava",
-      "price": 120.00,
-      "category": 3,
-      "image": "/images/products/fistikli-baklava.jpg"
+      "title": "Karışık Pizza",
+      "price": 109.90,
+      "category": "1",
+      "image": "https://images.unsplash.com/photo-1565299624946-b28f1a0d0b6b?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 4,
-      "title": "Patates Kızartması",
-      "price": 50.00,
-      "category": 4,
-      "image": "/images/products/patates-kizartmasi.jpg"
+      "title": "Coca Cola",
+      "price": 15.90,
+      "category": "2",
+      "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 5,
-      "title": "Acı Sos",
-      "price": 5.00,
-      "category": 5,
-      "image": "/images/products/aci-sos.jpg"
+      "title": "Fanta",
+      "price": 15.90,
+      "category": "2",
+      "image": "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 6,
-      "title": "Karışık Pizza",
-      "price": 160.00,
-      "category": 6,
-      "image": "/images/products/karisik-pizza.jpg"
+      "title": "Sprite",
+      "price": 15.90,
+      "category": "2",
+      "image": "https://images.unsplash.com/photo-1625772452859-1c03d5bf1137?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 7,
-      "title": "Mevsim Salata",
-      "price": 45.00,
-      "category": 7,
-      "image": "/images/products/mevsim-salata.jpg"
+      "title": "Çikolatalı Sufle",
+      "price": 45.90,
+      "category": "3",
+      "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 8,
-      "title": "Bolonez Soslu Makarna",
-      "price": 85.00,
-      "category": 8,
-      "image": "/images/products/bolonez-makarna.jpg"
+      "title": "Tiramisu",
+      "price": 49.90,
+      "category": "3",
+      "image": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 9,
-      "title": "Mercimek Çorbası",
-      "price": 35.00,
-      "category": 9,
-      "image": "/images/products/mercimek-corbasi.jpg"
+      "title": "Cheesecake",
+      "price": 55.90,
+      "category": "3",
+      "image": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=2940&auto=format&fit=crop"
     },
     {
       "id": 10,
       "title": "Tavuk Döner",
       "price": 75.00,
-      "category": 10,
+      "category": "10",
       "image": "/images/products/tavuk-doner.jpg"
     },
     {
       "id": 11,
       "title": "Kaşarlı Pide",
       "price": 80.00,
-      "category": 11,
+      "category": "11",
       "image": "/images/products/kasarli-pide.jpg"
     },
     {
       "id": 12,
       "title": "Serpme Kahvaltı",
       "price": 200.00,
-      "category": 13,
+      "category": "13",
       "image": "/images/products/serpme-kahvalti.jpg"
     },
     {
       "id": 13,
       "title": "Çipura",
       "price": 160.00,
-      "category": 14,
+      "category": "14",
       "image": "/images/products/cipura.jpg"
     },
     {
       "id": 14,
       "title": "Soğan Halkası",
       "price": 45.00,
-      "category": 15,
+      "category": "15",
       "image": "/images/products/sogan-halkasi.jpg"
     },
     {
       "id": 15,
       "title": "Lahmacun",
       "price": 45.00,
-      "category": 1,
+      "category": "1",
       "image": "/images/products/lahmacun.jpg"
     },
     {
       "id": 16,
       "title": "Ayran",
       "price": 15.00,
-      "category": 2,
+      "category": "2",
       "image": "/images/products/ayran.jpg"
     },
     {
       "id": 17,
       "title": "Künefe",
       "price": 90.00,
-      "category": 3,
+      "category": "3",
       "image": "/images/products/kunefe.jpg"
     },
     {
       "id": 18,
       "title": "Kuşbaşılı Pide",
       "price": 95.00,
-      "category": 11,
+      "category": "11",
       "image": "/images/products/kusbasili-pide.jpg"
     },
     {
       "id": 19,
       "title": "Izgara Köfte",
       "price": 140.00,
-      "category": 12,
+      "category": "12",
       "image": "/images/products/izgara-kofte.jpg"
     },
     {
       "id": 20,
       "title": "Levrek",
       "price": 180.00,
-      "category": 14,
+      "category": "14",
       "image": "/images/products/levrek.jpg"
     }
   ]

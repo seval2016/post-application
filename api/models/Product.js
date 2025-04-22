@@ -16,13 +16,14 @@ const productSchema = new mongoose.Schema({
         min: [0, 'Fiyat 0\'dan küçük olamaz']
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: [true, 'Kategori zorunludur']
+        type: String,
+        required: [true, 'Kategori zorunludur'],
+        trim: true
     },
     image: {
         type: String,
-        required: [true, 'Ürün görseli zorunludur']
+        required: [true, 'Ürün görseli zorunludur'],
+        trim: true
     },
     stock: {
         type: Number,
@@ -41,6 +42,4 @@ const productSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const Product = mongoose.model('Product', productSchema);
-
-module.exports = Product; 
+module.exports = mongoose.model('Product', productSchema); 

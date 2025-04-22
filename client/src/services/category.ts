@@ -1,57 +1,51 @@
 import axios from 'axios';
 
-interface Category {
+const API_URL = 'http://localhost:5000/api';
+
+export interface Category {
   id: string;
   name: string;
+  description?: string;
   image: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export const addCategory = async (data: { name: string; image: string }): Promise<Category> => {
+export const getCategories = async (): Promise<Category[]> => {
   try {
-    // Validate input
-    if (!data.name || data.name.trim() === '') {
-      throw new Error('Kategori adı zorunludur');
-    }
-    if (!data.image || data.image.trim() === '') {
-      throw new Error('Kategori görseli zorunludur');
-    }
-
-    // Get token
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Oturum bulunamadı. Lütfen tekrar giriş yapın.');
-    }
-
-    // Clean data
-    const cleanData = {
-      name: data.name.trim(),
-      image: data.image.trim()
-    };
-
-    console.log('Gönderilen kategori verisi:', cleanData);
-
-    const response = await axios.post('http://localhost:5000/api/categories', cleanData, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    console.log('Backend yanıtı:', response.data);
-
-    // Return the response data directly
-    return {
-      id: response.data.id,
-      name: response.data.name,
-      image: response.data.image
-    };
+    const response = await axios.get(`${API_URL}/categories`);
+    return response.data;
   } catch (error) {
-    console.error('Kategori ekleme hatası:', error);
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || 'Kategori eklenirken bir hata oluştu';
-      console.error('Detaylı hata:', error.response?.data);
-      throw new Error(errorMessage);
-    }
+    console.error('Kategoriler yüklenirken hata oluştu:', error);
+    throw error;
+  }
+};
+
+export const addCategory = async (categoryData: { name: string; description?: string }): Promise<Category> => {
+  try {
+    const response = await axios.post(`${API_URL}/categories`, categoryData);
+    return response.data;
+  } catch (error) {
+    console.error('Kategori eklenirken hata oluştu:', error);
+    throw error;
+  }
+};
+
+export const updateCategory = async (id: string, categoryData: { name: string; description?: string }): Promise<Category> => {
+  try {
+    const response = await axios.put(`${API_URL}/categories/${id}`, categoryData);
+    return response.data;
+  } catch (error) {
+    console.error('Kategori güncellenirken hata oluştu:', error);
+    throw error;
+  }
+};
+
+export const deleteCategory = async (id: string): Promise<void> => {
+  try {
+    await axios.delete(`${API_URL}/categories/${id}`);
+  } catch (error) {
+    console.error('Kategori silinirken hata oluştu:', error);
     throw error;
   }
 }; 

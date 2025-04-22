@@ -3,16 +3,15 @@ const router = express.Router();
 const { verifyToken, isAdmin, isManager, isInventoryManager, hasRole } = require('../middleware/authMiddleware');
 const Product = require('../models/Product');
 
-// Tüm ürünleri getir (herkes erişebilir)
+// Tüm ürünleri getir
 router.get('/', async (req, res) => {
-    try {
-        const products = await Product.find()
-            .populate('category', 'name')
-            .sort({ name: 1 });
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ message: 'Ürünler getirilirken bir hata oluştu', error: error.message });
-    }
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (error) {
+    console.error('Ürünler getirilirken hata:', error);
+    res.status(500).json({ message: 'Ürünler getirilirken bir hata oluştu' });
+  }
 });
 
 // Tek bir ürün getir (herkes erişebilir)
@@ -28,65 +27,80 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Yeni ürün oluştur (sadece admin, manager ve inventory)
-router.post('/', verifyToken, hasRole(['admin', 'manager', 'inventory']), async (req, res) => {
-    try {
-        const { name, description, price, category, stock, sku, barcode } = req.body;
-        const product = new Product({
-            name,
-            description,
-            price,
-            category,
-            stock,
-            sku,
-            barcode
-        });
-        await product.save();
-        res.status(201).json(product);
-    } catch (error) {
-        res.status(400).json({ message: 'Ürün oluşturulurken bir hata oluştu', error: error.message });
+// Yeni ürün ekle
+router.post('/', async (req, res) => {
+  try {
+    const { title, price, image, category } = req.body;
+
+    // Gerekli alanları kontrol et
+    if (!title || !price || !image || !category) {
+      return res.status(400).json({
+        message: 'Eksik alanlar var',
+        details: {
+          title: !title ? 'Ürün adı zorunludur' : null,
+          price: !price ? 'Ürün fiyatı zorunludur' : null,
+          image: !image ? 'Ürün görseli zorunludur' : null,
+          category: !category ? 'Kategori zorunludur' : null
+        }
+      });
     }
+
+    // Yeni ürün oluştur
+    const product = new Product({
+      title: title.trim(),
+      price: Number(price),
+      image: image.trim(),
+      category: category.trim()
+    });
+
+    // Ürünü kaydet
+    const savedProduct = await product.save();
+    console.log('Yeni ürün eklendi:', savedProduct);
+    res.status(201).json(savedProduct);
+  } catch (error) {
+    console.error('Ürün eklenirken hata:', error);
+    res.status(500).json({ message: 'Ürün eklenirken bir hata oluştu' });
+  }
 });
 
-// Ürün güncelle (sadece admin, manager ve inventory)
-router.patch('/:id', verifyToken, hasRole(['admin', 'manager', 'inventory']), async (req, res) => {
-    try {
-        const { name, description, price, category, stock, sku, barcode } = req.body;
-        const product = await Product.findById(req.params.id);
-        
-        if (!product) {
-            return res.status(404).json({ message: 'Ürün bulunamadı' });
-        }
+// Ürün güncelle
+router.put('/:id', async (req, res) => {
+  try {
+    const { title, price, image, category } = req.body;
+    const product = await Product.findById(req.params.id);
 
-        if (name) product.name = name;
-        if (description) product.description = description;
-        if (price) product.price = price;
-        if (category) product.category = category;
-        if (stock !== undefined) product.stock = stock;
-        if (sku) product.sku = sku;
-        if (barcode) product.barcode = barcode;
-
-        await product.save();
-        res.json(product);
-    } catch (error) {
-        res.status(400).json({ message: 'Ürün güncellenirken bir hata oluştu', error: error.message });
+    if (!product) {
+      return res.status(404).json({ message: 'Ürün bulunamadı' });
     }
+
+    // Güncelleme yap
+    product.title = title || product.title;
+    product.price = price || product.price;
+    product.image = image || product.image;
+    product.category = category || product.category;
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error('Ürün güncellenirken hata:', error);
+    res.status(500).json({ message: 'Ürün güncellenirken bir hata oluştu' });
+  }
 });
 
-// Ürün sil (sadece admin)
-router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
-    try {
-        const product = await Product.findById(req.params.id);
-        
-        if (!product) {
-            return res.status(404).json({ message: 'Ürün bulunamadı' });
-        }
-
-        await product.deleteOne();
-        res.json({ message: 'Ürün başarıyla silindi' });
-    } catch (error) {
-        res.status(500).json({ message: 'Ürün silinirken bir hata oluştu', error: error.message });
+// Ürün sil
+router.delete('/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Ürün bulunamadı' });
     }
+
+    await product.remove();
+    res.json({ message: 'Ürün başarıyla silindi' });
+  } catch (error) {
+    console.error('Ürün silinirken hata:', error);
+    res.status(500).json({ message: 'Ürün silinirken bir hata oluştu' });
+  }
 });
 
 // Stok güncelle (sadece admin, manager ve inventory)

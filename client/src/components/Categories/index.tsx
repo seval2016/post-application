@@ -19,9 +19,10 @@ interface BackendCategory {
 
 interface CategoriesProps {
   onCategorySelect: (categoryId: string | null) => void;
+  onCategoriesLoaded?: (categories: Category[]) => void;
 }
 
-const Categories = ({ onCategorySelect }: CategoriesProps) => {
+const Categories = ({ onCategorySelect, onCategoriesLoaded }: CategoriesProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -62,6 +63,12 @@ const Categories = ({ onCategorySelect }: CategoriesProps) => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (categories.length > 0 && onCategoriesLoaded) {
+      onCategoriesLoaded(categories);
+    }
+  }, [categories, onCategoriesLoaded]);
 
   const handleCategoryClick = (categoryId: string | null) => {
     setSelectedCategory(categoryId);

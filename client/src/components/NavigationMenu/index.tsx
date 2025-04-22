@@ -7,26 +7,16 @@ import {
   LogoutOutlined 
 } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/authSlice';
 import CustomBadge from './CustomBadge';
 import '../../styles/components/NavigationMenu/NavigationMenu.css';
+import { selectCartItemsCount } from '../../redux/cartSlice';
 
-interface CartItem {
-  id: number;
-  title: string;
-  price: number;
-  image: string;
-  quantity: number;
-}
-
-interface NavigationMenuProps {
-  cartItems: CartItem[];
-}
-
-const DesktopMenu = ({ cartItems }: { cartItems: CartItem[] }) => {
+const DesktopMenu = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const cartItemsCount = useSelector(selectCartItemsCount);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -40,7 +30,7 @@ const DesktopMenu = ({ cartItems }: { cartItems: CartItem[] }) => {
         <span className="menu-text">Ana Sayfa</span>
       </Link>
       <Link to="/cart" className="menu-item group">
-        <CustomBadge count={cartItems.length}>
+        <CustomBadge count={cartItemsCount}>
           <ShoppingCartOutlined className="menu-icon group-hover:scale-110" />
         </CustomBadge>
         <span className="menu-text">Sepet</span>
@@ -103,10 +93,10 @@ const MobileMenu = () => {
 };
 
 // Tüm navigasyon bileşenlerini içeren ana bileşen
-const NavigationMenu = ({ cartItems }: NavigationMenuProps) => {
+const NavigationMenu = () => {
   return (
     <>
-      <DesktopMenu cartItems={cartItems} />
+      <DesktopMenu />
       <MobileMenu />
     </>
   );

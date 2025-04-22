@@ -1,12 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Statik dosya sunumu için uploads klasörünü ayarla
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // MongoDB bağlantı URL'i
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -44,12 +48,14 @@ const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const billRoutes = require('./routes/bills');
+const uploadRouter = require('./routes/upload');
 
 // Route'ları kullan
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/bills', billRoutes);
+app.use('/api/upload', uploadRouter);
 
 // Ana route
 app.get('/', (req, res) => {

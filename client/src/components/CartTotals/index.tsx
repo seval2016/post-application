@@ -1,20 +1,13 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { selectCartItemsCount, CartItem as StoreCartItem } from '../../redux/cartSlice';
 import CartItem from './CartItem';
 import CartSummary from './CartSummary';
 import '../../styles/components/Cart/CartTotals.css';
 
-interface CartItem {
-  id: number;
-  title: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
 interface CartTotalsProps {
-  items: CartItem[];
+  items: StoreCartItem[];
   total: number;
   discount?: number;
   onQuantityChange: (id: number, quantity: number) => void;
@@ -27,6 +20,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
   onRemoveItem,
 }) => {
   const { items, total } = useSelector((state: RootState) => state.cart);
+  const cartItemsCount = useSelector(selectCartItemsCount);
 
   // KDV oranı %8 olarak hesaplanıyor
   const VAT_RATE = 0.08;
@@ -38,7 +32,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({
     <div className="cart-totals-container">
       <div className="cart-totals-header">
         <h2 className="cart-totals-title">Sepetim</h2>
-        <span className="cart-totals-count">{items.length} ürün</span>
+        <span className="cart-totals-count">{cartItemsCount} ürün</span>
       </div>
 
       <div className="cart-totals-items">
