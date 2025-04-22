@@ -30,7 +30,15 @@
 
 /* Category Card Styles */
 .category-card {
-  @apply p-3 cursor-pointer transition-all select-none rounded-lg flex items-center shadow-sm border border-gray-200 min-w-[150px];
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .category-card-selected {
@@ -55,6 +63,28 @@
 
 .category-title {
   @apply text-gray-700 text-sm font-medium whitespace-nowrap flex-1;
+}
+
+.category-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.category-delete-icon {
+  color: #ff4d4f;
+  font-size: 18px;
+  margin-left: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.category-card:hover .category-delete-icon {
+  opacity: 1;
+}
+
+.category-delete-icon:hover {
+  color: #ff7875;
 }
 
 /* Add Category Card */

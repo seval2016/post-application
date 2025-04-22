@@ -1,50 +1,127 @@
 import { useState, useEffect } from 'react';
-import categoriesData from '../../data/categories.json';
 import { AddCategoryModal } from './AddCategoryModal';
 import { EditCategoryModal } from './EditCategoryModal';
+import { message, Popconfirm } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import '../../styles/components/Categories/Categories.css';
 
 interface Category {
-  id: number;
-  title: string;
+  id: string;
+  name: string;
+  image: string;
+}
+
+interface BackendCategory {
+  id: string;
+  name: string;
   image: string;
 }
 
 interface CategoriesProps {
-  onCategorySelect: (categoryId: number | null) => void;
+  onCategorySelect: (categoryId: string | null) => void;
 }
 
-const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
+const Categories = ({ onCategorySelect }: CategoriesProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/categories', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın.');
+        }
+        throw new Error('Kategoriler yüklenirken bir hata oluştu');
+      }
+      
+      const data = await response.json();
+      console.log('Backend\'den gelen kategoriler:', data);
+      setCategories(data.map((category: BackendCategory) => ({
+        id: category.id,
+        name: category.name,
+        image: category.image
+      })));
+    } catch (error) {
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error('Kategoriler yüklenirken bir hata oluştu');
+      }
+    }
+  };
+
   useEffect(() => {
-    setCategories(categoriesData.categories);
+    fetchCategories();
   }, []);
 
-  const handleCategoryClick = (categoryId: number | null) => {
+  const handleCategoryClick = (categoryId: string | null) => {
     setSelectedCategory(categoryId);
     onCategorySelect(categoryId);
   };
 
-  const handleAddCategory = ({ title, imageUrl }: { title: string; imageUrl: string }) => {
-    const newCategory: Category = {
-      id: categories.length + 2,
-      title,
-      image: imageUrl || 'https://via.placeholder.com/96'
-    };
-    setCategories([...categories, newCategory]);
+  const handleAddCategory = (newCategory: Category) => {
+    setCategories(prevCategories => [...prevCategories, newCategory]);
+    fetchCategories(); // Kategorileri yeniden yükle
   };
 
-  const handleEditCategory = ({ title, imageUrl }: { title: string; imageUrl: string }) => {
+  const handleEditCategory = ({ name, imageUrl }: { name: string; imageUrl: string }) => {
     if (selectedCategory) {
-      setCategories(categories.map(category => 
-        category.id === selectedCategory
-          ? { ...category, title: title || category.title, image: imageUrl || category.image }
-          : category
-      ));
+      setCategories(prevCategories => 
+        prevCategories.map(category => 
+          category.id === selectedCategory
+            ? { ...category, name, image: imageUrl }
+            : category
+        )
+      );
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Oturum bulunamadı. Lütfen tekrar giriş yapın.');
+      }
+
+      const response = await fetch(`http://localhost:5000/api/categories/${categoryId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Oturumunuz sona erdi. Lütfen tekrar giriş yapın.');
+        }
+        throw new Error('Kategori silinirken bir hata oluştu');
+      }
+
+      // Kategoriyi state'den kaldır
+      setCategories(prevCategories => prevCategories.filter(category => category.id !== categoryId));
+      
+      // Eğer silinen kategori seçiliyse, seçimi temizle
+      if (selectedCategory === categoryId) {
+        setSelectedCategory(null);
+        onCategorySelect(null);
+      }
+      
+      message.success('Kategori başarıyla silindi');
+    } catch (error) {
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error('Kategori silinirken bir hata oluştu');
+      }
     }
   };
 
@@ -57,6 +134,7 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
       <div className="categories-list">
         <div className="categories-scroll-area">
           <div
+            key="all-categories"
             className={`category-card ${
               selectedCategory === null ? 'category-card-selected' : 'category-card-default'
             }`}
@@ -76,19 +154,31 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
               className={`category-card ${
                 selectedCategory === category.id ? 'category-card-selected' : 'category-card-default'
               }`}
-              onClick={() => handleCategoryClick(category.id)}
             >
-              <div className="category-icon-wrapper">
-                <img src={category.image} alt={category.title} className="category-image" />
+              <div 
+                className="category-content"
+                onClick={() => handleCategoryClick(category.id)}
+              >
+                <div className="category-icon-wrapper">
+                  <img src={category.image} alt={category.name} className="category-image" />
+                </div>
+                <span className="category-title">{category.name}</span>
               </div>
-              <span className="category-title">{category.title}</span>
+              <Popconfirm
+                title="Kategoriyi silmek istediğinize emin misiniz?"
+                onConfirm={() => handleDeleteCategory(category.id)}
+                okText="Evet"
+                cancelText="Hayır"
+              >
+                <DeleteOutlined className="category-delete-icon" />
+              </Popconfirm>
             </div>
           ))}
         </div>
       </div>
 
       <div className="add-category-wrapper">
-        <div className="category-card category-card-default" onClick={() => setIsAddModalOpen(true)}>
+        <div key="add-category" className="category-card category-card-default" onClick={() => setIsAddModalOpen(true)}>
           <div className="category-icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="category-icon">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -97,7 +187,7 @@ const Categories: React.FC<CategoriesProps> = ({ onCategorySelect }) => {
           <span className="category-title">Kategori Ekle</span>
         </div>
 
-        <div className="category-card category-card-default mt-2" onClick={() => setIsEditModalOpen(true)}>
+        <div key="edit-category" className="category-card category-card-default mt-2" onClick={() => setIsEditModalOpen(true)}>
           <div className="category-icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="category-icon">
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />

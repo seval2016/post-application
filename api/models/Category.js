@@ -1,27 +1,15 @@
 const mongoose = require('mongoose');
 
-const categorySchema = new mongoose.Schema({
+const CategorySchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, 'Kategori adı zorunludur'],
-        trim: true,
         unique: true
     },
-    description: {
+    image: {
         type: String,
-        trim: true
-    },
-    icon: {
-        type: String,
-        required: [true, 'Kategori ikonu zorunludur'],
-        default: 'default-icon' // Varsayılan bir ikon
-    },
-    isActive: {
-        type: Boolean,
-        default: true
+        required: [true, 'Kategori görseli zorunludur']
     }
-}, {
-    timestamps: true
-});
+}, { timestamps: true });
 
-module.exports = mongoose.model('Category', categorySchema);
+module.exports = mongoose.model('Category', CategorySchema);

@@ -1,5 +1,5 @@
 import { Form, Input, Button, Checkbox, message } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../Header/Logo";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import '../../styles/components/auth/LoginForm.css';
@@ -12,12 +12,34 @@ interface LoginFormData {
 
 const LoginForm = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   const onFinish = async (values: LoginFormData) => {
     try {
-      // API call will be implemented here
-      console.log("Success:", values);
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Giriş başarısız');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('token', data.token);
+      
+      if (values.rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+      }
+
       message.success("Giriş başarılı!");
+      navigate('/');
     } catch (error) {
       console.error("Error:", error);
       message.error("Giriş sırasında bir hata oluştu.");

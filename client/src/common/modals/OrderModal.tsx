@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   Steps,
@@ -24,7 +24,6 @@ import {
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import jsPDF from "jspdf";
 import "../../styles/components/Order/OrderModal.css";
 
 const { Text, Title } = Typography;
@@ -54,6 +53,15 @@ const OrderModal: React.FC<OrderModalProps> = ({
   const vat = subtotal * VAT_RATE;
   const grandTotal = subtotal + vat + shipping;
 
+  // Modal kapandığında formu sıfırla
+  useEffect(() => {
+    if (!isVisible) {
+      form.resetFields();
+      setCurrentStep(0);
+      setOrderCompleted(false);
+    }
+  }, [isVisible, form]);
+
   const handleCancel = () => {
     onCancel();
     form.resetFields();
@@ -72,11 +80,11 @@ const OrderModal: React.FC<OrderModalProps> = ({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-        console.log("Form values:", values);
-        // Burada sipariş işlemi gerçekleştirilecek
-        setOrderCompleted(true);
-        message.success("Siparişiniz başarıyla tamamlandı!");
-        onSuccess();
+      console.log("Form values:", values);
+      // Burada sipariş işlemi gerçekleştirilecek
+      setOrderCompleted(true);
+      message.success("Siparişiniz başarıyla tamamlandı!");
+      onSuccess();
     } catch (error) {
       console.error('Validation failed:', error);
     }
@@ -164,21 +172,21 @@ const OrderModal: React.FC<OrderModalProps> = ({
         <h3 className="order-modal-section-title">Ödeme Yöntemi</h3>
         <div className="order-modal-payment-methods">
           <div
-            className="order-modal-payment-method"
+            className={`order-modal-payment-method ${paymentMethod === 'credit_card' ? 'selected' : ''}`}
             onClick={() => setPaymentMethod('credit_card')}
           >
             <CreditCardOutlined className="order-modal-payment-method-icon" />
             <span>Kredi Kartı</span>
           </div>
           <div
-            className="order-modal-payment-method"
+            className={`order-modal-payment-method ${paymentMethod === 'bank_transfer' ? 'selected' : ''}`}
             onClick={() => setPaymentMethod('bank_transfer')}
           >
             <FileTextOutlined className="order-modal-payment-method-icon" />
             <span>Havale/EFT</span>
           </div>
           <div
-            className="order-modal-payment-method"
+            className={`order-modal-payment-method ${paymentMethod === 'cash' ? 'selected' : ''}`}
             onClick={() => setPaymentMethod('cash')}
           >
             <ShoppingOutlined className="order-modal-payment-method-icon" />
@@ -196,36 +204,74 @@ const OrderModal: React.FC<OrderModalProps> = ({
         layout="vertical"
         className="order-modal-form"
       >
-        <div className="order-modal-form-item">
-          <Text className="order-modal-form-label">Ad Soyad</Text>
-          <Input className="order-modal-form-input" />
-        </div>
-        <div className="order-modal-form-item">
-          <Text className="order-modal-form-label">E-posta</Text>
-          <Input className="order-modal-form-input" />
-        </div>
-        <div className="order-modal-form-item">
-          <Text className="order-modal-form-label">Telefon</Text>
-          <Input className="order-modal-form-input" />
-        </div>
-        <div className="order-modal-form-item">
-          <Text className="order-modal-form-label">Adres</Text>
-          <Input.TextArea className="order-modal-form-textarea" rows={3} />
-        </div>
+        <Form.Item
+          name="firstName"
+          label="Ad"
+          rules={[{ required: true, message: "Lütfen adınızı girin" }]}
+        >
+          <Input prefix={<UserOutlined />} placeholder="Adınız" />
+        </Form.Item>
+
+        <Form.Item
+          name="lastName"
+          label="Soyad"
+          rules={[{ required: true, message: "Lütfen soyadınızı girin" }]}
+        >
+          <Input prefix={<UserOutlined />} placeholder="Soyadınız" />
+        </Form.Item>
+
+        <Form.Item
+          name="email"
+          label="E-posta"
+          rules={[
+            { required: true, message: "Lütfen e-posta adresinizi girin" },
+            { type: "email", message: "Geçerli bir e-posta adresi girin" },
+          ]}
+        >
+          <Input prefix={<MailOutlined />} placeholder="E-posta adresiniz" />
+        </Form.Item>
+
+        <Form.Item
+          name="phone"
+          label="Telefon"
+          rules={[{ required: true, message: "Lütfen telefon numaranızı girin" }]}
+        >
+          <Input prefix={<PhoneOutlined />} placeholder="Telefon numaranız" />
+        </Form.Item>
+
+        <Form.Item
+          name="address"
+          label="Adres"
+          rules={[{ required: true, message: "Lütfen adresinizi girin" }]}
+        >
+          <Input.TextArea rows={3} placeholder="Adresiniz" />
+        </Form.Item>
+
         {paymentMethod === 'credit_card' && (
           <>
-            <div className="order-modal-form-item">
-              <Text className="order-modal-form-label">Kart Numarası</Text>
-              <Input className="order-modal-form-input" />
-            </div>
-            <div className="order-modal-form-item">
-              <Text className="order-modal-form-label">Son Kullanma Tarihi</Text>
-              <Input className="order-modal-form-input" />
-            </div>
-            <div className="order-modal-form-item">
-              <Text className="order-modal-form-label">CVV</Text>
-              <Input className="order-modal-form-input" />
-            </div>
+            <Form.Item
+              name="cardNumber"
+              label="Kart Numarası"
+              rules={[{ required: true, message: "Lütfen kart numarasını girin" }]}
+            >
+              <Input placeholder="1234 5678 9012 3456" />
+            </Form.Item>
+
+            <Form.Item
+              name="expiryDate"
+              label="Son Kullanma Tarihi"
+              rules={[{ required: true, message: "Lütfen son kullanma tarihini girin" }]}
+            >
+              <Input placeholder="MM/YY" />
+            </Form.Item>
+
+            <Form.Item
+              name="cvv"
+              label="CVV"
+              rules={[{ required: true, message: "Lütfen CVV kodunu girin" }]}
+            >
+              <Input placeholder="123" />
+            </Form.Item>
           </>
         )}
       </Form>
@@ -284,60 +330,65 @@ const OrderModal: React.FC<OrderModalProps> = ({
               </Title>
             }
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Form
+              form={form}
+              layout="vertical"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Form.Item
+                  name="firstName"
+                  label={<Text strong>Ad</Text>}
+                  rules={[{ required: true, message: "Lütfen adınızı girin" }]}
+                >
+                  <Input
+                    prefix={<UserOutlined />}
+                    placeholder="Adınız"
+                    className="rounded-md"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="lastName"
+                  label={<Text strong>Soyad</Text>}
+                  rules={[{ required: true, message: "Lütfen soyadınızı girin" }]}
+                >
+                  <Input
+                    prefix={<UserOutlined />}
+                    placeholder="Soyadınız"
+                    className="rounded-md"
+                  />
+                </Form.Item>
+              </div>
+
               <Form.Item
-                name="firstName"
-                label={<Text strong>Ad</Text>}
-                rules={[{ required: true, message: "Lütfen adınızı girin" }]}
+                name="email"
+                label={<Text strong>E-posta</Text>}
+                rules={[
+                  { required: true, message: "Lütfen e-posta adresinizi girin" },
+                  { type: "email", message: "Geçerli bir e-posta adresi girin" },
+                ]}
               >
                 <Input
-                  prefix={<UserOutlined />}
-                  placeholder="Adınız"
+                  prefix={<MailOutlined />}
+                  placeholder="E-posta adresiniz"
                   className="rounded-md"
                 />
               </Form.Item>
 
               <Form.Item
-                name="lastName"
-                label={<Text strong>Soyad</Text>}
-                rules={[{ required: true, message: "Lütfen soyadınızı girin" }]}
+                name="phone"
+                label={<Text strong>Telefon Numarası</Text>}
+                rules={[
+                  { required: true, message: "Lütfen telefon numaranızı girin" },
+                ]}
               >
                 <Input
-                  prefix={<UserOutlined />}
-                  placeholder="Soyadınız"
+                  prefix={<PhoneOutlined />}
+                  placeholder="05XX XXX XX XX"
                   className="rounded-md"
                 />
               </Form.Item>
-            </div>
-
-            <Form.Item
-              name="email"
-              label={<Text strong>E-posta</Text>}
-              rules={[
-                { required: true, message: "Lütfen e-posta adresinizi girin" },
-                { type: "email", message: "Geçerli bir e-posta adresi girin" },
-              ]}
-            >
-              <Input
-                prefix={<MailOutlined />}
-                placeholder="E-posta adresiniz"
-                className="rounded-md"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="phone"
-              label={<Text strong>Telefon Numarası</Text>}
-              rules={[
-                { required: true, message: "Lütfen telefon numaranızı girin" },
-              ]}
-            >
-              <Input
-                prefix={<PhoneOutlined />}
-                placeholder="05XX XXX XX XX"
-                className="rounded-md"
-              />
-            </Form.Item>
+            </Form>
           </Card>
 
           <Card
@@ -348,19 +399,24 @@ const OrderModal: React.FC<OrderModalProps> = ({
               </Title>
             }
           >
-            <Form.Item
-              name="address"
-              label={<Text strong>Teslimat Adresi</Text>}
-              rules={[
-                { required: true, message: "Lütfen teslimat adresinizi girin" },
-              ]}
+            <Form
+              form={form}
+              layout="vertical"
             >
-              <Input.TextArea
-                rows={3}
-                placeholder="Adresinizi girin"
-                className="rounded-md"
-              />
-            </Form.Item>
+              <Form.Item
+                name="address"
+                label={<Text strong>Teslimat Adresi</Text>}
+                rules={[
+                  { required: true, message: "Lütfen teslimat adresinizi girin" },
+                ]}
+              >
+                <Input.TextArea
+                  rows={3}
+                  placeholder="Adresinizi girin"
+                  className="rounded-md"
+                />
+              </Form.Item>
+            </Form>
           </Card>
 
           <Card
@@ -371,45 +427,50 @@ const OrderModal: React.FC<OrderModalProps> = ({
               </Title>
             }
           >
-            <Form.Item
-              name="shippingMethod"
-              rules={[
-                { required: true, message: "Lütfen kargo yöntemini seçin" },
-              ]}
+            <Form
+              form={form}
+              layout="vertical"
             >
-              <Radio.Group className="w-full">
-                <div className="space-y-4">
-                  <div className="border rounded-lg p-4 hover:border-indigo-500 transition-all cursor-pointer">
-                    <Radio value="standard" className="w-full">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <Text strong>Standart Teslimat</Text>
-                          <div className="text-gray-500 text-sm">
-                            3-5 iş günü içinde teslimat
+              <Form.Item
+                name="shippingMethod"
+                rules={[
+                  { required: true, message: "Lütfen kargo yöntemini seçin" },
+                ]}
+              >
+                <Radio.Group className="w-full">
+                  <div className="space-y-4">
+                    <div className="border rounded-lg p-4 hover:border-indigo-500 transition-all cursor-pointer">
+                      <Radio value="standard" className="w-full">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <Text strong>Standart Teslimat</Text>
+                            <div className="text-gray-500 text-sm">
+                              3-5 iş günü içinde teslimat
+                            </div>
                           </div>
+                          <Text strong className="text-green-500">
+                            Ücretsiz
+                          </Text>
                         </div>
-                        <Text strong className="text-green-500">
-                          Ücretsiz
-                        </Text>
-                      </div>
-                    </Radio>
-                  </div>
-                  <div className="border rounded-lg p-4 hover:border-indigo-500 transition-all cursor-pointer">
-                    <Radio value="express" className="w-full">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <Text strong>Express Teslimat</Text>
-                          <div className="text-gray-500 text-sm">
-                            1-2 iş günü içinde teslimat
+                      </Radio>
+                    </div>
+                    <div className="border rounded-lg p-4 hover:border-indigo-500 transition-all cursor-pointer">
+                      <Radio value="express" className="w-full">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <Text strong>Express Teslimat</Text>
+                            <div className="text-gray-500 text-sm">
+                              1-2 iş günü içinde teslimat
+                            </div>
                           </div>
+                          <Text strong>₺24.99</Text>
                         </div>
-                        <Text strong>₺24.99</Text>
-                      </div>
-                    </Radio>
+                      </Radio>
+                    </div>
                   </div>
-                </div>
-              </Radio.Group>
-            </Form.Item>
+                </Radio.Group>
+              </Form.Item>
+            </Form>
           </Card>
         </div>
       ),
@@ -486,146 +547,40 @@ const OrderModal: React.FC<OrderModalProps> = ({
 
       {/* Fatura Modalı */}
       <Modal
-        title={
-          <Title level={4} className="mb-0">
-            Fatura Önizleme
-          </Title>
-        }
+        title="Fatura"
         open={invoiceModalVisible}
         onCancel={handleInvoiceModalClose}
         footer={[
+          <Button key="download" type="primary" onClick={() => {}}>
+            <DownloadOutlined /> İndir
+          </Button>,
           <Button key="close" onClick={handleInvoiceModalClose}>
             Kapat
-          </Button>,
-          <Button
-            key="download"
-            type="primary"
-            icon={<DownloadOutlined />}
-            onClick={() => {
-              // Fatura indirme işlemi
-              const doc = new jsPDF();
-              const pageWidth = doc.internal.pageSize.getWidth();
-
-              // Başlık
-              doc.setFontSize(20);
-              doc.text("FATURA", pageWidth / 2, 20, { align: "center" });
-
-              // Fatura Bilgileri
-              doc.setFontSize(12);
-              doc.text(`Fatura No: ${invoiceData.orderNumber}`, 20, 40);
-              doc.text(`Tarih: ${invoiceData.date}`, 20, 50);
-
-              // Müşteri Bilgileri
-              doc.setFontSize(14);
-              doc.text("Müşteri Bilgileri", 20, 70);
-              doc.setFontSize(12);
-              doc.text(
-                `Ad Soyad: ${invoiceData.customerInfo.firstName} ${invoiceData.customerInfo.lastName}`,
-                20,
-                80
-              );
-              doc.text(`E-posta: ${invoiceData.customerInfo.email}`, 20, 90);
-              doc.text(`Telefon: ${invoiceData.customerInfo.phone}`, 20, 100);
-              doc.text(`Adres: ${invoiceData.customerInfo.address}`, 20, 110);
-              doc.text(
-                `${invoiceData.customerInfo.city} / ${invoiceData.customerInfo.zipCode}`,
-                20,
-                120
-              );
-
-              // Ürün Tablosu
-              doc.setFontSize(14);
-              doc.text("Ürünler", 20, 140);
-
-              // Tablo Başlıkları
-              doc.setFontSize(12);
-              doc.text("Ürün", 20, 150);
-              doc.text("Adet", 100, 150);
-              doc.text("Fiyat", 130, 150);
-              doc.text("Toplam", 160, 150);
-
-              // Ürünler
-              let yPos = 160;
-              invoiceData.items.forEach((item) => {
-                doc.text(item.title, 20, yPos);
-                doc.text(item.quantity.toString(), 100, yPos);
-                doc.text(`₺${item.price.toFixed(2)}`, 130, yPos);
-                doc.text(
-                  `₺${(item.quantity * item.price).toFixed(2)}`,
-                  160,
-                  yPos
-                );
-                yPos += 10;
-              });
-
-              // Toplam Bilgileri
-              yPos += 10;
-              doc.text(
-                `Ara Toplam: ₺${invoiceData.subtotal.toFixed(2)}`,
-                130,
-                yPos
-              );
-              yPos += 10;
-              doc.text(
-                `Kargo: ${
-                  invoiceData.shipping === 0
-                    ? "Ücretsiz"
-                    : `₺${invoiceData.shipping.toFixed(2)}`
-                }`,
-                130,
-                yPos
-              );
-              yPos += 10;
-              doc.text(`KDV (%8): ₺${invoiceData.vat.toFixed(2)}`, 130, yPos);
-              yPos += 10;
-              doc.setFontSize(14);
-              doc.text(
-                `Genel Toplam: ₺${invoiceData.grandTotal.toFixed(2)}`,
-                130,
-                yPos
-              );
-
-              // Ödeme Yöntemi
-              yPos += 20;
-              doc.setFontSize(12);
-              doc.text(`Ödeme Yöntemi: ${invoiceData.paymentMethod}`, 20, yPos);
-
-              // PDF'i İndir
-              doc.save(`fatura-${invoiceData.orderNumber}.pdf`);
-
-              message.success("Faturanız indirildi!");
-              handleInvoiceModalClose();
-            }}
-          >
-            İndir
           </Button>,
         ]}
         width={800}
       >
-        <div className="p-6 bg-white">
-          <div className="flex justify-between mb-6">
-            <div>
-              <Title level={3}>FATURA</Title>
-              <Text className="block text-gray-500">
-                Sipariş No: {invoiceData.orderNumber}
-              </Text>
-              <Text className="block text-gray-500">
-                Tarih: {invoiceData.date}
-              </Text>
+        {/* Fatura içeriği */}
+        <div className="invoice-container">
+          <div className="invoice-header">
+            <div className="invoice-logo">
+              <h1 className="text-2xl font-bold">LOGO</h1>
             </div>
-            <div className="text-right">
-              <Title level={4}>Şirket Adı</Title>
-              <Text className="block">Adres Bilgileri</Text>
-              <Text className="block">Vergi No: 1234567890</Text>
+            <div className="invoice-info">
+              <h2 className="text-xl font-semibold">FATURA</h2>
+              <p className="text-gray-600">Fatura No: {invoiceData.orderNumber}</p>
+              <p className="text-gray-600">Tarih: {invoiceData.date}</p>
             </div>
           </div>
 
-          <div className="mb-6">
-            <Title level={4}>Müşteri Bilgileri</Title>
-            <Text className="block">{invoiceData.customerInfo.firstName} {invoiceData.customerInfo.lastName}</Text>
-            <Text className="block">{invoiceData.customerInfo.email}</Text>
-            <Text className="block">{invoiceData.customerInfo.phone}</Text>
-            <Text className="block">{invoiceData.customerInfo.address}</Text>
+          <div className="invoice-customer">
+            <h3 className="text-lg font-medium mb-2">Müşteri Bilgileri</h3>
+            <p className="text-gray-700">
+              {invoiceData.customerInfo.firstName} {invoiceData.customerInfo.lastName}
+            </p>
+            <p className="text-gray-700">{invoiceData.customerInfo.email}</p>
+            <p className="text-gray-700">{invoiceData.customerInfo.phone}</p>
+            <p className="text-gray-700">{invoiceData.customerInfo.address}</p>
           </div>
 
           <div className="mb-6">
@@ -655,33 +610,32 @@ const OrderModal: React.FC<OrderModalProps> = ({
             </table>
           </div>
 
-          <div className="flex justify-end">
-            <div className="w-1/3">
-              <div className="flex justify-between py-2 border-b">
-                <Text strong>Ara Toplam:</Text>
-                <Text>₺{invoiceData.subtotal.toFixed(2)}</Text>
-              </div>
-              <div className="flex justify-between py-2 border-b">
-                <Text strong>Kargo:</Text>
-                <Text>
-                  {invoiceData.shipping === 0
-                    ? "Ücretsiz"
-                    : `₺${invoiceData.shipping.toFixed(2)}`}
-                </Text>
-              </div>
-              <div className="flex justify-between py-2 border-b">
-                <Text strong>KDV (%8):</Text>
-                <Text>₺{invoiceData.vat.toFixed(2)}</Text>
-              </div>
-              <div className="flex justify-between py-2">
-                <Text strong className="text-lg">
-                  Toplam:
-                </Text>
-                <Text strong className="text-lg text-indigo-600">
-                  ₺{invoiceData.grandTotal.toFixed(2)}
-                </Text>
-              </div>
+          <div className="invoice-summary">
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600">Ara Toplam:</span>
+              <span className="font-medium">₺{invoiceData.subtotal.toFixed(2)}</span>
             </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600">KDV (%8):</span>
+              <span className="font-medium">₺{invoiceData.vat.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600">Kargo:</span>
+              <span className="font-medium">₺{invoiceData.shipping.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-lg font-semibold pt-2 border-t">
+              <span>Toplam:</span>
+              <span>₺{invoiceData.grandTotal.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div className="invoice-footer mt-8">
+            <p className="text-gray-500 text-sm">
+              Ödeme Yöntemi: {invoiceData.paymentMethod}
+            </p>
+            <p className="text-gray-500 text-sm mt-2">
+              Teşekkür ederiz!
+            </p>
           </div>
         </div>
       </Modal>

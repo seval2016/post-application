@@ -15,7 +15,7 @@ interface Product {
 }
 
 interface ProductsProps {
-  selectedCategory: number | null;
+  selectedCategory: string | null;
 }
 
 const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
@@ -24,7 +24,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
 
   useEffect(() => {
     const filteredProducts = selectedCategory
-      ? productsData.products.filter(product => product.category === selectedCategory)
+      ? productsData.products.filter(product => product.category === Number(selectedCategory))
       : productsData.products;
     setProducts(filteredProducts);
   }, [selectedCategory]);
