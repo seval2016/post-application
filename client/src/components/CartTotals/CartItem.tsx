@@ -1,17 +1,13 @@
 import React from 'react';
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Popconfirm } from 'antd';
 import '../../styles/components/Cart/CartTotals.css';
+import { CartItem as StoreCartItem } from '../../redux/cartSlice';
 
 interface CartItemProps {
-  item: {
-    id: number;
-    title: string;
-    price: number;
-    quantity: number;
-    image: string;
-  };
+  item: StoreCartItem;
   onQuantityChange: (id: number, quantity: number) => void;
-  onRemove: (id: number) => void;
+  onRemove: (id: string) => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove }) => {
@@ -21,7 +17,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1) {
-      onQuantityChange(item.id, newQuantity);
+      onQuantityChange(Number(item.id), newQuantity);
     }
   };
 
@@ -47,12 +43,20 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
           </button>
         </div>
       </div>
-      <button
-        className="cart-item-delete"
-        onClick={() => onRemove(item.id)}
+      <Popconfirm
+        title={`${item.title} ürününü silmek istediğinize emin misiniz?`}
+        onConfirm={() => onRemove(item.id)}
+        okText="Evet"
+        cancelText="Hayır"
+        okType="primary"
+        okButtonProps={{ className: 'btn-primary' }}
+        cancelButtonProps={{ className: 'btn-secondary' }}
+        placement="left"
       >
-        <DeleteOutlined />
-      </button>
+        <button className="cart-item-delete">
+          <DeleteOutlined />
+        </button>
+      </Popconfirm>
     </div>
   );
 };

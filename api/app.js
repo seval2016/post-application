@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from public/uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB bağlantısı
 mongoose.connect(process.env.MONGODB_URI)
@@ -21,12 +21,12 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes
 const categoriesRouter = require('./routes/categories');
+const productRoutes = require('./routes/products');
 const uploadRouter = require('./routes/upload');
-const productRoutes = require('./routes/product');
 
 app.use('/api/categories', categoriesRouter);
-app.use('/api/upload', uploadRouter);
 app.use('/api/products', productRoutes);
+app.use('/api/upload', uploadRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

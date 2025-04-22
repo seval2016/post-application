@@ -1,26 +1,31 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../redux/store';
-import { selectCartItemsCount, CartItem as StoreCartItem } from '../../redux/cartSlice';
+import { selectCartItemsCount, removeFromCart, updateQuantity } from '../../redux/cartSlice';
 import CartItem from './CartItem';
 import CartSummary from './CartSummary';
 import '../../styles/components/Cart/CartTotals.css';
 
 interface CartTotalsProps {
-  items: StoreCartItem[];
-  total: number;
   discount?: number;
-  onQuantityChange: (id: number, quantity: number) => void;
-  onRemoveItem: (id: number) => void;
 }
 
-const CartTotals: React.FC<CartTotalsProps> = ({
-  discount = 0,
-  onQuantityChange,
-  onRemoveItem,
-}) => {
+const CartTotals: React.FC<CartTotalsProps> = ({ discount = 0 }) => {
+  const dispatch = useDispatch();
   const { items, total } = useSelector((state: RootState) => state.cart);
   const cartItemsCount = useSelector(selectCartItemsCount);
+
+  const handleQuantityChange = (id: number, quantity: number) => {
+    const currentItem = items.find(item => item.id === id.toString());
+    if (currentItem) {
+      const type = quantity > currentItem.quantity ? "increase" : "decrease";
+      dispatch(updateQuantity({ id: id.toString(), type }));
+    }
+  };
+
+  const handleRemoveItem = (id: string) => {
+    dispatch(removeFromCart(id));
+  };
 
   // KDV oranı %8 olarak hesaplanıyor
   const VAT_RATE = 0.08;
@@ -40,8 +45,8 @@ const CartTotals: React.FC<CartTotalsProps> = ({
           <CartItem
             key={item.id}
             item={item}
-            onQuantityChange={onQuantityChange}
-            onRemove={onRemoveItem}
+            onQuantityChange={handleQuantityChange}
+            onRemove={handleRemoveItem}
           />
         ))}
       </div>

@@ -87,15 +87,15 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Ürün sil
-router.delete('/:id', async (req, res) => {
+// Ürün sil (yetkilendirme gerekli)
+router.delete('/:id', verifyToken, hasRole(['admin', 'manager']), async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Ürün bulunamadı' });
     }
 
-    await product.remove();
+    await Product.deleteOne({ _id: req.params.id });
     res.json({ message: 'Ürün başarıyla silindi' });
   } catch (error) {
     console.error('Ürün silinirken hata:', error);
