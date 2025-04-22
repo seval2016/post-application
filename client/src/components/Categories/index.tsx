@@ -208,6 +208,7 @@ const Categories = ({ onCategorySelect }: CategoriesProps) => {
         onClose={() => setIsEditModalOpen(false)}
         onEdit={handleEditCategory}
         categories={categories}
+        onRefresh={fetchCategories}
       />
     </div>
   );

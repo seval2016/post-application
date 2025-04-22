@@ -12,11 +12,13 @@ interface EditCategoryModalProps {
   onClose: () => void;
   onEdit: (values: { name: string; imageUrl: string }) => void;
   categories: Category[];
+  onRefresh: () => void;
 }
 
-export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories }: EditCategoryModalProps) => {
+export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories, onRefresh }: EditCategoryModalProps) => {
   const [form] = Form.useForm();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleCategorySelect = (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
@@ -37,6 +39,7 @@ export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories }: EditC
         return;
       }
 
+      setLoading(true);
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Oturum bulunamadı. Lütfen tekrar giriş yapın.');
@@ -64,6 +67,7 @@ export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories }: EditC
 
       onEdit(values);
       message.success('Kategori başarıyla güncellendi');
+      onRefresh();
       handleClose();
     } catch (error) {
       if (error instanceof Error) {
@@ -71,6 +75,8 @@ export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories }: EditC
       } else {
         message.error('Bir hata oluştu');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,7 +95,7 @@ export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories }: EditC
         <Button key="cancel" onClick={handleClose}>
           İptal
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>
+        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>
           Kaydet
         </Button>,
       ]}
