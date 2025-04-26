@@ -1,10 +1,10 @@
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { decreaseQuantity, increaseQuantity, removeFromCart } from '../../redux/cartSlice';
-import '../../styles/components/CartItem/CartItem.css';
+import '../../styles/CartItem/CartItem.css';
 
 interface CartItemProps {
-  id: number;
+  id: string;
   title: string;
   price: number;
   image: string;

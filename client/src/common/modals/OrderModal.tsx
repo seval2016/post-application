@@ -22,9 +22,11 @@ import {
   PhoneOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/store";
-import "../../styles/components/Order/OrderModal.css";
+import { clearCart } from "../../redux/cartSlice";
+import InvoiceGenerator from "./InvoiceGenerator";
+import "../../styles/Order/OrderModal.css";
 
 const { Text, Title } = Typography;
 

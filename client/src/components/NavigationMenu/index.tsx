@@ -1,17 +1,21 @@
-import { 
-  HomeOutlined, 
+import React, { useState } from 'react';
+import { Menu, Button, Drawer } from 'antd';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  HomeOutlined,
   ShoppingCartOutlined,
   FileTextOutlined,
   UserOutlined,
   BarChartOutlined,
-  LogoutOutlined 
+  MenuOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { logout } from '../../redux/authSlice';
 import CustomBadge from './CustomBadge';
-import '../../styles/components/NavigationMenu/NavigationMenu.css';
+import { useSelector } from 'react-redux';
 import { selectCartItemsCount } from '../../redux/cartSlice';
+import '../../styles/NavigationMenu/NavigationMenu.css';
 
 const DesktopMenu = () => {
   const navigate = useNavigate();

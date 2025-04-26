@@ -48,7 +48,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onEdit, onDelete }) => 
       cover={
         <img 
           alt={item.title} 
-          src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`}
+          src={item.image}
           className="object-cover h-44" 
         />
       }

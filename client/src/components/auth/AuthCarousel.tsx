@@ -1,6 +1,6 @@
 import { Carousel } from "antd";
 import { Link } from "react-router-dom";
-import '../../styles/components/auth/AuthCarousel.css';
+import '../../styles/auth/AuthCarousel.css';
 
 const AuthCarousel = () => {
   return (

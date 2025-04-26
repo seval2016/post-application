@@ -1,18 +1,27 @@
+import React from 'react';
+import { Layout } from 'antd';
 import Header from '../../components/Header';
 import CartItems from '../../components/Cart/CartItems';
 import OrderSummary from '../../components/Cart/OrderSummary';
+import '../../styles/CartPage/CartPage.css';
 
-const CartPage = () => {
+const { Content } = Layout;
+
+const CartPage: React.FC = () => {
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
+    <Layout className="cart-page">
       <Header />
-      <div className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full mt-[84px] overflow-y-auto">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <Content className="cart-content">
+        <div className="cart-container">
+          <div className="cart-items-container">
           <CartItems />
+          </div>
+          <div className="order-summary-container">
           <OrderSummary />
         </div>
       </div>
-    </div>
+      </Content>
+    </Layout>
   );
 };
 

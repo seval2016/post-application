@@ -4,24 +4,51 @@ const User = require('../models/User');
 // Verify JWT token
 const verifyToken = async (req, res, next) => {
     try {
-        const token = req.headers.authorization?.split(' ')[1];
+        // Token'ı header'dan al
+        const authHeader = req.headers.authorization;
         
-        if (!token) {
+        if (!authHeader) {
+            console.log('No Authorization header found');
             return res.status(401).json({ message: 'Yetkilendirme token\'ı bulunamadı' });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id).select('-password');
+        // Bearer prefix varsa kaldır
+        let token = authHeader;
+        if (authHeader.startsWith('Bearer ')) {
+            token = authHeader.replace('Bearer ', '');
+        }
+        
+        console.log('Processing token:', token); // Hata ayıklama için
 
+        // Token'ı doğrula
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded); // Hata ayıklama için
+
+        // Kullanıcıyı bul
+        const user = await User.findById(decoded.id).select('-password');
         if (!user) {
+            console.log('No user found for id:', decoded.id);
             return res.status(401).json({ message: 'Geçersiz token' });
         }
 
+        // Kullanıcı aktif değilse
+        if (!user.isActive) {
+            console.log('User account is inactive:', decoded.id);
+            return res.status(401).json({ message: 'Hesabınız devre dışı bırakılmış' });
+        }
+
+        // Request'e user bilgisini ekle
         req.user = user;
         next();
     } catch (error) {
         console.error('Token verification error:', error);
-        res.status(401).json({ message: 'Geçersiz token' });
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ message: 'Geçersiz token formatı' });
+        }
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ message: 'Token süresi dolmuş' });
+        }
+        res.status(401).json({ message: 'Yetkilendirme başarısız' });
     }
 };
 

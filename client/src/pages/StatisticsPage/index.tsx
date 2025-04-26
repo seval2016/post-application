@@ -1,25 +1,57 @@
-import { Avatar, Space, Card, Table, Spin } from 'antd';
-import { UserOutlined, BarChartOutlined } from '@ant-design/icons';
+import { Avatar, Space, Card, Table, Spin, Row, Col, Statistic, DatePicker } from 'antd';
+import { 
+  UserOutlined, 
+  BarChartOutlined, 
+  ShoppingCartOutlined, 
+  DollarOutlined, 
+  ArrowUpOutlined, 
+  ArrowDownOutlined 
+} from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import Header from '../../components/Header';
 import { RootState } from '../../redux/store';
 import PageHeader from '../../common/PageHeader';
 import '../../styles/pages/StatisticsPage.css';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+
+const { RangePicker } = DatePicker;
 
 const StatisticsPage = () => {
   const admin = useSelector((state: RootState) => state.auth.user);
   const loading = false;
   const error = null;
 
-  const data = [
-    { name: 'Ocak', value: 400 },
-    { name: 'Şubat', value: 300 },
-    { name: 'Mart', value: 600 },
-    { name: 'Nisan', value: 800 },
-    { name: 'Mayıs', value: 500 },
-    { name: 'Haziran', value: 700 },
+  // Örnek veriler
+  const salesData = [
+    { name: 'Ocak', value: 4000 },
+    { name: 'Şubat', value: 3000 },
+    { name: 'Mart', value: 5000 },
+    { name: 'Nisan', value: 4500 },
+    { name: 'Mayıs', value: 6000 },
+    { name: 'Haziran', value: 5500 },
   ];
+
+  const categoryData = [
+    { name: 'Elektronik', value: 400 },
+    { name: 'Giyim', value: 300 },
+    { name: 'Gıda', value: 300 },
+    { name: 'Kozmetik', value: 200 },
+    { name: 'Ev Eşyaları', value: 100 },
+  ];
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
   const columns = [
     {
@@ -72,33 +104,129 @@ const StatisticsPage = () => {
           icon={BarChartOutlined}
           title="İstatistikler"
         />
-        <div className="statistics-page-content">
-          <Card className="statistics-page-card">
-            <h2 className="statistics-page-card-title">Aylık Satışlar</h2>
-            <div className="statistics-page-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="value" fill="#4f46e5" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
 
-          <Card className="statistics-page-card">
-            <h2 className="statistics-page-card-title">Satış Detayları</h2>
-            <Table
-              className="statistics-page-table"
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-            />
-          </Card>
+        {/* Tarih Filtresi */}
+        <div className="mb-6">
+          <RangePicker className="w-full sm:w-auto" />
         </div>
+
+        {/* Satış Kartları */}
+        <Row gutter={[16, 16]} className="mb-6">
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="statistics-card">
+              <Statistic
+                title="Toplam Satış"
+                value={12500}
+                prefix={<DollarOutlined />}
+                suffix="₺"
+                valueStyle={{ color: '#3f8600' }}
+              />
+              <div className="statistics-growth statistics-growth-green">
+                <ArrowUpOutlined /> 12.5% geçen aya göre
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="statistics-card">
+              <Statistic
+                title="Toplam Sipariş"
+                value={342}
+                prefix={<ShoppingCartOutlined />}
+                valueStyle={{ color: '#1890ff' }}
+              />
+              <div className="statistics-growth statistics-growth-blue">
+                <ArrowUpOutlined /> 8.3% geçen aya göre
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="statistics-card">
+              <Statistic
+                title="Ortalama Sipariş Değeri"
+                value={36.55}
+                prefix={<DollarOutlined />}
+                suffix="₺"
+                valueStyle={{ color: '#722ed1' }}
+              />
+              <div className="statistics-growth statistics-growth-purple">
+                <ArrowUpOutlined /> 3.2% geçen aya göre
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="statistics-card">
+              <Statistic
+                title="İade Oranı"
+                value={2.4}
+                suffix="%"
+                valueStyle={{ color: '#cf1322' }}
+              />
+              <div className="statistics-growth statistics-growth-red">
+                <ArrowDownOutlined /> 0.5% geçen aya göre
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Grafikler */}
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={16}>
+            <Card className="statistics-page-card">
+              <h2 className="statistics-page-card-title">Aylık Satışlar</h2>
+              <div className="statistics-page-chart">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={salesData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [`₺${value}`, 'Satış']} />
+                    <Legend />
+                    <Bar dataKey="value" name="Satış" fill="#4f46e5" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} lg={8}>
+            <Card className="statistics-page-card">
+              <h2 className="statistics-page-card-title">Kategori Dağılımı</h2>
+              <div className="statistics-page-chart">
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      nameKey="name"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [`₺${value}`, 'Satış']} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Satış Detayları Tablosu */}
+        <Card className="statistics-page-card mt-6">
+          <h2 className="statistics-page-card-title">Satış Detayları</h2>
+          <Table
+            className="statistics-page-table"
+            columns={columns}
+            dataSource={salesData}
+            pagination={false}
+          />
+        </Card>
       </div>
     </div>
   );

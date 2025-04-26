@@ -17,41 +17,44 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
   }
 });
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Sadece resim dosyaları yüklenebilir!'));
+  }
+};
 
 const upload = multer({
   storage: storage,
+  fileFilter: fileFilter,
   limits: {
-    fileSize: 2 * 1024 * 1024 // 2MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const ext = path.extname(file.originalname).toLowerCase();
-    const mimetype = file.mimetype;
-
-    if (allowedTypes.test(ext) && allowedTypes.test(mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Sadece resim dosyaları yüklenebilir!'));
-    }
+    fileSize: 5 * 1024 * 1024 // 5MB
   }
 });
 
-// Resim yükleme endpoint'i
-router.post('/', upload.single('image'), (req, res) => {
+// Test endpoint'i
+router.get('/test', (req, res) => {
+  res.json({ message: 'Upload route çalışıyor' });
+});
+
+// Tekli dosya yükleme
+router.post('/single', upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'Dosya yüklenemedi' });
     }
 
-    const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
-    res.json({ url: imageUrl });
+    // Dosya yolunu URL formatında döndür
+    const filePath = '/uploads/' + req.file.filename;
+    res.json({ path: filePath });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ message: 'Dosya yüklenirken bir hata oluştu' });
+    res.status(500).json({ message: error.message });
   }
 });
 

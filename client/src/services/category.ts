@@ -21,9 +21,12 @@ export const getCategories = async (): Promise<Category[]> => {
   }
 };
 
-export const addCategory = async (categoryData: { name: string; description?: string }): Promise<Category> => {
+export const addCategory = async (categoryData: { name: string; image: string }): Promise<Category> => {
   try {
-    const response = await axios.post(`${API_URL}/categories`, categoryData);
+    const token = localStorage.getItem('token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    
+    const response = await axios.post(`${API_URL}/categories`, categoryData, { headers });
     return response.data;
   } catch (error) {
     console.error('Kategori eklenirken hata oluştu:', error);
@@ -31,9 +34,12 @@ export const addCategory = async (categoryData: { name: string; description?: st
   }
 };
 
-export const updateCategory = async (id: string, categoryData: { name: string; description?: string }): Promise<Category> => {
+export const updateCategory = async (id: string, categoryData: { name: string; image: string }): Promise<Category> => {
   try {
-    const response = await axios.put(`${API_URL}/categories/${id}`, categoryData);
+    const token = localStorage.getItem('token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    
+    const response = await axios.put(`${API_URL}/categories/${id}`, categoryData, { headers });
     return response.data;
   } catch (error) {
     console.error('Kategori güncellenirken hata oluştu:', error);
@@ -43,7 +49,10 @@ export const updateCategory = async (id: string, categoryData: { name: string; d
 
 export const deleteCategory = async (id: string): Promise<void> => {
   try {
-    await axios.delete(`${API_URL}/categories/${id}`);
+    const token = localStorage.getItem('token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    
+    await axios.delete(`${API_URL}/categories/${id}`, { headers });
   } catch (error) {
     console.error('Kategori silinirken hata oluştu:', error);
     throw error;

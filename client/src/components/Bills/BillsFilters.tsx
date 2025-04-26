@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input, Select, DatePicker, Button, Space } from 'antd';
 import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
-import '../../styles/components/Bills/BillsFilters.css';
+import '../../styles/Bills/BillsFilters.css';
 
 const { RangePicker } = DatePicker;
 

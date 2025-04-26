@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, message, Modal, Form, Input, InputNumber, Upload } from 'antd';
+import { Button, message, Modal, Form, Input, InputNumber, Upload, Select } from 'antd';
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { getProducts, deleteProduct, Product, updateProduct } from '../../services/product';
 import AddProductModal from './AddProductModal';
@@ -16,6 +16,26 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [form] = Form.useForm();
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [categories, setCategories] = useState<{ id: string; name: string; }[]>([]);
+
+  const fetchCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const response = await fetch('http://localhost:5000/api/categories');
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Kategoriler yüklenirken hata:', error);
+      message.error('Kategoriler yüklenirken bir hata oluştu');
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const fetchProducts = async () => {
     try {
@@ -135,18 +155,16 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
           </Button>
         </div>
       </div>
-      <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredProducts.map((item) => (
-            <div key={`product-${item._id}`}>
-              <ProductCard 
-                item={item} 
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {filteredProducts.map((item) => (
+          <div key={`product-${item._id}`}>
+            <ProductCard 
+              item={item} 
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </div>
+        ))}
       </div>
 
       <AddProductModal
@@ -172,6 +190,26 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
           layout="vertical"
           className="max-w-full"
         >
+          <Form.Item
+            name="category"
+            label="Kategori"
+            rules={[{ required: true, message: 'Lütfen kategori seçin!' }]}
+          >
+            <Select
+              className="w-full"
+              placeholder="Kategori seçin"
+              loading={loadingCategories}
+              optionFilterProp="children"
+              showSearch
+            >
+              {categories.map(category => (
+                <Select.Option key={category.id} value={category.id}>
+                  {category.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
           <Form.Item
             name="title"
             label="Ürün Adı"

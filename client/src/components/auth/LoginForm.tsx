@@ -2,7 +2,10 @@ import { Form, Input, Button, Checkbox, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../Header/Logo";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import '../../styles/components/auth/LoginForm.css';
+import api from "../../utils/api";
+import { AxiosError } from 'axios';
+import { useEffect } from 'react';
+import '../../styles/auth/LoginForm.css';
 
 interface LoginFormData {
   email: string;
@@ -14,25 +17,30 @@ const LoginForm = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
+  // Component mount olduğunda eski token'ları temizle
+  useEffect(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }, []);
+
   const onFinish = async (values: LoginFormData) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password
-        }),
+      console.log("Login attempt with:", values.email);
+      
+      const { data } = await api.post('/auth/login', {
+        email: values.email,
+        password: values.password
       });
 
-      if (!response.ok) {
-        throw new Error('Giriş başarısız');
-      }
+      console.log("Login response:", data);
 
-      const data = await response.json();
+      // Token'ı localStorage'a kaydet
       localStorage.setItem('token', data.token);
+      
+      // Kullanıcı bilgilerini kaydet
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
       
       if (values.rememberMe) {
         localStorage.setItem('rememberMe', 'true');
@@ -41,8 +49,23 @@ const LoginForm = () => {
       message.success("Giriş başarılı!");
       navigate('/');
     } catch (error) {
-      console.error("Error:", error);
-      message.error("Giriş sırasında bir hata oluştu.");
+      console.error("Login error details:", error);
+      const axiosError = error as AxiosError<{ message: string }>;
+      
+      // Hata mesajını göster
+      if (axiosError.response) {
+        console.error("Response data:", axiosError.response.data);
+        console.error("Response status:", axiosError.response.status);
+        
+        // Backend'den gelen hata mesajını göster
+        if (axiosError.response.data && axiosError.response.data.message) {
+          message.error(axiosError.response.data.message);
+        } else {
+          message.error("Giriş sırasında bir hata oluştu.");
+        }
+      } else {
+        message.error("Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.");
+      }
     }
   };
 
@@ -105,7 +128,7 @@ const LoginForm = () => {
                 />
               </Form.Item>
 
-              <div className="flex items-center justify-between login-form-item">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <Form.Item
                   name="rememberMe"
                   valuePropName="checked"

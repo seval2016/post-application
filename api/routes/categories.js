@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Yeni kategori ekle (tüm giriş yapmış kullanıcılar)
-router.post('/', verifyToken, hasRole(['admin', 'manager', 'cashier']), async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         console.log('POST /api/categories - Gelen istek başladı');
         console.log('Headers:', req.headers);

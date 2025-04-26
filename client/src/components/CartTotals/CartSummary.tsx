@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../styles/components/Cart/CartTotals.css';
+import '../../styles/Cart/CartTotals.css';
 import { Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../../redux/cartSlice';

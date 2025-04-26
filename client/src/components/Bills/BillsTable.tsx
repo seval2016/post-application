@@ -3,7 +3,7 @@ import { Table, Space, Button, Tooltip, Tag } from 'antd';
 import { EyeOutlined, DownloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import { Bill } from '../../services/billService';
 import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
-import '../../styles/components/Bills/BillsTable.css';
+import '../../styles/Bills/BillsTable.css';
 
 interface BillsTableProps {
   bills: Bill[];

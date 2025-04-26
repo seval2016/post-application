@@ -3,12 +3,12 @@ import { Button, Table, Image,  Typography } from 'antd';
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { RootState } from '../../redux/store';
 import { updateQuantity, removeFromCart } from '../../redux/cartSlice';
-import '../../styles/components/Cart/CartItems.css';
+import '../../styles/Cart/CartItems.css';
 
 const { Text } = Typography;
 
 interface CartItem {
-  id: number;
+  id: string;
   title: string;
   image: string;
   price: number;

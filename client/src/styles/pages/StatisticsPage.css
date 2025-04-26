@@ -60,4 +60,42 @@
 
 .statistics-page-error {
   @apply text-center py-12 text-red-500;
+}
+
+/* Yeni eklenen stiller */
+.statistics-card {
+  @apply bg-white p-4 rounded-lg shadow-sm;
+  transition: all 0.3s ease;
+}
+
+.statistics-card:hover {
+  @apply shadow-md;
+  transform: translateY(-2px);
+}
+
+.statistics-growth {
+  @apply text-xs mt-2 flex items-center;
+}
+
+.statistics-growth-green {
+  @apply text-green-500;
+}
+
+.statistics-growth-blue {
+  @apply text-blue-500;
+}
+
+.statistics-growth-purple {
+  @apply text-purple-500;
+}
+
+.statistics-growth-red {
+  @apply text-red-500;
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 768px) {
+  .statistics-page-chart {
+    @apply h-48;
+  }
 } 

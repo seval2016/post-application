@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import '../../styles/components/Header/Search.css';
+import '../../styles/Header/Search.css';
 
 const SearchComponent: React.FC = () => {
   const onSearch = (value: string) => {

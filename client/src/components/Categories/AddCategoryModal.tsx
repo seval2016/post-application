@@ -109,7 +109,7 @@ export const AddCategoryModal = ({ isOpen, onClose, onAdd }: AddCategoryModalPro
         <Form.Item
           label="Görsel URL"
           name="image"
-          rules={[{ type: 'url', message: 'Lütfen geçerli bir URL girin!' }]}
+          rules={[{ required: true, message: 'Lütfen geçerli bir URL girin!' }]}
         >
           <Input placeholder="Görsel URL'sini girin" />
         </Form.Item>

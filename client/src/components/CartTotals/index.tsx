@@ -4,7 +4,7 @@ import { RootState } from '../../redux/store';
 import { selectCartItemsCount, removeFromCart, updateQuantity } from '../../redux/cartSlice';
 import CartItem from './CartItem';
 import CartSummary from './CartSummary';
-import '../../styles/components/Cart/CartTotals.css';
+import '../../styles/Cart/CartTotals.css';
 
 interface CartTotalsProps {
   discount?: number;

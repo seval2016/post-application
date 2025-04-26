@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AddCategoryModal } from './AddCategoryModal';
 import { EditCategoryModal } from './EditCategoryModal';
-import { message, Popconfirm } from 'antd';
+import { message, Popconfirm, Card, Skeleton } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import '../../styles/components/Categories/Categories.css';
+import '../../styles/Categories/Categories.css';
+import { getCategories } from '../../services/api';
 
 interface Category {
   id: string;

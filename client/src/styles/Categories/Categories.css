@@ -20,8 +20,10 @@
 
 /* List Container */
 .categories-list {
-  @apply flex gap-3 overflow-x-auto;
+  @apply flex gap-3;
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .categories-scroll-area {

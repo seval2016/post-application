@@ -31,7 +31,7 @@ const register = async (req, res) => {
         const token = jwt.sign(
             { id: user._id, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: '24h' }
+            { expiresIn: '7d' }
         );
         console.log('JWT token generated');
 
@@ -56,19 +56,26 @@ const register = async (req, res) => {
 // Login user
 const login = async (req, res) => {
     try {
+        console.log('Login attempt with email:', req.body.email);
         const { email, password } = req.body;
 
         // Find user
         const user = await User.findOne({ email });
         if (!user) {
+            console.log('User not found with email:', email);
             return res.status(401).json({ message: 'Geçersiz email veya şifre' });
         }
+
+        console.log('User found:', user._id, 'Role:', user.role);
 
         // Check password
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
+            console.log('Password mismatch for user:', user._id);
             return res.status(401).json({ message: 'Geçersiz email veya şifre' });
         }
+
+        console.log('Password verified for user:', user._id);
 
         // Update last login
         user.lastLogin = new Date();
@@ -78,8 +85,10 @@ const login = async (req, res) => {
         const token = jwt.sign(
             { id: user._id, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: '24h' }
+            { expiresIn: '7d' }
         );
+
+        console.log('JWT token generated for user:', user._id);
 
         res.json({
             message: 'Giriş başarılı',
@@ -189,6 +198,39 @@ const makeAdmin = async (req, res) => {
         res.status(500).json({ message: 'Sunucu hatası', error: error.message });
     }
 };
+
+// Test admin kullanıcısı oluştur
+const createTestAdmin = async () => {
+    try {
+        // Admin kullanıcısı var mı kontrol et
+        const adminExists = await User.findOne({ email: 'admin@example.com' });
+        
+        if (!adminExists) {
+            // Admin kullanıcısı oluştur
+            const admin = new User({
+                firstName: 'Admin',
+                lastName: 'User',
+                email: 'admin@example.com',
+                password: 'admin123',
+                role: 'admin',
+                isActive: true
+            });
+            
+            await admin.save();
+            console.log('Test admin kullanıcısı oluşturuldu');
+        } else {
+            // Admin kullanıcısının şifresini güncelle
+            adminExists.password = 'admin123';
+            await adminExists.save();
+            console.log('Test admin kullanıcısının şifresi güncellendi');
+        }
+    } catch (error) {
+        console.error('Test admin oluşturma hatası:', error);
+    }
+};
+
+// Uygulama başladığında test admin kullanıcısını oluştur
+createTestAdmin();
 
 module.exports = {
     register,

@@ -2,25 +2,47 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 const app = express();
 
+// JWT_SECRET kontrolü
+if (!process.env.JWT_SECRET) {
+  console.warn('JWT_SECRET is not set in environment variables. Using a default value for development.');
+  process.env.JWT_SECRET = 'pos-application-secret-key-for-development';
+}
+
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  exposedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Statik dosya sunumu için uploads klasörünü ayarla
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res, path) => {
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.set('Access-Control-Allow-Origin', '*');
+  }
+}));
 
-// MongoDB bağlantı URL'i
-const MONGODB_URI = process.env.MONGODB_URI;
+// Uploads klasörünün varlığını kontrol et
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Uploads klasörü oluşturuldu:', uploadsDir);
+}
 
 // MongoDB bağlantısı
 mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // 5 saniye timeout
+  serverSelectionTimeoutMS: 10000, // 10 saniye timeout
   socketTimeoutMS: 45000, // 45 saniye socket timeout
+  retryWrites: true,
+  w: 'majority'
 })
 .then(() => {
   console.log('MongoDB bağlantısı başarılı');

@@ -1,5 +1,5 @@
 .cart-items-container {
-  @apply flex-1 bg-white rounded-lg shadow-sm p-6 h-[calc(100vh-180px)];
+  @apply bg-white rounded-lg shadow-sm p-6;
 }
 
 .cart-header {
@@ -7,11 +7,11 @@
 }
 
 .cart-title {
-  @apply text-xl font-semibold text-gray-800;
+  @apply text-2xl font-semibold text-gray-800;
 }
 
 .cart-count {
-  @apply text-gray-500;
+  @apply text-sm text-gray-500;
 }
 
 .cart-product-image {
@@ -23,7 +23,7 @@
 }
 
 .cart-product-title {
-  @apply font-medium;
+  @apply font-medium text-gray-800;
 }
 
 .cart-remove-button {
@@ -47,11 +47,28 @@
 }
 
 .cart-total-price {
-  @apply font-medium;
+  @apply font-medium text-gray-800;
 }
 
 .cart-unit-price {
   @apply text-xs text-gray-500;
+}
+
+/* Table Styles */
+.ant-table {
+  @apply bg-white rounded-lg;
+}
+
+.ant-table-thead > tr > th {
+  @apply bg-gray-50 text-gray-600 font-medium;
+}
+
+.ant-table-tbody > tr > td {
+  @apply border-b border-gray-100;
+}
+
+.ant-table-tbody > tr:hover > td {
+  @apply bg-gray-50;
 }
 
 /* Scrollbar Styles */
@@ -74,6 +91,14 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .cart-items-container {
-    @apply h-auto;
+    @apply p-4;
+  }
+  
+  .cart-title {
+    @apply text-xl;
+  }
+  
+  .ant-table {
+    @apply text-sm;
   }
 } 

@@ -6,13 +6,21 @@ require('dotenv').config();
 
 const app = express();
 
+// CORS ayarları
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Uploads klasörünü statik olarak sunma
+const uploadsPath = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsPath));
+console.log('Uploads path:', uploadsPath);
 
 // MongoDB bağlantısı
 mongoose.connect(process.env.MONGODB_URI)

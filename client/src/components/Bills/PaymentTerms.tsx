@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Typography } from 'antd';
-import '../../styles/components/Bills/PaymentTerms.css';
+import '../../styles/Bills/PaymentTerms.css';
 
 const { Text } = Typography;
 

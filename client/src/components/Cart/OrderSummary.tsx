@@ -1,11 +1,9 @@
 import { useSelector } from 'react-redux';
-import { Button, Input, Select, Typography } from 'antd';
+import { Button } from 'antd';
 import { RootState } from '../../redux/store';
 import { useState } from 'react';
 import OrderModal from '../../common/modals/OrderModal';
-import '../../styles/components/Cart/OrderSummary.css';
-
-const { Text } = Typography;
+import '../../styles/Cart/OrderSummary.css';
 
 const OrderSummary = () => {
   const { items, total } = useSelector((state: RootState) => state.cart);
@@ -14,7 +12,7 @@ const OrderSummary = () => {
   // KDV oranı %8 olarak hesaplanıyor
   const VAT_RATE = 0.08;
   const subtotal = total;
-  const shipping = 0; // Ücretsiz kargo
+  const shipping: number = 0; // Standart kargo ücretsiz
   const vat = subtotal * VAT_RATE;
   const grandTotal = subtotal + vat + shipping;
 
@@ -33,67 +31,38 @@ const OrderSummary = () => {
 
   return (
     <div className="order-summary-container">
-      <div className="order-summary-card">
+      <div className="order-summary-header">
         <h2 className="order-summary-title">Sipariş Özeti</h2>
-        
-        {/* Ürün Sayısı */}
-        <div className="order-item-count">
-          ÜRÜN {items.length}
+        <span className="order-item-count">{items.length} Ürün</span>
         </div>
 
-        {/* Kargo Seçenekleri */}
-        <div className="order-section">
-          <label className="order-section-label">
-            KARGO
-          </label>
-          <Select
-            defaultValue="standard"
-            className="order-shipping-select"
-            options={[
-              { value: 'standard', label: 'Standart Teslimat - Ücretsiz' },
-              { value: 'express', label: 'Express Teslimat - ₺24.99' },
-            ]}
-          />
+      <div className="order-summary-items">
+        <div className="order-summary-item">
+          <span>Ara Toplam</span>
+          <span>₺{subtotal.toFixed(2)}</span>
         </div>
-
-        {/* Promosyon Kodu */}
-        <div className="order-section">
-          <label className="order-section-label">
-            PROMOSYON KODU
-          </label>
-          <div className="order-promo-container">
-            <Input placeholder="Kodunuzu girin" className="order-promo-input" />
-            <Button type="primary" className="order-promo-button">
-              UYGULA
-            </Button>
+        <div className="order-summary-item">
+          <span>Kargo</span>
+          <span>{shipping === 0 ? 'Ücretsiz' : `₺${shipping.toFixed(2)}`}</span>
+        </div>
+        <div className="order-summary-item">
+          <span>KDV (%8)</span>
+          <span>₺{vat.toFixed(2)}</span>
           </div>
         </div>
 
-        {/* Fiyat Detayları */}
-        <div className="order-details">
-          <div className="order-detail-row">
-            <Text>Ara Toplam</Text>
-            <Text>₺{subtotal.toFixed(2)}</Text>
-          </div>
-          <div className="order-detail-row">
-            <Text>Kargo</Text>
-            <Text>{shipping === 0 ? 'Ücretsiz' : `₺${shipping}`}</Text>
-          </div>
-          <div className="order-detail-row">
-            <Text>KDV (%8)</Text>
-            <Text>₺{vat.toFixed(2)}</Text>
-          </div>
+      <div className="order-summary-total">
+        <span>Toplam</span>
+        <span>₺{grandTotal.toFixed(2)}</span>
         </div>
 
-        {/* Toplam */}
-        <div className="order-total-container">
-          <Text strong>Toplam</Text>
-          <Text strong>₺{grandTotal.toFixed(2)}</Text>
-        </div>
-
-        {/* Ödeme Butonu */}
-        <Button type="primary" size="large" className="order-submit-button" onClick={showModal}>
-          ÖDEME YAP
+      <div className="order-summary-actions">
+        <Button 
+          type="primary" 
+          className="order-summary-button order-summary-button-primary" 
+          onClick={showModal}
+        >
+          Ödeme Yap
         </Button>
       </div>
 

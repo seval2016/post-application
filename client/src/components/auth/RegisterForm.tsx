@@ -1,14 +1,9 @@
-import { Form, Input, Button, Checkbox, message } from "antd";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Form, Input, Button, message, Checkbox } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, ShopOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
+import '../../styles/auth/RegisterForm.css';
 import Logo from "../Header/Logo";
-import {
-  UserOutlined,
-  LockOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  ShopOutlined,
-} from "@ant-design/icons";
-import '../../styles/components/auth/RegisterForm.css';
 
 interface RegisterFormData {
   businessName: string;

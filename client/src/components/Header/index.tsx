@@ -8,7 +8,7 @@ import Logo from './Logo';
 import Search from './Search';
 import NavigationMenu from '../NavigationMenu';
 import CustomBadge from '../NavigationMenu/CustomBadge';
-import '../../styles/components/Header/Header.css';
+import '../../styles/Header/Header.css';
 
 const { Header: AntHeader } = Layout;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShopOutlined } from '@ant-design/icons';
-import '../../styles/components/Header/Logo.css';
+import '../../styles/Header/Logo.css';
 
 const Logo: React.FC = () => {
   return (

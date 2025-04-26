@@ -152,6 +152,29 @@
   color: #ff4d4f;
 }
 
+/* Scrollbar Styles */
+.products-wrapper::-webkit-scrollbar {
+  @apply w-[6px];
+}
+
+.products-wrapper::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-md;
+}
+
+.products-wrapper::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-md;
+}
+
+.products-wrapper::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Firefox için */
+.products-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .products {
@@ -177,4 +200,5 @@
   .product-actions button {
     padding: 4px 8px;
   }
-} 
+}
+

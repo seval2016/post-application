@@ -1,7 +1,7 @@
 import React from 'react';
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Popconfirm } from 'antd';
-import '../../styles/components/Cart/CartTotals.css';
+import '../../styles/Cart/CartTotals.css';
 import { CartItem as StoreCartItem } from '../../redux/cartSlice';
 
 interface CartItemProps {

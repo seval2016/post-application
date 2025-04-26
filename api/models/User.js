@@ -111,8 +111,12 @@ userSchema.methods.generateVerificationToken = function() {
 // Şifre karşılaştırma metodu
 userSchema.methods.comparePassword = async function(candidatePassword) {
     try {
-        return await bcrypt.compare(candidatePassword, this.password);
+        console.log('Comparing passwords for user:', this._id);
+        const isMatch = await bcrypt.compare(candidatePassword, this.password);
+        console.log('Password match result:', isMatch);
+        return isMatch;
     } catch (error) {
+        console.error('Password comparison error:', error);
         throw error;
     }
 };

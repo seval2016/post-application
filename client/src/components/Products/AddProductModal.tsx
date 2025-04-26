@@ -3,7 +3,7 @@ import { Modal, Form, Input, InputNumber, Select, message, Upload, Button, Divid
 import { UploadOutlined } from '@ant-design/icons';
 import { addProduct } from '../../services/product';
 import { getCategories, Category } from '../../services/category';
-import type { UploadProps } from 'antd/es/upload/interface';
+import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 
 interface AddProductModalProps {
   visible: boolean;
@@ -17,6 +17,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   onSuccess,
 }) => {
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [categories, setCategories] = useState<Category[]>([]);
@@ -46,89 +47,134 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   useEffect(() => {
     if (!visible) {
       form.resetFields();
+      setFileList([]);
       setImageUrl('');
     }
   }, [visible, form]);
 
-  const handleUpload = async (file: File) => {
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      const response = await fetch('http://localhost:5000/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error('Resim yükleme başarısız');
-      }
-
-      const data = await response.json();
-      setImageUrl(data.url);
-      form.setFieldValue('image', data.url);
-      message.success('Görsel başarıyla yüklendi');
-    } catch (error) {
-      console.error('Görsel yükleme hatası:', error);
-      message.error('Görsel yüklenirken bir hata oluştu');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const uploadProps: UploadProps = {
-    accept: 'image/*',
-    showUploadList: false,
-    beforeUpload: (file) => {
-      const isImage = file.type.startsWith('image/');
-      if (!isImage) {
-        message.error('Sadece resim dosyaları yükleyebilirsiniz!');
-        return false;
-      }
-
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isLt2M) {
-        message.error('Resim 2MB\'dan küçük olmalıdır!');
-        return false;
-      }
-
-      handleUpload(file);
-      return false;
-    }
-  };
-
+  // Form gönderme işlemi
   const handleSubmit = async () => {
     try {
+      // Form validasyonu
       const values = await form.validateFields();
       
-      if (!imageUrl) {
+      // Resim kontrolü
+      if (fileList.length === 0) {
         message.error('Lütfen bir ürün görseli yükleyin');
         return;
       }
-
-      await addProduct({
-        ...values,
-        image: imageUrl
-      });
-
-      message.success('Ürün başarıyla eklendi');
-      form.resetFields();
-      setImageUrl('');
-      onSuccess();
+      
+      setUploading(true);
+      
+      // Resim yükleme
+      const formData = new FormData();
+      formData.append('file', fileList[0].originFileObj as Blob);
+      
+      console.log('Dosya yükleniyor:', fileList[0].originFileObj);
+      console.log('FormData içeriği:', Array.from(formData.entries()));
+      
+      try {
+        const uploadResponse = await fetch('http://localhost:5000/api/upload/single', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        console.log('Upload response status:', uploadResponse.status);
+        console.log('Upload response headers:', Object.fromEntries(uploadResponse.headers.entries()));
+        
+        if (!uploadResponse.ok) {
+          let errorMessage = 'İstenen kaynak bulunamadı';
+          try {
+            const errorData = await uploadResponse.json();
+            errorMessage = errorData.message || errorMessage;
+          } catch (e) {
+            console.error('Error parsing error response:', e);
+          }
+          console.error('Yükleme hatası:', uploadResponse.status);
+          throw new Error(`Dosya yükleme hatası: ${uploadResponse.status} ${errorMessage}`);
+        }
+        
+        const uploadResult = await uploadResponse.json();
+        console.log('Yükleme sonucu:', uploadResult);
+        
+        const imagePath = `http://localhost:5000${uploadResult.path}`;
+        
+        // Ürün verilerini hazırla
+        const productData = {
+          ...values,
+          image: imagePath
+        };
+        
+        console.log('Ürün verileri:', productData);
+        
+        // Ürünü ekle
+        await addProduct(productData);
+        
+        message.success('Ürün başarıyla eklendi');
+        form.resetFields();
+        setFileList([]);
+        setImageUrl('');
+        onSuccess();
+        if (typeof onCancel === 'function') {
+          onCancel();
+        }
+      } catch (error) {
+        console.error('Ürün eklenirken hata:', error);
+        message.error(`Ürün eklenirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+      } finally {
+        setUploading(false);
+      }
     } catch (error) {
-      console.error('Ürün ekleme hatası:', error);
-      message.error('Ürün eklenirken bir hata oluştu');
+      console.error('Form validasyon hatası:', error);
     }
   };
 
   // İptal işlemi
   const handleCancel = () => {
     form.resetFields();
+    setFileList([]);
     setImageUrl('');
     if (typeof onCancel === 'function') {
       onCancel();
     }
+  };
+
+  // Resim yükleme özellikleri
+  const uploadProps: UploadProps = {
+    name: 'file',
+    multiple: false,
+    fileList,
+    beforeUpload: (file) => {
+      // Dosya tipini kontrol et
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        message.error('Sadece resim dosyaları yükleyebilirsiniz!');
+        return false;
+      }
+
+      // Dosya boyutunu kontrol et (5MB)
+      const isLt5M = file.size / 1024 / 1024 < 5;
+      if (!isLt5M) {
+        message.error('Resim 5MB\'dan küçük olmalıdır!');
+        return false;
+      }
+
+      // Dosyayı önizleme için URL oluştur
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      return false;
+    },
+    onChange: ({ fileList: newFileList }) => {
+      setFileList(newFileList);
+    },
+    onRemove: () => {
+      setFileList([]);
+      setImageUrl('');
+    },
   };
 
   return (
@@ -214,20 +260,53 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
           label="Ürün Görseli"
           rules={[{ required: true, message: 'Lütfen ürün görseli yükleyin' }]}
         >
-          <div className="flex flex-col gap-4">
-            {imageUrl && (
-              <div className="w-full h-48 relative">
-                <img 
-                  src={imageUrl}
-                  alt="product" 
-                  className="w-full h-full object-contain border rounded p-2" 
-                />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Upload {...uploadProps}>
+              <div
+                style={{
+                  width: '100%',
+                  height: '200px',
+                  border: '2px dashed #d9d9d9',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.3s',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: '#fafafa',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = '#1890ff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#d9d9d9';
+                }}
+              >
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt="product"
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '160px',
+                      objectFit: 'contain',
+                    }}
+                  />
+                ) : (
+                  <>
+                    <UploadOutlined style={{ fontSize: '24px', color: '#8c8c8c', marginBottom: '8px' }} />
+                    <div style={{ color: '#8c8c8c' }}>
+                      Görsel yüklemek için tıklayın veya sürükleyin
+                    </div>
+                    <div style={{ color: '#8c8c8c', fontSize: '12px', marginTop: '4px' }}>
+                      PNG, JPG, JPEG (max: 5MB)
+                    </div>
+                  </>
+                )}
               </div>
-            )}
-            <Upload {...uploadProps} id="add-product-image">
-              <Button icon={<UploadOutlined />} className="w-full">
-                {imageUrl ? 'Görseli Değiştir' : 'Görsel Yükle'}
-              </Button>
             </Upload>
           </div>
         </Form.Item>

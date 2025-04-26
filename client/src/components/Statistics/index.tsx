@@ -1,8 +1,9 @@
 import React from 'react';
-import { DatePicker } from 'antd';
+import { DatePicker, Card, Row, Col, Statistic } from 'antd';
+import { ShoppingCartOutlined, UserOutlined, DollarOutlined, FileTextOutlined } from '@ant-design/icons';
 import StatisticsCards from './StatisticsCards';
 import StatisticsCharts from './StatisticsCharts';
-import '../../styles/components/Statistics/Statistics.css';
+import '../../styles/Statistics/Statistics.css';
 
 const { RangePicker } = DatePicker;
 
