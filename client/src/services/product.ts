@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5174/api';
 
 export interface Product {
   _id: string;
@@ -9,7 +9,6 @@ export interface Product {
   price: number;
   image: string;
   category: string;
-  description?: string;
 }
 
 interface ApiResponse {
@@ -23,6 +22,13 @@ interface ApiResponse {
 export const getProducts = async (): Promise<Product[]> => {
   try {
     const response = await axios.get(`${API_URL}/products`);
+    console.log('API yanıtı:', response.data);
+    
+    if (!Array.isArray(response.data)) {
+      console.error('API yanıtı bir dizi değil:', response.data);
+      return [];
+    }
+    
     const productsWithId = response.data.map((product: ApiResponse) => ({
       ...product,
       id: product._id

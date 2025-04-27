@@ -243,19 +243,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         </Form.Item>
         
         <Form.Item
-          name="description"
-          label="Açıklama"
-        >
-          <Input.TextArea 
-            placeholder="Ürün açıklaması girin" 
-            size="large" 
-            rows={3}
-            maxLength={200}
-            showCount
-          />
-        </Form.Item>
-        
-        <Form.Item
           name="image"
           label="Ürün Görseli"
           rules={[{ required: true, message: 'Lütfen ürün görseli yükleyin' }]}

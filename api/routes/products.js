@@ -30,7 +30,7 @@ router.get('/:id', async (req, res) => {
 // Yeni ürün ekle
 router.post('/', async (req, res) => {
   try {
-    const { title, price, image, category } = req.body;
+    const { title, price, image, category, description } = req.body;
 
     // Gerekli alanları kontrol et
     if (!title || !price || !image || !category) {
@@ -50,7 +50,8 @@ router.post('/', async (req, res) => {
       title: title.trim(),
       price: Number(price),
       image: image.trim(),
-      category: category.trim()
+      category: category.trim(),
+      description: description ? description.trim() : ''
     });
 
     // Ürünü kaydet
@@ -66,7 +67,7 @@ router.post('/', async (req, res) => {
 // Ürün güncelle
 router.put('/:id', async (req, res) => {
   try {
-    const { title, price, image, category } = req.body;
+    const { title, price, image, category, description } = req.body;
     const product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -78,6 +79,7 @@ router.put('/:id', async (req, res) => {
     product.price = price || product.price;
     product.image = image || product.image;
     product.category = category || product.category;
+    product.description = description || product.description;
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);

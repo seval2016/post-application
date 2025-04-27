@@ -31,7 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onEdit, onDelete }) => 
   );
 
   const CardDescription = (
-    <div className="flex justify-between items-center mt-0">
+    <div className="flex justify-between items-center">
       <span className="text-base font-sans text-gray-600">{Math.floor(item.price).toLocaleString('tr-TR')} TL</span>
       <Button 
         type="default"
