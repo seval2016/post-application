@@ -1,105 +1,127 @@
+import api from '../utils/api';
+import { API_URL } from '../config';
+
 // Fatura veri tipi
 export interface Bill {
-  id: string;
-  date: string;
-  customer: string;
-  amount: number;
-  status: 'Ödendi' | 'Beklemede' | 'İptal Edildi';
-  items: number;
+  _id: string;
+  billNumber: string;
+  orderId: string;
+  customer: {
+    name: string;
+    email: string;
+    phone: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  };
+  items: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    total: number;
+  }>;
+  subtotal: number;
+  tax: number;
+  shippingCost: number;
+  total: number;
+  status: 'pending' | 'paid' | 'cancelled';
+  paymentMethod: 'credit_card' | 'bank_transfer' | 'cash';
+  paymentDetails?: {
+    transactionId: string;
+    paymentDate: Date;
+  };
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Örnek fatura verileri
-const mockBills: Bill[] = [
-  {
-    id: 'INV-2023-001',
-    date: '2023-04-15',
-    customer: 'Ahmet Yılmaz',
-    amount: 1250.75,
-    status: 'Ödendi',
-    items: 5,
-  },
-  {
-    id: 'INV-2023-002',
-    date: '2023-04-10',
-    customer: 'Mehmet Demir',
-    amount: 850.50,
-    status: 'Beklemede',
-    items: 3,
-  },
-  {
-    id: 'INV-2023-003',
-    date: '2023-04-05',
-    customer: 'Ayşe Kaya',
-    amount: 2100.25,
-    status: 'Ödendi',
-    items: 7,
-  },
-  {
-    id: 'INV-2023-004',
-    date: '2023-03-28',
-    customer: 'Fatma Şahin',
-    amount: 1750.00,
-    status: 'İptal Edildi',
-    items: 4,
-  },
-  {
-    id: 'INV-2023-005',
-    date: '2023-03-20',
-    customer: 'Ali Öztürk',
-    amount: 950.75,
-    status: 'Ödendi',
-    items: 2,
-  },
-];
+class BillService {
+  private baseUrl = `${API_URL}/bills`;
 
-// Fatura servisi
-export const billService = {
-  // Tüm faturaları getir
-  getAllBills: (): Promise<Bill[]> => {
-    // Gerçek uygulamada burada API çağrısı yapılacak
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockBills);
-      }, 500); // API çağrısını simüle etmek için gecikme
-    });
-  },
-
-  // Fatura detayını getir
-  getBillById: (id: string): Promise<Bill | undefined> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const bill = mockBills.find(bill => bill.id === id);
-        resolve(bill);
-      }, 300);
-    });
-  },
-
-  // Yeni fatura oluştur
-  createBill: (bill: Omit<Bill, 'id'>): Promise<Bill> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newBill: Bill = {
-          ...bill,
-          id: `INV-${new Date().getFullYear()}-${String(mockBills.length + 1).padStart(3, '0')}`,
-        };
-        mockBills.push(newBill);
-        resolve(newBill);
-      }, 500);
-    });
-  },
-
-  // Fatura durumunu güncelle
-  updateBillStatus: (id: string, status: Bill['status']): Promise<Bill | undefined> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const billIndex = mockBills.findIndex(bill => bill.id === id);
-        if (billIndex !== -1) {
-          mockBills[billIndex] = { ...mockBills[billIndex], status };
-          resolve(mockBills[billIndex]);
-        } else {
-          resolve(undefined);
-        }
-      }, 400);
-    });
+  async getAllBills(): Promise<Bill[]> {
+    const response = await api.get(this.baseUrl);
+    return response.data.data;
   }
-}; 
+
+  async getBillById(id: string): Promise<Bill> {
+    const response = await api.get(`${this.baseUrl}/${id}`);
+    return response.data.data;
+  }
+
+  async getBillByOrderId(orderId: string): Promise<Bill> {
+    const response = await api.get(`${this.baseUrl}/order/${orderId}`);
+    return response.data.data;
+  }
+
+  async createBill(billData: Partial<Bill>): Promise<Bill> {
+    const response = await api.post(this.baseUrl, billData);
+    return response.data.data;
+  }
+
+  async updateBill(id: string, billData: Partial<Bill>): Promise<Bill> {
+    const response = await api.put(`${this.baseUrl}/${id}`, billData);
+    return response.data.data;
+  }
+
+  async updateBillStatus(id: string, status: Bill['status']): Promise<Bill> {
+    const response = await api.put(`${this.baseUrl}/${id}/status`, { status });
+    return response.data.data;
+  }
+
+  async deleteBill(id: string): Promise<void> {
+    await api.delete(`${this.baseUrl}/${id}`);
+  }
+
+  // Yardımcı metodlar
+  calculateSubtotal(items: Bill['items']): number {
+    return items.reduce((total, item) => total + item.total, 0);
+  }
+
+  calculateTax(subtotal: number, taxRate: number = 0.18): number {
+    return subtotal * taxRate;
+  }
+
+  calculateTotal(subtotal: number, tax: number, shippingCost: number): number {
+    return subtotal + tax + shippingCost;
+  }
+
+  formatBillNumber(date: Date = new Date()): string {
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `BILL-${year}${month}-${random}`;
+  }
+
+  // Fatura durumu için yardımcı metodlar
+  getStatusColor(status: Bill['status']): string {
+    switch (status) {
+      case 'paid':
+        return 'success';
+      case 'pending':
+        return 'warning';
+      case 'cancelled':
+        return 'error';
+      default:
+        return 'default';
+    }
+  }
+
+  getStatusText(status: Bill['status']): string {
+    switch (status) {
+      case 'paid':
+        return 'Ödendi';
+      case 'pending':
+        return 'Beklemede';
+      case 'cancelled':
+        return 'İptal Edildi';
+      default:
+        return status;
+    }
+  }
+}
+
+export default new BillService(); 

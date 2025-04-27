@@ -1,15 +1,10 @@
 .products {
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  @apply p-4 h-full flex flex-col;
+  max-height: calc(100vh - 100px);
 }
 
 .products-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  @apply flex justify-between items-center mb-4 flex-shrink-0;
 }
 
 .products-header-actions {
@@ -19,26 +14,33 @@
 }
 
 .products-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
+  @apply text-base font-medium text-gray-700;
+  font-family: 'Electrolize', sans-serif;
+  letter-spacing: 0.5px;
 }
 
 .products-count {
-  font-size: 14px;
-  color: #666;
+  @apply text-sm text-gray-500;
 }
 
 .products-wrapper {
-  flex: 1;
-  overflow-y: auto;
+  @apply flex-1 overflow-y-auto;
 }
 
 .products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  padding: 10px;
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-2;
+}
+
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .product-card {
@@ -172,33 +174,53 @@
 /* Firefox için */
 .products-wrapper {
   scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+  scrollbar-color: #ccc #f1f1f1;
 }
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .products {
-    padding: 10px;
+    @apply p-2;
+    max-height: none;
   }
 
   .products-grid {
-    gap: 10px;
+    @apply gap-2;
+  }
+
+  .products-header {
+    @apply mb-2;
+  }
+
+  .products-title {
+    @apply text-lg;
   }
 
   .product-card {
     padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   .product-title {
     font-size: 14px;
+    font-weight: 500;
   }
 
   .product-price {
     font-size: 16px;
+    font-weight: 600;
+    color: #1890ff;
   }
 
   .product-actions button {
     padding: 4px 8px;
+    border-radius: 4px;
   }
 }
-

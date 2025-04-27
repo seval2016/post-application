@@ -1,0 +1,79 @@
+.bill-detail-modal .ant-modal-content {
+  border-radius: 8px;
+}
+
+.bill-detail-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.bill-detail-content {
+  padding: 8px 0;
+}
+
+.bill-detail-section {
+  margin-bottom: 24px;
+}
+
+.bill-detail-section h5 {
+  margin-bottom: 16px;
+  color: #1890ff;
+}
+
+.bill-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.bill-items-table th,
+.bill-items-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bill-items-table th {
+  background-color: #fafafa;
+  font-weight: 600;
+}
+
+.bill-items-table tr:hover {
+  background-color: #fafafa;
+}
+
+.bill-summary {
+  width: 100%;
+}
+
+.bill-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.bill-total {
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+/* Yazdırma için özel stiller */
+@media print {
+  .ant-modal-footer {
+    display: none !important;
+  }
+  
+  .bill-detail-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .ant-modal-content {
+    box-shadow: none !important;
+  }
+} 

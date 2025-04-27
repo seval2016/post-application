@@ -13,12 +13,8 @@ const CartPage: React.FC = () => {
       <Header />
       <Content className="cart-content">
         <div className="cart-container">
-          <div className="cart-items-container">
-          <CartItems />
-          </div>
-          <div className="order-summary-container">
+          <CartItems />            
           <OrderSummary />
-        </div>
       </div>
       </Content>
     </Layout>

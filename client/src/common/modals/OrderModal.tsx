@@ -10,6 +10,7 @@ import {
   Input,
   message,
   Table,
+  Select,
 } from "antd";
 import {
   ShoppingOutlined,
@@ -22,38 +23,87 @@ import {
   PhoneOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { clearCart } from "../../redux/cartSlice";
-import InvoiceGenerator from "./InvoiceGenerator";
 import "../../styles/Order/OrderModal.css";
+import billService from '../../services/billService';
 
 const { Text, Title } = Typography;
+
+// Define types for order and invoice data
+interface InvoiceItem {
+  title: string;
+  quantity: number;
+  price: number;
+}
+
+interface InvoiceData {
+  invoiceNumber: string;
+  createdAt: string;
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  items: InvoiceItem[];
+  subtotal: number;
+  vat: number;
+  shipping: number;
+  grandTotal: number;
+  paymentMethod: string;
+}
 
 interface OrderModalProps {
   isVisible: boolean;
   onCancel: () => void;
   onSuccess: () => void;
+  orderId: string;
+  customerInfo: {
+    name: string;
+    email: string;
+    phone: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  };
+  items: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    total: number;
+  }>;
+  subtotal: number;
+  tax: number;
+  shippingCost: number;
+  total: number;
 }
 
 const OrderModal: React.FC<OrderModalProps> = ({
   isVisible,
   onCancel,
   onSuccess,
+  orderId,
+  customerInfo,
+  items,
+  subtotal,
+  tax,
+  shippingCost,
+  total
 }) => {
-  const { items, total } = useSelector((state: RootState) => state.cart);
+  const { items: cartItems, total: cartTotal } = useSelector((state: RootState) => state.cart);
   const [currentStep, setCurrentStep] = useState(0);
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [invoiceModalVisible, setInvoiceModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [paymentMethod, setPaymentMethod] = useState<string>('');
-
-  // KDV oranı %8 olarak hesaplanıyor
-  const VAT_RATE = 0.08;
-  const subtotal = total;
-  const shipping = 0; // Ücretsiz kargo
-  const vat = subtotal * VAT_RATE;
-  const grandTotal = subtotal + vat + shipping;
+  const [loading, setLoading] = useState(false);
+  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
 
   // Modal kapandığında formu sıfırla
   useEffect(() => {
@@ -61,6 +111,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
       form.resetFields();
       setCurrentStep(0);
       setOrderCompleted(false);
+      setInvoiceData(null);
     }
   }, [isVisible, form]);
 
@@ -69,6 +120,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
     form.resetFields();
     setCurrentStep(0);
     setOrderCompleted(false);
+    setInvoiceData(null);
   };
 
   const nextStep = () => {
@@ -79,46 +131,36 @@ const OrderModal: React.FC<OrderModalProps> = ({
     setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: {
+    paymentMethod: 'credit_card' | 'bank_transfer' | 'cash';
+    notes?: string;
+  }) => {
     try {
-      const values = await form.validateFields();
-      console.log("Form values:", values);
-      // Burada sipariş işlemi gerçekleştirilecek
-      setOrderCompleted(true);
-      message.success("Siparişiniz başarıyla tamamlandı!");
+      setLoading(true);
+      await billService.createBill({
+        orderId,
+        customer: customerInfo,
+        items,
+        subtotal,
+        tax,
+        shippingCost,
+        total,
+        paymentMethod: values.paymentMethod,
+        notes: values.notes
+      });
+      message.success('Fatura başarıyla oluşturuldu');
       onSuccess();
-    } catch (error) {
-      console.error('Validation failed:', error);
+      onCancel();
+      form.resetFields();
+    } catch {
+      message.error('Fatura oluşturulurken bir hata oluştu');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleInvoiceModalClose = () => {
     setInvoiceModalVisible(false);
-  };
-
-  // Fatura verilerini hazırla
-  const invoiceData = {
-    orderNumber: `ORD-${Date.now().toString().slice(-6)}`,
-    date: new Date().toLocaleDateString("tr-TR"),
-    customerInfo: {
-      firstName: form.getFieldValue("firstName"),
-      lastName: form.getFieldValue("lastName"),
-      email: form.getFieldValue("email"),
-      phone: form.getFieldValue("phone"),
-      address: form.getFieldValue("address"),
-      city: "İstanbul", // Varsayılan değer
-      zipCode: "34000", // Varsayılan değer
-    },
-    items: items.map((item) => ({
-      title: item.title,
-      quantity: item.quantity,
-      price: item.price,
-    })),
-    subtotal: subtotal,
-    shipping: shipping,
-    vat: vat,
-    grandTotal: grandTotal,
-    paymentMethod: paymentMethod || "Kredi Kartı",
   };
 
   const columns = [
@@ -155,7 +197,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
         <Table
           className="order-modal-table"
           columns={columns}
-          dataSource={items}
+          dataSource={cartItems.map(item => ({ ...item, key: item.productId }))}
           pagination={false}
           summary={() => (
             <Table.Summary.Row>
@@ -163,7 +205,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
                 Toplam
               </Table.Summary.Cell>
               <Table.Summary.Cell index={1} className="order-modal-table-total">
-                ₺{total.toFixed(2)}
+                ₺{cartTotal.toFixed(2)}
               </Table.Summary.Cell>
             </Table.Summary.Row>
           )}
@@ -205,38 +247,20 @@ const OrderModal: React.FC<OrderModalProps> = ({
         form={form}
         layout="vertical"
         className="order-modal-form"
+        onFinish={handleSubmit}
       >
         <Form.Item
-          name="firstName"
-          label="Ad"
-          rules={[{ required: true, message: "Lütfen adınızı girin" }]}
+          name="name"
+          label="Ad Soyad"
+          rules={[{ required: true, message: 'Lütfen adınızı ve soyadınızı girin' }]}
         >
-          <Input prefix={<UserOutlined />} placeholder="Adınız" />
-        </Form.Item>
-
-        <Form.Item
-          name="lastName"
-          label="Soyad"
-          rules={[{ required: true, message: "Lütfen soyadınızı girin" }]}
-        >
-          <Input prefix={<UserOutlined />} placeholder="Soyadınız" />
-        </Form.Item>
-
-        <Form.Item
-          name="email"
-          label="E-posta"
-          rules={[
-            { required: true, message: "Lütfen e-posta adresinizi girin" },
-            { type: "email", message: "Geçerli bir e-posta adresi girin" },
-          ]}
-        >
-          <Input prefix={<MailOutlined />} placeholder="E-posta adresiniz" />
+          <Input prefix={<UserOutlined />} placeholder="Adınız ve soyadınız" />
         </Form.Item>
 
         <Form.Item
           name="phone"
           label="Telefon"
-          rules={[{ required: true, message: "Lütfen telefon numaranızı girin" }]}
+          rules={[{ required: true, message: 'Lütfen telefon numaranızı girin' }]}
         >
           <Input prefix={<PhoneOutlined />} placeholder="Telefon numaranız" />
         </Form.Item>
@@ -244,64 +268,54 @@ const OrderModal: React.FC<OrderModalProps> = ({
         <Form.Item
           name="address"
           label="Adres"
-          rules={[{ required: true, message: "Lütfen adresinizi girin" }]}
+          rules={[{ required: true, message: 'Lütfen adresinizi girin' }]}
         >
-          <Input.TextArea rows={3} placeholder="Adresiniz" />
+          <Input.TextArea 
+            placeholder="Teslimat adresiniz" 
+            rows={3} 
+          />
         </Form.Item>
 
-        {paymentMethod === 'credit_card' && (
-          <>
-            <Form.Item
-              name="cardNumber"
-              label="Kart Numarası"
-              rules={[{ required: true, message: "Lütfen kart numarasını girin" }]}
-            >
-              <Input placeholder="1234 5678 9012 3456" />
-            </Form.Item>
+        <Form.Item
+          name="paymentMethod"
+          label="Ödeme Yöntemi"
+          rules={[{ required: true, message: 'Lütfen ödeme yöntemini seçin' }]}
+        >
+          <Select>
+            <Select.Option value="credit_card">Kredi Kartı</Select.Option>
+            <Select.Option value="bank_transfer">Banka Transferi</Select.Option>
+            <Select.Option value="cash">Nakit</Select.Option>
+          </Select>
+        </Form.Item>
 
-            <Form.Item
-              name="expiryDate"
-              label="Son Kullanma Tarihi"
-              rules={[{ required: true, message: "Lütfen son kullanma tarihini girin" }]}
-            >
-              <Input placeholder="MM/YY" />
-            </Form.Item>
+        <Form.Item
+          name="notes"
+          label="Notlar"
+        >
+          <Input.TextArea rows={4} />
+        </Form.Item>
 
-            <Form.Item
-              name="cvv"
-              label="CVV"
-              rules={[{ required: true, message: "Lütfen CVV kodunu girin" }]}
-            >
-              <Input placeholder="123" />
-            </Form.Item>
-          </>
-        )}
+        <Form.Item className="order-form-actions">
+          <Button 
+            type="primary" 
+            htmlType="submit" 
+            loading={loading}
+            icon={<CreditCardOutlined />}
+            className="order-submit-button"
+          >
+            Fatura Oluştur
+          </Button>
+        </Form.Item>
       </Form>
-
-      <div className="order-modal-actions">
-        <Button
-          className="order-modal-button order-modal-button-cancel"
-          onClick={() => setCurrentStep(0)}
-        >
-          Geri
-        </Button>
-        <Button
-          type="primary"
-          className="order-modal-button order-modal-button-submit"
-          onClick={handleSubmit}
-        >
-          Siparişi Tamamla
-        </Button>
-      </div>
     </div>
   );
 
   const renderStep3 = () => (
     <div className="order-modal-success">
       <CheckCircleOutlined className="order-modal-success-icon" />
-      <h3 className="order-modal-success-title">Siparişiniz Alındı!</h3>
+      <h3 className="order-modal-success-title">Fatura Oluşturuldu!</h3>
       <Text className="order-modal-success-message">
-        Siparişiniz başarıyla oluşturuldu. Sipariş detaylarını e-posta adresinize gönderdik.
+        Fatura başarıyla oluşturuldu. Fatura detaylarını e-posta adresinize gönderdik.
       </Text>
       <Button
         type="primary"
@@ -494,7 +508,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
       <Modal
         title={
           <div className="order-modal-header">
-            <h2 className="order-modal-title">Sipariş Oluştur</h2>
+            <h2 className="order-modal-title">Fatura Oluştur</h2>
             <Button
               type="text"
               icon={<span className="order-modal-close">×</span>}
@@ -536,6 +550,16 @@ const OrderModal: React.FC<OrderModalProps> = ({
               İleri
             </Button>
           )}
+          {currentStep === steps.length - 1 && !orderCompleted && (
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="bg-indigo-600 h-10 px-8"
+              loading={loading}
+            >
+              Fatura Oluştur
+            </Button>
+          )}
           {orderCompleted && (
             <Button
               onClick={handleCancel}
@@ -562,84 +586,85 @@ const OrderModal: React.FC<OrderModalProps> = ({
         ]}
         width={800}
       >
-        {/* Fatura içeriği */}
-        <div className="invoice-container">
-          <div className="invoice-header">
-            <div className="invoice-logo">
-              <h1 className="text-2xl font-bold">LOGO</h1>
+        {invoiceData && (
+          <div className="invoice-container">
+            <div className="invoice-header">
+              <div className="invoice-logo">
+                <h1 className="text-2xl font-bold">LOGO</h1>
+              </div>
+              <div className="invoice-info">
+                <h2 className="text-xl font-semibold">FATURA</h2>
+                <p className="text-gray-600">Fatura No: {invoiceData.invoiceNumber}</p>
+                <p className="text-gray-600">Tarih: {new Date(invoiceData.createdAt).toLocaleDateString("tr-TR")}</p>
+              </div>
             </div>
-            <div className="invoice-info">
-              <h2 className="text-xl font-semibold">FATURA</h2>
-              <p className="text-gray-600">Fatura No: {invoiceData.orderNumber}</p>
-              <p className="text-gray-600">Tarih: {invoiceData.date}</p>
+
+            <div className="invoice-customer">
+              <h3 className="text-lg font-medium mb-2">Müşteri Bilgileri</h3>
+              <p className="text-gray-700">
+                {invoiceData.customer.firstName} {invoiceData.customer.lastName}
+              </p>
+              <p className="text-gray-700">{invoiceData.customer.email}</p>
+              <p className="text-gray-700">{invoiceData.customer.phone}</p>
+              <p className="text-gray-700">{invoiceData.customer.address}</p>
             </div>
-          </div>
 
-          <div className="invoice-customer">
-            <h3 className="text-lg font-medium mb-2">Müşteri Bilgileri</h3>
-            <p className="text-gray-700">
-              {invoiceData.customerInfo.firstName} {invoiceData.customerInfo.lastName}
-            </p>
-            <p className="text-gray-700">{invoiceData.customerInfo.email}</p>
-            <p className="text-gray-700">{invoiceData.customerInfo.phone}</p>
-            <p className="text-gray-700">{invoiceData.customerInfo.address}</p>
-          </div>
-
-          <div className="mb-6">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2 text-left">Ürün</th>
-                  <th className="border p-2 text-right">Adet</th>
-                  <th className="border p-2 text-right">Birim Fiyat</th>
-                  <th className="border p-2 text-right">Toplam</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoiceData.items.map((item, index) => (
-                  <tr key={index}>
-                    <td className="border p-2">{item.title}</td>
-                    <td className="border p-2 text-right">{item.quantity}</td>
-                    <td className="border p-2 text-right">
-                      ₺{item.price.toFixed(2)}
-                    </td>
-                    <td className="border p-2 text-right">
-                      ₺{item.quantity * item.price}
-                    </td>
+            <div className="mb-6">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border p-2 text-left">Ürün</th>
+                    <th className="border p-2 text-right">Adet</th>
+                    <th className="border p-2 text-right">Birim Fiyat</th>
+                    <th className="border p-2 text-right">Toplam</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {invoiceData.items.map((item: InvoiceItem, index: number) => (
+                    <tr key={index}>
+                      <td className="border p-2">{item.title}</td>
+                      <td className="border p-2 text-right">{item.quantity}</td>
+                      <td className="border p-2 text-right">
+                        ₺{item.price.toFixed(2)}
+                      </td>
+                      <td className="border p-2 text-right">
+                        ₺{(item.quantity * item.price).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          <div className="invoice-summary">
-            <div className="flex justify-between mb-2">
-              <span className="text-gray-600">Ara Toplam:</span>
-              <span className="font-medium">₺{invoiceData.subtotal.toFixed(2)}</span>
+            <div className="invoice-summary">
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-600">Ara Toplam:</span>
+                <span className="font-medium">₺{invoiceData.subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-600">KDV (%8):</span>
+                <span className="font-medium">₺{invoiceData.vat.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-600">Kargo:</span>
+                <span className="font-medium">₺{invoiceData.shipping.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-lg font-semibold pt-2 border-t">
+                <span>Toplam:</span>
+                <span>₺{invoiceData.grandTotal.toFixed(2)}</span>
+              </div>
             </div>
-            <div className="flex justify-between mb-2">
-              <span className="text-gray-600">KDV (%8):</span>
-              <span className="font-medium">₺{invoiceData.vat.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span className="text-gray-600">Kargo:</span>
-              <span className="font-medium">₺{invoiceData.shipping.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-lg font-semibold pt-2 border-t">
-              <span>Toplam:</span>
-              <span>₺{invoiceData.grandTotal.toFixed(2)}</span>
-            </div>
-          </div>
 
-          <div className="invoice-footer mt-8">
-            <p className="text-gray-500 text-sm">
-              Ödeme Yöntemi: {invoiceData.paymentMethod}
-            </p>
-            <p className="text-gray-500 text-sm mt-2">
-              Teşekkür ederiz!
-            </p>
+            <div className="invoice-footer mt-8">
+              <p className="text-gray-500 text-sm">
+                Ödeme Yöntemi: {invoiceData.paymentMethod}
+              </p>
+              <p className="text-gray-500 text-sm mt-2">
+                Teşekkür ederiz!
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </Modal>
     </>
   );

@@ -9,7 +9,7 @@ const app = express();
 // CORS ayarları
 app.use(cors({
   origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -31,10 +31,14 @@ mongoose.connect(process.env.MONGODB_URI)
 const categoriesRouter = require('./routes/categories');
 const productRoutes = require('./routes/products');
 const uploadRouter = require('./routes/upload');
+const orderRoutes = require('./routes/orderRoutes');
+const invoiceRoutes = require('./routes/invoiceRoutes');
 
 app.use('/api/categories', categoriesRouter);
 app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRouter);
+app.use('/api/orders', orderRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -45,4 +49,6 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server ${PORT} portunda çalışıyor`);
-}); 
+});
+
+module.exports = app; 

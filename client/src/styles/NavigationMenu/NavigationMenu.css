@@ -1,29 +1,103 @@
-/* Desktop Menu Styles */
+/* Desktop Menu */
 .desktop-menu {
-  @apply hidden sm:flex items-center gap-8;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 16px;
 }
 
+.desktop-menu-items {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Mobile Menu */
+.mobile-menu-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  padding: 8px;
+}
+
+.mobile-menu-toggle {
+  display: none;
+}
+
+.mobile-menu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  padding: 8px;
+}
+
+/* Common Styles */
 .menu-item {
-  @apply hover:text-blue-600 transition-all duration-300 ease-in-out flex flex-col items-center gap-1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.menu-item:hover {
+  color: #1890ff;
 }
 
 .menu-icon {
-  @apply text-lg transition-all duration-300;
+  font-size: 20px;
+  transition: transform 0.2s;
 }
 
 .menu-text {
-  @apply text-xs;
-}
-
-/* Mobile Menu Styles */
-.mobile-menu {
-  @apply fixed bottom-0 left-0 right-0 bg-white border-t py-2 sm:hidden z-50;
-}
-
-.mobile-menu-container {
-  @apply flex items-center justify-around;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .logout-button {
-  @apply hover:text-red-500 transition-all duration-300 ease-in-out flex flex-col items-center gap-1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  color: #ff4d4f;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-button:hover {
+  color: #ff7875;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none;
+  }
+
+  .mobile-menu-container {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-container {
+    display: none;
+  }
 } 

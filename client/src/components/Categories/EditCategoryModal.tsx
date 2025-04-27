@@ -1,73 +1,41 @@
-import { Modal, Form, Input, Select, Button, message } from 'antd';
-import { useState } from 'react';
-
-interface Category {
-  id: string;
-  name: string;
-  image: string;
-}
+import { Modal, Form, Input, Button, message } from 'antd';
+import { useState, useEffect } from 'react';
 
 interface EditCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEdit: (values: { name: string; imageUrl: string }) => void;
-  categories: Category[];
-  onRefresh: () => void;
+  categoryName: string;
+  categoryImage: string;
 }
 
-export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories, onRefresh }: EditCategoryModalProps) => {
+export const EditCategoryModal = ({ 
+  isOpen, 
+  onClose, 
+  onEdit, 
+  categoryName, 
+  categoryImage 
+}: EditCategoryModalProps) => {
   const [form] = Form.useForm();
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleCategorySelect = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    if (category) {
-      setSelectedCategory(category);
+  // Form değerlerini prop'lardan güncelle
+  useEffect(() => {
+    if (isOpen) {
       form.setFieldsValue({
-        name: category.name,
-        imageUrl: category.image
+        name: categoryName,
+        imageUrl: categoryImage
       });
     }
-  };
+  }, [isOpen, categoryName, categoryImage, form]);
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      if (!selectedCategory) {
-        message.error('Lütfen düzenlenecek kategoriyi seçin');
-        return;
-      }
-
+      
       setLoading(true);
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Oturum bulunamadı. Lütfen tekrar giriş yapın.');
-      }
-
-      const response = await fetch(`http://localhost:5000/api/categories/${selectedCategory.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: values.name,
-          image: values.imageUrl
-        }),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          throw new Error('Oturumunuz sona erdi. Lütfen tekrar giriş yapın.');
-        }
-        throw new Error('Kategori güncellenirken bir hata oluştu');
-      }
-
       onEdit(values);
       message.success('Kategori başarıyla güncellendi');
-      onRefresh();
       handleClose();
     } catch (error) {
       if (error instanceof Error) {
@@ -82,7 +50,6 @@ export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories, onRefre
 
   const handleClose = () => {
     form.resetFields();
-    setSelectedCategory(null);
     onClose();
   };
 
@@ -106,23 +73,6 @@ export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories, onRefre
         name="editCategoryForm"
       >
         <Form.Item
-          name="category"
-          label="Düzenlenecek Kategori"
-          rules={[{ required: true, message: 'Lütfen bir kategori seçin' }]}
-        >
-          <Select
-            placeholder="Kategori seçin"
-            onChange={handleCategorySelect}
-          >
-            {categories.map(category => (
-              <Select.Option key={category.id} value={category.id}>
-                {category.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item
           name="name"
           label="Kategori Adı"
           rules={[
@@ -130,7 +80,7 @@ export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories, onRefre
             { min: 2, message: 'Kategori adı en az 2 karakter olmalıdır' }
           ]}
         >
-          <Input placeholder="Yeni kategori adı" />
+          <Input placeholder="Kategori adı" />
         </Form.Item>
 
         <Form.Item
@@ -141,7 +91,7 @@ export const EditCategoryModal = ({ isOpen, onClose, onEdit, categories, onRefre
             { type: 'url', message: 'Geçerli bir URL girin' }
           ]}
         >
-          <Input placeholder="Yeni resim URL'si" />
+          <Input placeholder="Resim URL'si" />
         </Form.Item>
       </Form>
     </Modal>

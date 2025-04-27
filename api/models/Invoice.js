@@ -6,39 +6,81 @@ const invoiceSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  orderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Order',
-    required: true
-  },
   customer: {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
-    address: { type: String, required: true }
+    name: {
+      type: String,
+      required: true
+    },
+    email: String,
+    phone: String,
+    address: String
   },
   items: [{
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-    title: { type: String, required: true },
-    quantity: { type: Number, required: true },
-    price: { type: Number, required: true }
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    total: {
+      type: Number,
+      required: true,
+      min: 0
+    }
   }],
-  subtotal: { type: Number, required: true },
-  vat: { type: Number, required: true },
-  shipping: { type: Number, required: true },
-  grandTotal: { type: Number, required: true },
-  paymentMethod: { type: String, required: true },
-  shippingMethod: { type: String, required: true },
+  subtotal: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  tax: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  total: {
+    type: Number,
+    required: true,
+    min: 0
+  },
   status: {
     type: String,
-    enum: ['paid', 'pending', 'cancelled'],
-    default: 'pending'
+    enum: ['draft', 'pending', 'paid', 'cancelled'],
+    default: 'draft'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  paymentMethod: {
+    type: String,
+    enum: ['cash', 'credit_card', 'bank_transfer', 'other'],
+    required: true
+  },
+  notes: String,
+  dueDate: Date,
+  paidAt: Date
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model('Invoice', invoiceSchema); 
+// Calculate totals before saving
+invoiceSchema.pre('save', function(next) {
+  this.items.forEach(item => {
+    item.total = item.quantity * item.price;
+  });
+  
+  this.subtotal = this.items.reduce((sum, item) => sum + item.total, 0);
+  this.total = this.subtotal + this.tax;
+  
+  next();
+});
+
+const Invoice = mongoose.model('Invoice', invoiceSchema);
+
+module.exports = Invoice; 

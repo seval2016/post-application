@@ -71,6 +71,7 @@ const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const billRoutes = require('./routes/bills');
 const uploadRouter = require('./routes/upload');
+const orderRoutes = require('./routes/orderRoutes');
 
 // Route'ları kullan
 app.use('/api/auth', authRoutes);
@@ -78,6 +79,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/upload', uploadRouter);
+app.use('/api/orders', orderRoutes);
 
 // Ana route
 app.get('/', (req, res) => {

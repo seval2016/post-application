@@ -1,13 +1,39 @@
 .header {
-  @apply bg-white px-4 md:px-6 flex items-center justify-between shadow-sm fixed w-full z-10 h-14 md:h-16;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
 }
 
 .header-left {
-  @apply flex items-center flex-1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 200px;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .header-right {
-  @apply flex items-center gap-4;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 200px;
 }
 
 .cart-icon {
@@ -58,4 +84,22 @@
 
 .logout-button {
   @apply hover:text-red-500 transition-all duration-300 ease-in-out flex flex-col items-center gap-1;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0 8px;
+  }
+
+  .header-left {
+    width: auto;
+  }
+
+  .header-center {
+    max-width: none;
+  }
+
+  .header-right {
+    width: auto;
+  }
 } 

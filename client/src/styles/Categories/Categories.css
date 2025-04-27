@@ -1,101 +1,77 @@
 .categories-container {
-  @apply bg-white p-4 rounded-lg shadow-sm relative;
-  height: calc(100vh - 100px);
-  display: flex;
-  flex-direction: column;
+  @apply bg-white p-4 rounded-lg shadow-sm h-full flex flex-col;
+  max-height: calc(100vh - 100px);
 }
 
 /* Header Styles */
 .categories-header {
-  @apply flex items-center justify-between mb-4 pb-4 border-b border-gray-100;
+  @apply flex justify-between items-center mb-4 flex-shrink-0;
 }
 
 .categories-title {
   @apply text-base font-medium text-gray-700;
+  font-family: 'Electrolize', sans-serif;
+  letter-spacing: 0.5px;
 }
 
 .categories-count {
-  @apply text-xs text-gray-500;
+  @apply text-xs text-gray-500; 
 }
 
 /* List Container */
 .categories-list {
-  @apply flex gap-3;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  @apply flex-1 overflow-y-auto;
 }
 
 .categories-scroll-area {
-  @apply flex gap-3;
+  @apply space-y-2;
 }
 
 /* Category Card Styles */
 .category-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  @apply flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200;
 }
 
 .category-card-selected {
-  @apply bg-blue-100 hover:bg-blue-200 border-blue-200;
+  @apply bg-blue-50 border border-blue-200;
 }
 
 .category-card-default {
-  @apply bg-gray-50 hover:bg-gray-100;
-}
-
-.category-icon-wrapper {
-  @apply w-8 h-8 min-w-[2rem] rounded-full bg-white p-1 shadow-sm flex items-center justify-center mr-2;
-}
-
-.category-icon {
-  @apply w-5 h-5 object-contain;
-}
-
-.category-image {
-  @apply w-6 h-6 object-contain;
-}
-
-.category-title {
-  @apply text-gray-700 text-sm font-medium whitespace-nowrap flex-1;
+  @apply hover:bg-gray-50;
 }
 
 .category-content {
-  display: flex;
-  align-items: center;
-  flex: 1;
+  @apply flex items-center gap-3;
 }
 
+.category-icon-wrapper {
+  @apply w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center;
+}
+
+.category-icon {
+  @apply text-xl text-gray-500;
+}
+
+.category-image {
+  @apply w-10 h-10 rounded-lg object-cover;
+}
+
+.category-title {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.category-actions {
+  @apply flex items-center gap-2;
+}
+
+.category-edit-icon,
 .category-delete-icon {
-  color: #ff4d4f;
-  font-size: 18px;
-  margin-left: 10px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.category-card:hover .category-delete-icon {
-  opacity: 1;
-}
-
-.category-delete-icon:hover {
-  color: #ff7875;
+  @apply text-gray-400 hover:text-gray-600 transition-colors duration-200;
 }
 
 /* Add Category Card */
 .add-category-wrapper {
-  @apply mt-4 pt-4 border-t border-gray-100;
-}
-
-.add-category-wrapper .category-card {
-  @apply justify-start pr-6;
+  @apply mt-4 flex-shrink-0;
 }
 
 /* Scrollbar Styles */
@@ -116,20 +92,61 @@
 }
 
 /* Responsive Design */
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   .categories-container {
-    @apply sticky top-[84px];
+    @apply p-2;
+    max-height: none;
   }
 
   .categories-list {
-    @apply flex-col overflow-y-auto pr-2;
+    @apply flex flex-row overflow-x-auto pb-2 gap-2;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .categories-list::-webkit-scrollbar {
+    display: none;
   }
 
   .categories-scroll-area {
-    @apply flex-col;
+    @apply flex flex-row space-y-0;
+    width: max-content;
   }
 
   .category-card {
-    @apply min-w-0;
+    @apply flex-shrink-0 w-[140px] flex-col items-center p-2 gap-2;
+    min-width: 140px;
+  }
+
+  .category-content {
+    @apply flex-col items-center text-center;
+  }
+
+  .category-icon-wrapper {
+    @apply w-16 h-16 mb-2;
+  }
+
+  .category-image {
+    @apply w-16 h-16;
+  }
+
+  .category-title {
+    @apply text-xs text-center;
+  }
+
+  .category-actions {
+    @apply absolute top-1 right-1;
+  }
+
+  .category-card-selected {
+    @apply bg-blue-50 border-2 border-blue-200;
+  }
+
+  .add-category-wrapper {
+    @apply mt-2;
+  }
+
+  .add-category-wrapper .category-card {
+    @apply w-[140px];
   }
 } 

@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface CartItem {
-  id: string;
+  productId: string;
   title: string;
-  price: number;
   image: string;
+  price: number;
   quantity: number;
 }
 
@@ -49,7 +49,7 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     increaseQuantity: (state, action: PayloadAction<string>) => {
-      const item = state.items.find(item => item.id === action.payload);
+      const item = state.items.find(item => item.productId === action.payload);
       if (item) {
         item.quantity += 1;
         state.total += item.price;
@@ -57,7 +57,7 @@ const cartSlice = createSlice({
       }
     },
     decreaseQuantity: (state, action: PayloadAction<string>) => {
-      const item = state.items.find(item => item.id === action.payload);
+      const item = state.items.find(item => item.productId === action.payload);
       if (item && item.quantity > 1) {
         item.quantity -= 1;
         state.total -= item.price;
@@ -65,12 +65,12 @@ const cartSlice = createSlice({
       }
     },
     removeFromCart: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
+      state.items = state.items.filter(item => item.productId !== action.payload);
       state.total = state.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
       saveCartState(state);
     },
     addToCart: (state, action: PayloadAction<Omit<CartItem, 'quantity'>>) => {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const existingItem = state.items.find(item => item.productId === action.payload.productId);
       if (existingItem) {
         existingItem.quantity += 1;
       } else {
@@ -79,8 +79,8 @@ const cartSlice = createSlice({
       state.total = state.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
       saveCartState(state);
     },
-    updateQuantity: (state, action: PayloadAction<{ id: string; type: 'increase' | 'decrease' }>) => {
-      const item = state.items.find(item => item.id === action.payload.id);
+    updateQuantity: (state, action: PayloadAction<{ productId: string; type: 'increase' | 'decrease' }>) => {
+      const item = state.items.find(item => item.productId === action.payload.productId);
       if (item) {
         if (action.payload.type === 'increase') {
           item.quantity += 1;

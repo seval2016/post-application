@@ -1,33 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Input, Select, DatePicker, Button, Space, Tag, message } from 'antd';
-import { SearchOutlined, ReloadOutlined, FileTextOutlined } from '@ant-design/icons';
-import type { Dayjs } from 'dayjs';
+import React, { useEffect, useState } from 'react';
+import { Table, Button, Badge, Space, Modal, message, Card, Typography, Row, Col, Input } from 'antd';
+import { EyeOutlined, DeleteOutlined, SearchOutlined, FileTextOutlined } from '@ant-design/icons';
+import billService, { Bill } from '../../services/billService';
+import BillDetailModal from './BillDetailModal';
 import Header from '../../components/Header';
-import PageHeader from '../../common/PageHeader';
-import { billService, Bill } from '../../services/billService';
+import ErrorBoundary from '../../components/ErrorBoundary';
+import '../../styles/BillsPage/BillsPage.css';
 
-const { RangePicker } = DatePicker;
+const { Title, Text } = Typography;
+const { Search } = Input;
 
-const BillsPage = () => {
-  const [searchText, setSearchText] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+const BillsPage: React.FC = () => {
   const [bills, setBills] = useState<Bill[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchBills();
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
   const fetchBills = async () => {
     try {
       setLoading(true);
       const data = await billService.getAllBills();
-      setBills(data);
-    } catch {
-      message.error('Faturalar yüklenirken bir hata oluştu');
+      setBills(data || []);
+    } catch (error) {
+      message.error(`Faturalar yüklenirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+      setBills([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBills();
+  }, []);
+
+  const handleViewBill = (bill: Bill) => {
+    setSelectedBill(bill);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleDeleteBill = async (id: string) => {
+    try {
+      await billService.deleteBill(id);
+      message.success('Fatura başarıyla silindi');
+      fetchBills();
+    } catch (error) {
+      message.error(`Fatura silinirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
     }
   };
 
@@ -35,139 +53,136 @@ const BillsPage = () => {
     setSearchText(value);
   };
 
-  const handleStatusFilter = (value: string) => {
-    setFilterStatus(value);
-  };
-
-  const handleDateRangeChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
-    setDateRange(dates);
-  };
-
-  const handleClearFilters = () => {
-    setSearchText('');
-    setFilterStatus('all');
-    setDateRange(null);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Ödendi':
-        return 'success';
-      case 'Beklemede':
-        return 'warning';
-      case 'İptal Edildi':
-        return 'error';
-      default:
-        return 'default';
-    }
-  };
+  const filteredBills = React.useMemo(() => {
+    if (!bills) return [];
+    return bills.filter(bill => 
+      bill.billNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+      bill.customer.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }, [bills, searchText]);
 
   const columns = [
     {
       title: 'Fatura No',
-      dataIndex: 'id',
-      key: 'id',
-      sorter: (a: Bill, b: Bill) => a.id.localeCompare(b.id),
+      dataIndex: 'billNumber',
+      key: 'billNumber',
     },
     {
       title: 'Müşteri',
-      dataIndex: 'customer',
-      key: 'customer',
-      sorter: (a: Bill, b: Bill) => a.customer.localeCompare(b.customer),
-    },
-    {
-      title: 'Tarih',
-      dataIndex: 'date',
-      key: 'date',
-      sorter: (a: Bill, b: Bill) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      dataIndex: ['customer', 'name'],
+      key: 'customerName',
     },
     {
       title: 'Tutar',
-      dataIndex: 'amount',
-      key: 'amount',
-      sorter: (a: Bill, b: Bill) => a.amount - b.amount,
-      render: (amount: number) => `₺${amount.toFixed(2)}`,
+      dataIndex: 'total',
+      key: 'total',
+      render: (total: number) => `₺${total.toFixed(2)}`,
     },
     {
       title: 'Durum',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{status}</Tag>
+      render: (status: Bill['status']) => (
+        <Badge 
+          status={billService.getStatusColor(status) as "success" | "processing" | "error" | "warning" | "default"} 
+          text={billService.getStatusText(status)} 
+        />
+      ),
+    },
+    {
+      title: 'Tarih',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date: string) => new Date(date).toLocaleDateString('tr-TR'),
+    },
+    {
+      title: 'İşlemler',
+      key: 'actions',
+      render: (_: unknown, record: Bill) => (
+        <Space>
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
+            onClick={() => handleViewBill(record)}
+          >
+            Görüntüle
+          </Button>
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              Modal.confirm({
+                title: 'Faturayı Sil',
+                content: 'Bu faturayı silmek istediğinizden emin misiniz?',
+                onOk: () => handleDeleteBill(record._id),
+              });
+            }}
+          >
+            Sil
+          </Button>
+        </Space>
       ),
     },
   ];
 
-  const filteredBills = bills.filter(bill => {
-    const matchesSearch = bill.customer.toLowerCase().includes(searchText.toLowerCase()) ||
-                         bill.id.toLowerCase().includes(searchText.toLowerCase());
-    
-    const matchesStatus = filterStatus === 'all' || bill.status === filterStatus;
-    
-    const matchesDateRange = !dateRange || !dateRange[0] || !dateRange[1] || (
-      new Date(bill.date) >= dateRange[0].toDate() &&
-      new Date(bill.date) <= dateRange[1].toDate()
-    );
-
-    return matchesSearch && matchesStatus && matchesDateRange;
-  });
-
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
+    <div className="bills-page">
       <Header />
-      <div className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full mt-[84px] overflow-y-auto">
-        <PageHeader 
-          icon={FileTextOutlined}
-          title="Faturalar"
-              subtitle="Müşteri faturalarını görüntüleyin ve yönetin"
-        />
-        
-        <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-          <Space className="w-full mb-4" size="middle">
-            <Input
-              placeholder="Fatura veya müşteri ara..."
-              prefix={<SearchOutlined />}
-              onChange={e => handleSearch(e.target.value)}
-              value={searchText}
-              className="max-w-xs"
-            />
-            <Select
-              defaultValue="all"
-              style={{ width: 120 }}
-              onChange={handleStatusFilter}
-              value={filterStatus}
-              options={[
-                { value: 'all', label: 'Tüm Durumlar' },
-                { value: 'Ödendi', label: 'Ödendi' },
-                { value: 'Beklemede', label: 'Beklemede' },
-                { value: 'İptal Edildi', label: 'İptal Edildi' },
-              ]}
-            />
-            <RangePicker onChange={handleDateRangeChange} />
-            <Button 
-              icon={<ReloadOutlined />} 
-              onClick={handleClearFilters}
-            >
-              Filtreleri Temizle
-            </Button>
-          </Space>
-
+      <div className="bills-container">
+        <Card className="bills-card">
+          <Row justify="space-between" align="middle" className="bills-header">
+            <Col>
+              <Title level={2} className="bills-title">
+                <FileTextOutlined /> Faturalar
+              </Title>
+              <Text type="secondary">Toplam {bills.length} fatura</Text>
+            </Col>
+            <Col>
+              <Search
+                placeholder="Fatura veya müşteri ara..."
+                allowClear
+                enterButton={<SearchOutlined />}
+                size="large"
+                onSearch={handleSearch}
+                className="bills-search"
+              />
+            </Col>
+          </Row>
+          
           <Table
             columns={columns}
             dataSource={filteredBills}
-            rowKey="id"
+            rowKey="_id"
             loading={loading}
             pagination={{
-              total: filteredBills.length,
               pageSize: 10,
               showSizeChanger: true,
-              showTotal: (total) => `Toplam ${total} fatura`,
+              showTotal: (total) => `Toplam ${total} fatura`
             }}
+            className="bills-table"
           />
-        </div>
+        </Card>
       </div>
+      
+      {selectedBill && (
+        <BillDetailModal
+          bill={selectedBill}
+          visible={isDetailModalVisible}
+          onClose={() => {
+            setIsDetailModalVisible(false);
+            setSelectedBill(null);
+          }}
+        />
+      )}
     </div>
   );
 };
 
-export default BillsPage;
+export default function BillsPageWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <BillsPage />
+    </ErrorBoundary>
+  );
+}
