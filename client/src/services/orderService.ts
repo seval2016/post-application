@@ -8,8 +8,7 @@ export const createOrder = async (orderData: any) => {
     const response = await axios.post(`${API_URL}/orders`, orderData);
     return response.data;
   } catch (error) {
-    console.error('Sipariş oluşturma hatası:', error);
-    throw error;
+    throw new Error('Sipariş oluşturulurken bir hata oluştu');
   }
 };
 
@@ -19,8 +18,7 @@ export const getOrders = async () => {
     const response = await axios.get(`${API_URL}/orders`);
     return response.data;
   } catch (error) {
-    console.error('Siparişleri getirme hatası:', error);
-    throw error;
+    throw new Error('Siparişler getirilirken bir hata oluştu');
   }
 };
 
@@ -30,8 +28,7 @@ export const getOrderById = async (id: string) => {
     const response = await axios.get(`${API_URL}/orders/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Sipariş detayı getirme hatası:', error);
-    throw error;
+    throw new Error('Sipariş detayı getirilirken bir hata oluştu');
   }
 };
 
@@ -41,7 +38,6 @@ export const updateOrderStatus = async (id: string, status: string) => {
     const response = await axios.patch(`${API_URL}/orders/${id}/status`, { status });
     return response.data;
   } catch (error) {
-    console.error('Sipariş durumu güncelleme hatası:', error);
-    throw error;
+    throw new Error('Sipariş durumu güncellenirken bir hata oluştu');
   }
 }; 

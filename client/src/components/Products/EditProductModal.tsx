@@ -32,8 +32,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         setLoadingCategories(true);
         const data = await getCategories();
         setCategories(data);
-      } catch (error) {
-        console.error('Kategoriler yüklenirken hata:', error);
+      } catch{
         message.error('Kategoriler yüklenirken bir hata oluştu');
       } finally {
         setLoadingCategories(false);
@@ -106,14 +105,13 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
           onSuccess();
           onClose();
         }
-      } catch (error) {
-        console.error('Ürün güncellenirken hata:', error);
-        message.error(`Ürün güncellenirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+      } catch{
+        message.error('Ürün güncellenirken bir hata oluştu');
       } finally {
         setUploading(false);
       }
-    } catch (error) {
-      console.error('Form validasyon hatası:', error);
+    } catch{
+      message.error('Form doğrulama hatası');
     }
   };
 
@@ -173,8 +171,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       setCategories([...categories, data]);
       form.setFieldValue('category', data.id);
       setNewCategory('');
-    } catch (error) {
-      console.error('Yeni kategori eklenirken hata:', error);
+    } catch{
       message.error('Yeni kategori eklenirken bir hata oluştu');
     }
   };

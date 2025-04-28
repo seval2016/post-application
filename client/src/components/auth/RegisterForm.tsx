@@ -4,6 +4,7 @@ import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, ShopOutlined }
 import { Link } from 'react-router-dom';
 import '../../styles/auth/RegisterForm.css';
 import Logo from "../Header/Logo";
+import { register } from '../../services/auth';
 
 interface RegisterFormData {
   businessName: string;
@@ -20,12 +21,23 @@ const RegisterForm = () => {
 
   const onFinish = async (values: RegisterFormData) => {
     try {
-      // API call will be implemented here
-      console.log("Success:", values);
+      const [firstName, ...lastNameParts] = values.fullName.split(' ');
+      const lastName = lastNameParts.join(' ');
+
+      await register({
+        firstName,
+        lastName,
+        email: values.email,
+        password: values.password,
+        phone: values.phone,
+        businessName: values.businessName
+      });
+
       message.success("Kayıt başarılı!");
+      // Başarılı kayıt sonrası login sayfasına yönlendir
+      window.location.href = '/login';
     } catch (error) {
-      console.error("Error:", error);
-      message.error("Kayıt sırasında bir hata oluştu.");
+      message.error(error instanceof Error ? error.message : "Kayıt sırasında bir hata oluştu.");
     }
   };
 

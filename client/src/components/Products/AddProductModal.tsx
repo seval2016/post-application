@@ -30,8 +30,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         setLoadingCategories(true);
         const data = await getCategories();
         setCategories(data);
-      } catch (error) {
-        console.error('Kategoriler yüklenirken hata:', error);
+      } catch {
         message.error('Kategoriler yüklenirken bir hata oluştu');
       } finally {
         setLoadingCategories(false);
@@ -118,14 +117,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         if (typeof onCancel === 'function') {
           onCancel();
         }
-      } catch (error) {
-        console.error('Ürün eklenirken hata:', error);
-        message.error(`Ürün eklenirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+      } catch{
+        message.error('Görsel yüklenirken bir hata oluştu');
       } finally {
         setUploading(false);
       }
-    } catch (error) {
-      console.error('Form validasyon hatası:', error);
+    } catch{
+      message.error('Form doğrulama hatası');
     }
   };
 

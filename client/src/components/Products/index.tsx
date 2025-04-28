@@ -18,6 +18,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   const [form] = Form.useForm();
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [categories, setCategories] = useState<{ id: string; name: string; }[]>([]);
+  const [, setLoading] = useState(false);
 
   const fetchCategories = async () => {
     try {
@@ -25,8 +26,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
       const response = await fetch('http://localhost:5000/api/categories');
       const data = await response.json();
       setCategories(data);
-    } catch (error) {
-      console.error('Kategoriler yüklenirken hata:', error);
+    } catch{
       message.error('Kategoriler yüklenirken bir hata oluştu');
     } finally {
       setLoadingCategories(false);
@@ -40,10 +40,8 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   const fetchProducts = async () => {
     try {
       const data = await getProducts();
-      console.log('Gelen ürünler:', data);
       setProducts(data);
-    } catch (error) {
-      console.error('Ürünler yüklenirken hata:', error);
+    } catch{
       message.error('Ürünler yüklenirken bir hata oluştu');
     }
   };
@@ -58,9 +56,8 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
       await deleteProduct(id);
       await fetchProducts(); // Ürünleri yeniden yükle
       message.success('Ürün başarıyla silindi');
-    } catch (error) {
-      console.error('Silme hatası:', error);
-      message.error('Ürün silinirken bir hata oluştu. Lütfen tekrar deneyin.');
+    } catch{
+      message.error('Ürün silinirken bir hata oluştu');
     }
   };
 
@@ -73,21 +70,21 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
 
   const handleModalOk = async () => {
     try {
-      const values = await form.validateFields();
-      if (editingProduct?._id) {
-        const updatedValues = {
-          ...values,
-          image: imageUrl || editingProduct.image
-        };
-        await updateProduct(editingProduct._id, updatedValues);
-        await fetchProducts();
-        setImageUrl('');
+      const formValues = await form.validateFields();
+      setLoading(true);
+      
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, formValues);
         message.success('Ürün başarıyla güncellendi');
-        setIsModalVisible(false);
       }
-    } catch (error) {
-      console.error('Güncelleme hatası:', error);
+      
+      setIsModalVisible(false);
+      form.resetFields();
+      fetchProducts();
+    } catch{
       message.error('Ürün güncellenirken bir hata oluştu');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,8 +109,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
         form.setFieldValue('image', data.url);
         message.success('Görsel başarıyla yüklendi');
       }
-    } catch (error) {
-      console.error('Görsel yükleme hatası:', error);
+    } catch{
       message.error('Görsel yüklenirken bir hata oluştu');
     }
   };
@@ -189,6 +185,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
           form={form} 
           layout="vertical"
           className="max-w-full"
+          onFinish={handleModalOk}
         >
           <Form.Item
             name="category"

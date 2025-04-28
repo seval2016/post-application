@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Button, Input, Space, Tag, Typography, Spin, message, Modal } from 'antd';
+import { Table, Card, Button, Input, Space, Tag, Typography, Spin, message, Modal, Form, Select } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import '../../../styles/components/Customer/CustomerList.css';
@@ -69,6 +69,10 @@ const CustomerList: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   // Fetch customers (mock implementation)
   const fetchCustomers = async () => {
@@ -77,9 +81,8 @@ const CustomerList: React.FC = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       setCustomers(mockCustomers);
-    } catch (error) {
+    } catch {
       message.error('Müşteriler yüklenirken bir hata oluştu');
-      console.error('Müşteri yükleme hatası:', error);
     } finally {
       setLoading(false);
     }
@@ -171,28 +174,18 @@ const CustomerList: React.FC = () => {
   ];
 
   const handleView = (record: Customer) => {
-    // View customer details
-    console.log('View customer:', record);
+    setSelectedCustomer(record);
+    setIsViewModalVisible(true);
   };
 
   const handleEdit = (record: Customer) => {
-    // Edit customer
-    console.log('Edit customer:', record);
+    setSelectedCustomer(record);
+    setIsEditModalVisible(true);
   };
 
   const handleDelete = (record: Customer) => {
-    Modal.confirm({
-      title: 'Are you sure you want to delete this customer?',
-      content: 'This action cannot be undone.',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
-      onOk() {
-        // Delete customer
-        console.log('Delete customer:', record);
-        message.success('Customer deleted successfully');
-      },
-    });
+    setSelectedCustomer(record);
+    setIsDeleteModalVisible(true);
   };
 
   const handleSearch = (value: string) => {
@@ -248,6 +241,100 @@ const CustomerList: React.FC = () => {
           }}
         />
       )}
+
+      {/* View Customer Modal */}
+      <Modal
+        title="Müşteri Detayları"
+        open={isViewModalVisible}
+        onCancel={() => setIsViewModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsViewModalVisible(false)}>
+            Kapat
+          </Button>
+        ]}
+      >
+        {selectedCustomer && (
+          <div>
+            <p><strong>Ad:</strong> {selectedCustomer.name}</p>
+            <p><strong>E-posta:</strong> {selectedCustomer.email}</p>
+            <p><strong>Telefon:</strong> {selectedCustomer.phone}</p>
+            <p><strong>Adres:</strong> {selectedCustomer.address}</p>
+            <p><strong>Durum:</strong> {selectedCustomer.status}</p>
+            <p><strong>Kayıt Tarihi:</strong> {new Date(selectedCustomer.createdAt).toLocaleDateString('tr-TR')}</p>
+          </div>
+        )}
+      </Modal>
+
+      {/* Edit Customer Modal */}
+      <Modal
+        title="Müşteri Düzenle"
+        open={isEditModalVisible}
+        onCancel={() => setIsEditModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsEditModalVisible(false)}>
+            İptal
+          </Button>,
+          <Button key="save" type="primary" onClick={() => {
+            message.success('Müşteri başarıyla güncellendi');
+            setIsEditModalVisible(false);
+          }}>
+            Kaydet
+          </Button>
+        ]}
+      >
+        {selectedCustomer && (
+          <Form layout="vertical">
+            <Form.Item label="Ad" initialValue={selectedCustomer.name}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="E-posta" initialValue={selectedCustomer.email}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Telefon" initialValue={selectedCustomer.phone}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Adres" initialValue={selectedCustomer.address}>
+              <Input.TextArea />
+            </Form.Item>
+            <Form.Item label="Durum" initialValue={selectedCustomer.status}>
+              <Select>
+                <Select.Option value="active">Aktif</Select.Option>
+                <Select.Option value="inactive">Pasif</Select.Option>
+              </Select>
+            </Form.Item>
+          </Form>
+        )}
+      </Modal>
+
+      {/* Delete Customer Modal */}
+      <Modal
+        title="Müşteri Sil"
+        open={isDeleteModalVisible}
+        onCancel={() => setIsDeleteModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsDeleteModalVisible(false)}>
+            İptal
+          </Button>,
+          <Button 
+            key="delete" 
+            type="primary" 
+            danger 
+            onClick={() => {
+              message.success('Müşteri başarıyla silindi');
+              setIsDeleteModalVisible(false);
+            }}
+          >
+            Sil
+          </Button>
+        ]}
+      >
+        {selectedCustomer && (
+          <p>
+            <strong>{selectedCustomer.name}</strong> isimli müşteriyi silmek istediğinize emin misiniz?
+            Bu işlem geri alınamaz.
+          </p>
+        )}
+      </Modal>
     </Card>
   );
 };

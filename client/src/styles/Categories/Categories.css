@@ -101,7 +101,7 @@
   }
   
   .category-title {
-    @apply text-lg;
+    @apply text-sm;
   }
   
   .category-card {

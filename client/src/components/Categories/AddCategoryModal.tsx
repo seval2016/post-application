@@ -33,47 +33,25 @@ export const AddCategoryModal = ({ isOpen, onClose, onAdd }: AddCategoryModalPro
 
   const handleSubmit: FormProps<CategoryFormData>['onFinish'] = async (values) => {
     try {
-      console.log('Form değerleri (ham):', values);
-      console.log('Form değerleri (stringified):', JSON.stringify(values));
-      console.log('Form alanları:', {
-        name: values.name,
-        nameLength: values.name?.length,
-        nameTrimmed: values.name?.trim(),
-        image: values.image,
-        imageLength: values.image?.length,
-        imageTrimmed: values.image?.trim()
-      });
-      
       // Boş değerleri kontrol et
       if (!values.name || values.name.trim() === '') {
-        console.log('Kategori adı validasyon hatası');
         message.error('Kategori adı boş olamaz');
         return;
       }
       
       if (!values.image || values.image.trim() === '') {
-        console.log('Görsel URL validasyon hatası');
         message.error('Görsel URL\'si boş olamaz');
         return;
       }
       
       setLoading(true);
-      console.log('addCategory fonksiyonuna gönderilen veri:', values);
       const newCategory = await addCategory(values);
-      console.log('Eklenen kategori:', newCategory);
       onAdd(newCategory);
       message.success('Kategori başarıyla eklendi');
       form.resetFields();
       onClose();
-    } catch (error) {
-      console.error('Kategori ekleme hatası (modal):', error);
-      if (error instanceof Error) {
-        console.error('Hata detayı:', error.message);
-        message.error(error.message);
-      } else {
-        console.error('Bilinmeyen hata:', error);
-        message.error('Kategori eklenirken bir hata oluştu');
-      }
+    } catch {
+      message.error('Kategori eklenirken bir hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -97,6 +75,8 @@ export const AddCategoryModal = ({ isOpen, onClose, onAdd }: AddCategoryModalPro
         layout="vertical"
         onFinish={handleSubmit}
         preserve={false}
+        name="addCategoryForm"
+        key="addCategoryForm"
       >
         <Form.Item
           label="Kategori Adı"

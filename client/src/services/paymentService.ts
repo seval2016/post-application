@@ -19,14 +19,7 @@ export const getInstallmentOptions = async (cardNumber: string, amount: number):
       }
     });
     return response.data;
-  } catch (error) {
-    console.error('Taksit seçenekleri alınamadı:', error);
-    // Hata durumunda varsayılan olarak tek çekim seçeneğini döndür
-    return [{
-      value: 1,
-      label: 'Tek Çekim',
-      monthlyPayment: amount,
-      totalPayment: amount
-    }];
+  } catch{
+    throw new Error('Taksit seçenekleri alınamadı');
   }
 }; 

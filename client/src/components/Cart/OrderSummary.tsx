@@ -4,6 +4,8 @@ import { RootState } from '../../redux/store';
 import { useState } from 'react';
 import OrderModal from '../../common/modals/OrderModal';
 import '../../styles/Cart/OrderSummary.css';
+import { message } from 'antd';
+import { createOrder } from '../../services/orderService';
 
 const OrderSummary = () => {
   const { items, total } = useSelector((state: RootState) => state.cart);
@@ -24,9 +26,27 @@ const OrderSummary = () => {
     setIsModalVisible(false);
   };
 
-  const handleOrderSuccess = () => {
+  const handleOrderComplete = () => {
     // Sipariş başarılı olduğunda yapılacak işlemler
-    console.log('Sipariş başarıyla tamamlandı');
+    message.success('Sipariş başarıyla tamamlandı');
+    setIsModalVisible(false);
+    // Sepeti temizle veya başka işlemler yap
+  };
+
+  const handleCompleteOrder = async () => {
+    try {
+      await createOrder({
+        items,
+        total: grandTotal,
+        subtotal,
+        vat,
+        shipping
+      });
+      message.success('Sipariş başarıyla tamamlandı');
+      handleOrderComplete();
+    } catch {
+      message.error('Sipariş tamamlanırken bir hata oluştu');
+    }
   };
 
   return (
@@ -70,7 +90,30 @@ const OrderSummary = () => {
       <OrderModal 
         isVisible={isModalVisible}
         onCancel={handleCancel}
-        onSuccess={handleOrderSuccess}
+        onSuccess={handleCompleteOrder}
+        orderId=""
+        customerInfo={{
+          name: '',
+          email: '',
+          phone: '',
+          address: {
+            street: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            country: ''
+          }
+        }}
+        items={items.map(item => ({
+          name: item.title,
+          quantity: item.quantity,
+          price: item.price,
+          total: item.price * item.quantity
+        }))}
+        subtotal={subtotal}
+        tax={vat}
+        shippingCost={shipping}
+        total={grandTotal}
       />
     </div>
   );

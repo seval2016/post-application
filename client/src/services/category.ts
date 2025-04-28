@@ -15,9 +15,8 @@ export const getCategories = async (): Promise<Category[]> => {
   try {
     const response = await axios.get(`${API_URL}/categories`);
     return response.data;
-  } catch (error) {
-    console.error('Kategoriler yüklenirken hata oluştu:', error);
-    throw error;
+  } catch{
+    throw new Error('Kategoriler yüklenirken bir hata oluştu');
   }
 };
 
@@ -28,9 +27,8 @@ export const addCategory = async (categoryData: { name: string; image: string })
     
     const response = await axios.post(`${API_URL}/categories`, categoryData, { headers });
     return response.data;
-  } catch (error) {
-    console.error('Kategori eklenirken hata oluştu:', error);
-    throw error;
+  } catch{
+    throw new Error('Kategori eklenirken bir hata oluştu');
   }
 };
 
@@ -41,9 +39,8 @@ export const updateCategory = async (id: string, categoryData: { name: string; i
     
     const response = await axios.put(`${API_URL}/categories/${id}`, categoryData, { headers });
     return response.data;
-  } catch (error) {
-    console.error('Kategori güncellenirken hata oluştu:', error);
-    throw error;
+  } catch{
+    throw new Error('Kategori güncellenirken bir hata oluştu');
   }
 };
 
@@ -53,8 +50,7 @@ export const deleteCategory = async (id: string): Promise<void> => {
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
     
     await axios.delete(`${API_URL}/categories/${id}`, { headers });
-  } catch (error) {
-    console.error('Kategori silinirken hata oluştu:', error);
-    throw error;
+  } catch{
+    throw new Error('Kategori silinirken bir hata oluştu');
   }
 }; 

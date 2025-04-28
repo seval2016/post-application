@@ -9,12 +9,16 @@ const SearchComponent: React.FC = () => {
     console.log('Search value:', value);
   };
 
+  const handleSearch = (value: string) => {
+    onSearch(value);
+  };
+
   return (
     <div className="search-wrapper">
       <Input
         placeholder="Ürün ara..."
         allowClear
-        onChange={(e) => onSearch(e.target.value)}
+        onChange={(e) => handleSearch(e.target.value)}
         suffix={<SearchOutlined className="search-icon" />}
         className="search-input"
       />

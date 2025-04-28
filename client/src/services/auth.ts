@@ -34,4 +34,28 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
 
 export const logout = () => {
   localStorage.removeItem('token');
+};
+
+export const register = async (userData: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone: string;
+  businessName: string;
+}) => {
+  const response = await fetch('http://localhost:5000/api/auth/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Kayıt sırasında bir hata oluştu');
+  }
+
+  return response.json();
 }; 

@@ -49,22 +49,11 @@ const LoginForm = () => {
       message.success("Giriş başarılı!");
       navigate('/');
     } catch (error) {
-      console.error("Login error details:", error);
-      const axiosError = error as AxiosError<{ message: string }>;
-      
-      // Hata mesajını göster
-      if (axiosError.response) {
-        console.error("Response data:", axiosError.response.data);
-        console.error("Response status:", axiosError.response.status);
-        
-        // Backend'den gelen hata mesajını göster
-        if (axiosError.response.data && axiosError.response.data.message) {
-          message.error(axiosError.response.data.message);
-        } else {
-          message.error("Giriş sırasında bir hata oluştu.");
-        }
+      if (error instanceof AxiosError) {
+        const errorMessage = error.response?.data?.message || 'Giriş yapılırken bir hata oluştu';
+        message.error(errorMessage);
       } else {
-        message.error("Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.");
+        message.error('Giriş yapılırken bir hata oluştu');
       }
     }
   };

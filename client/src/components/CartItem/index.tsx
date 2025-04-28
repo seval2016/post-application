@@ -1,18 +1,29 @@
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
-import { decreaseQuantity, increaseQuantity, removeFromCart } from '../../redux/cartSlice';
+import { updateQuantity, removeFromCart } from '../../redux/cartSlice';
 import '../../styles/CartItem/CartItem.css';
 
 interface CartItemProps {
-  id: string;
-  title: string;
-  price: number;
-  image: string;
-  quantity: number;
+  item: {
+    productId: string;
+    title: string;
+    price: number;
+    image: string;
+    quantity: number;
+  };
 }
 
-const CartItem: React.FC<CartItemProps> = ({ id, title, price, image, quantity }) => {
+const CartItem: React.FC<CartItemProps> = ({ item }) => {
   const dispatch = useDispatch();
+  const { productId, title, price, image, quantity } = item;
+
+  const handleQuantityChange = (type: 'increase' | 'decrease') => {
+    dispatch(updateQuantity({ productId, type }));
+  };
+
+  const handleRemove = () => {
+    dispatch(removeFromCart(productId));
+  };
 
   return (
     <div className="cart-item">
@@ -22,20 +33,20 @@ const CartItem: React.FC<CartItemProps> = ({ id, title, price, image, quantity }
         <p className="cart-item-price">{price}₺ x {quantity}</p>
         <div className="cart-item-controls">
           <button
-            onClick={() => dispatch(decreaseQuantity(id))}
+            onClick={() => handleQuantityChange('decrease')}
             className="cart-item-quantity-button"
           >
             <MinusOutlined className="cart-item-quantity-icon" />
           </button>
           <span className="cart-item-quantity">{quantity}</span>
           <button
-            onClick={() => dispatch(increaseQuantity(id))}
+            onClick={() => handleQuantityChange('increase')}
             className="cart-item-quantity-button"
           >
             <PlusOutlined className="cart-item-quantity-icon" />
           </button>
           <button
-            onClick={() => dispatch(removeFromCart(id))}
+            onClick={handleRemove}
             className="cart-item-delete"
           >
             <DeleteOutlined className="cart-item-delete-icon" />

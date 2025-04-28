@@ -9,6 +9,7 @@ export interface Product {
   price: number;
   image: string;
   category: string;
+  description?: string;
 }
 
 interface ApiResponse {
@@ -22,11 +23,9 @@ interface ApiResponse {
 export const getProducts = async (): Promise<Product[]> => {
   try {
     const response = await axios.get(`${API_URL}/products`);
-    console.log('API yanıtı:', response.data);
     
     if (!Array.isArray(response.data)) {
-      console.error('API yanıtı bir dizi değil:', response.data);
-      return [];
+      throw new Error('API yanıtı geçersiz format');
     }
     
     const productsWithId = response.data.map((product: ApiResponse) => ({
@@ -34,9 +33,8 @@ export const getProducts = async (): Promise<Product[]> => {
       id: product._id
     }));
     return productsWithId;
-  } catch (error) {
-    console.error('Ürünler getirilirken hata:', error);
-    throw error;
+  } catch{
+    throw new Error('Ürünler getirilirken bir hata oluştu');
   }
 };
 
@@ -49,9 +47,8 @@ export const addProduct = async (productData: Omit<Product, '_id'>): Promise<Pro
       },
     });
     return response.data;
-  } catch (error) {
-    console.error('Ürün eklenirken hata:', error);
-    throw error;
+  } catch{
+    throw new Error('Ürün eklenirken bir hata oluştu');
   }
 };
 
@@ -64,9 +61,8 @@ export const updateProduct = async (id: string, productData: Partial<Product>): 
       },
     });
     return response.data;
-  } catch (error) {
-    console.error('Ürün güncellenirken hata:', error);
-    throw error;
+  } catch{
+    throw new Error('Ürün güncellenirken bir hata oluştu');
   }
 };
 
@@ -78,8 +74,7 @@ export const deleteProduct = async (id: string): Promise<void> => {
         Authorization: `Bearer ${token}`
       }
     });
-  } catch (error) {
-    console.error('Delete error:', error);
-    throw error;
+  } catch{
+    throw new Error('Ürün silinirken bir hata oluştu');
   }
 }; 

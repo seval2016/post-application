@@ -29,10 +29,8 @@ export const EditCategoryModal = ({
     }
   }, [isOpen, categoryName, categoryImage, form]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: { name: string; imageUrl: string }) => {
     try {
-      const values = await form.validateFields();
-      
       setLoading(true);
       onEdit(values);
       message.success('Kategori başarıyla güncellendi');
@@ -58,19 +56,14 @@ export const EditCategoryModal = ({
       title="Kategori Düzenle"
       open={isOpen}
       onCancel={handleClose}
-      footer={[
-        <Button key="cancel" onClick={handleClose}>
-          İptal
-        </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>
-          Kaydet
-        </Button>,
-      ]}
+      footer={null}
+      destroyOnClose
     >
       <Form
         form={form}
         layout="vertical"
         name="editCategoryForm"
+        onFinish={handleSubmit}
       >
         <Form.Item
           name="name"
@@ -92,6 +85,19 @@ export const EditCategoryModal = ({
           ]}
         >
           <Input placeholder="Resim URL'si" />
+        </Form.Item>
+
+        <Form.Item className="mb-0 text-right">
+          <Button 
+            onClick={handleClose} 
+            className="mr-2" 
+            disabled={loading}
+          >
+            İptal
+          </Button>
+          <Button type="primary" htmlType="submit" loading={loading}>
+            Kaydet
+          </Button>
         </Form.Item>
       </Form>
     </Modal>
