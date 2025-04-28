@@ -77,7 +77,7 @@
 }
 
 .statistics-page-chart {
-  @apply h-[300px] sm:h-[350px];
+  @apply h-[350px];
 }
 
 .statistics-page-table {

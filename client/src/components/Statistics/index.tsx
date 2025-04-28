@@ -1,6 +1,4 @@
-import React from 'react';
-import { DatePicker, Card, Row, Col, Statistic } from 'antd';
-import { ShoppingCartOutlined, UserOutlined, DollarOutlined, FileTextOutlined } from '@ant-design/icons';
+import { DatePicker } from 'antd';
 import StatisticsCards from './StatisticsCards';
 import StatisticsCharts from './StatisticsCharts';
 import '../../styles/Statistics/Statistics.css';

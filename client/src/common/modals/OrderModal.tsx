@@ -421,7 +421,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
             >
               <Form.Item
                 name="address"
-                label={<Text strong>Teslimat Adresi</Text>}
+                label={<Text strong>Adres</Text>}
                 rules={[
                   { required: true, message: "Lütfen teslimat adresinizi girin" },
                 ]}
