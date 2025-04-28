@@ -35,20 +35,20 @@ const StatisticsPage = () => {
 
   // Örnek veriler
   const salesData = [
-    { name: 'Ocak', value: 4000 },
-    { name: 'Şubat', value: 3000 },
-    { name: 'Mart', value: 5000 },
-    { name: 'Nisan', value: 4500 },
-    { name: 'Mayıs', value: 6000 },
-    { name: 'Haziran', value: 5500 },
+    { id: 1, name: 'Ocak', value: 4000 },
+    { id: 2, name: 'Şubat', value: 3000 },
+    { id: 3, name: 'Mart', value: 5000 },
+    { id: 4, name: 'Nisan', value: 4500 },
+    { id: 5, name: 'Mayıs', value: 6000 },
+    { id: 6, name: 'Haziran', value: 5500 },
   ];
 
   const categoryData = [
-    { name: 'Elektronik', value: 400 },
-    { name: 'Giyim', value: 300 },
-    { name: 'Gıda', value: 300 },
-    { name: 'Kozmetik', value: 200 },
-    { name: 'Ev Eşyaları', value: 100 },
+    { id: 1, name: 'Elektronik', value: 400 },
+    { id: 2, name: 'Giyim', value: 300 },
+    { id: 3, name: 'Gıda', value: 300 },
+    { id: 4, name: 'Kozmetik', value: 200 },
+    { id: 5, name: 'Ev Eşyaları', value: 100 },
   ];
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
@@ -58,11 +58,13 @@ const StatisticsPage = () => {
       title: 'Ay',
       dataIndex: 'name',
       key: 'name',
+      width: '40%',
     },
     {
       title: 'Satış',
       dataIndex: 'value',
       key: 'value',
+      width: '60%',
       render: (value: number) => `₺${value.toFixed(2)}`,
     },
   ];
@@ -111,9 +113,9 @@ const StatisticsPage = () => {
         </div>
 
         {/* Satış Kartları */}
-        <Row gutter={[16, 16]} className="mb-6">
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="statistics-card">
+        <Row gutter={[16, 16]} className="mb-8">
+          <Col xs={24} sm={12} lg={6} className="mb-6 sm:mb-0">
+            <Card className="statistics-card h-full">
               <Statistic
                 title="Toplam Satış"
                 value={12500}
@@ -126,8 +128,8 @@ const StatisticsPage = () => {
               </div>
             </Card>
           </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="statistics-card">
+          <Col xs={24} sm={12} lg={6} className="mb-6 sm:mb-0">
+            <Card className="statistics-card h-full">
               <Statistic
                 title="Toplam Sipariş"
                 value={342}
@@ -139,8 +141,8 @@ const StatisticsPage = () => {
               </div>
             </Card>
           </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="statistics-card">
+          <Col xs={24} sm={12} lg={6} className="mb-6 sm:mb-0">
+            <Card className="statistics-card h-full">
               <Statistic
                 title="Ortalama Sipariş Değeri"
                 value={36.55}
@@ -153,8 +155,8 @@ const StatisticsPage = () => {
               </div>
             </Card>
           </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="statistics-card">
+          <Col xs={24} sm={12} lg={6} className="mb-6 sm:mb-0">
+            <Card className="statistics-card h-full">
               <Statistic
                 title="İade Oranı"
                 value={2.4}
@@ -169,12 +171,12 @@ const StatisticsPage = () => {
         </Row>
 
         {/* Grafikler */}
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={16}>
-            <Card className="statistics-page-card">
+        <Row gutter={[16, 16]} className="mb-8">
+          <Col xs={24} lg={16} className="mb-8 lg:mb-0">
+            <Card className="statistics-page-card h-full">
               <h2 className="statistics-page-card-title">Aylık Satışlar</h2>
               <div className="statistics-page-chart">
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={salesData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
@@ -187,11 +189,11 @@ const StatisticsPage = () => {
               </div>
             </Card>
           </Col>
-          <Col xs={24} lg={8}>
-            <Card className="statistics-page-card">
+          <Col xs={24} lg={8} className="mb-8 lg:mb-0">
+            <Card className="statistics-page-card h-full">
               <h2 className="statistics-page-card-title">Kategori Dağılımı</h2>
               <div className="statistics-page-chart">
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={categoryData}
@@ -205,7 +207,7 @@ const StatisticsPage = () => {
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
                       {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell key={`cell-${entry.id}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => [`₺${value}`, 'Satış']} />
@@ -218,14 +220,18 @@ const StatisticsPage = () => {
         </Row>
 
         {/* Satış Detayları Tablosu */}
-        <Card className="statistics-page-card mt-6">
+        <Card className="statistics-page-card">
           <h2 className="statistics-page-card-title">Satış Detayları</h2>
-          <Table
-            className="statistics-page-table"
-            columns={columns}
-            dataSource={salesData}
-            pagination={false}
-          />
+          <div className="statistics-table-container">
+            <Table
+              className="statistics-table"
+              columns={columns}
+              dataSource={salesData}
+              pagination={false}
+              size="small"
+              rowKey="id"
+            />
+          </div>
         </Card>
       </div>
     </div>

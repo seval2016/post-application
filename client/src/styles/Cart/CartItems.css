@@ -1,5 +1,6 @@
 .cart-items-container {
   @apply bg-white rounded-lg shadow-sm p-6;
+  overflow-x: auto; /* Enable horizontal scrolling for tables on small screens */
 }
 
 .cart-header {
@@ -7,7 +8,7 @@
 }
 
 .cart-title {
-  @apply text-2xl font-semibold text-gray-800;
+  @apply text-xl font-medium text-gray-800;
 }
 
 .cart-count {
@@ -97,7 +98,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .cart-items-container {
     @apply p-4;
   }
@@ -124,5 +125,116 @@
   
   .cart-total-price {
     @apply text-sm;
+  }
+}
+
+@media (max-width: 768px) {
+  .cart-items-container {
+    @apply p-3;
+  }
+
+  .cart-header {
+    @apply mb-4;
+  }
+
+  .cart-title {
+    @apply text-lg;
+  }
+
+  .ant-table {
+    @apply text-xs;
+  }
+
+  .cart-product-image {
+    @apply w-14 h-14;
+  }
+
+  .cart-product-title {
+    @apply text-xs;
+  }
+
+  .cart-quantity-button {
+    @apply w-6 h-6;
+  }
+
+  .cart-quantity-text {
+    @apply w-6 text-xs;
+  }
+
+  .cart-total-price {
+    @apply text-xs;
+  }
+
+  .cart-unit-price {
+    @apply text-[10px];
+  }
+
+  /* Mobil görünümde tablo sütunlarını düzenle */
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    @apply px-2 py-1;
+  }
+
+  /* Mobil görünümde bazı sütunları gizle */
+  .ant-table-cell[data-column-key="image"] {
+    @apply w-16;
+  }
+
+  .ant-table-cell[data-column-key="price"] {
+    @apply hidden md:table-cell;
+  }
+  
+  /* Mobil görünümde tablo yapısını düzenle */
+  .ant-table-wrapper {
+    @apply overflow-x-auto;
+  }
+  
+  .ant-table {
+    @apply min-w-[600px]; /* Minimum genişlik belirle */
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-items-container {
+    @apply p-2;
+  }
+
+  .cart-header {
+    @apply mb-3;
+  }
+
+  .cart-title {
+    @apply text-base;
+  }
+
+  .cart-count {
+    @apply text-xs;
+  }
+
+  .cart-product-image {
+    @apply w-12 h-12;
+  }
+
+  .cart-quantity-button {
+    @apply w-5 h-5;
+  }
+
+  .cart-quantity-text {
+    @apply w-5 text-[10px];
+  }
+  
+  /* Mobil görünümde tablo yapısını daha da optimize et */
+  .ant-table {
+    @apply min-w-[500px]; /* Daha küçük ekranlar için minimum genişliği azalt */
+  }
+  
+  /* Mobil görünümde tablo başlıklarını küçült */
+  .ant-table-thead > tr > th {
+    @apply text-[10px] py-1;
+  }
+  
+  /* Mobil görünümde tablo hücrelerini küçült */
+  .ant-table-tbody > tr > td {
+    @apply text-[10px] py-1;
   }
 } 

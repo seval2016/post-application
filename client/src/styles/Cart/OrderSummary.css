@@ -7,11 +7,12 @@
 }
 
 .order-summary-title {
-  @apply text-xl font-semibold text-gray-800;
+  @apply text-lg font-semibold text-gray-800;
 }
 
 .order-item-count {
   @apply flex items-center gap-2 text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full;
+  
 }
 
 .order-summary-items {
@@ -39,7 +40,7 @@
 }
 
 .order-summary-total span:last-child {
-  @apply text-lg font-bold text-blue-600;
+  @apply text-base font-bold text-blue-600;
 }
 
 .order-summary-actions {
@@ -48,6 +49,7 @@
 
 .order-summary-button {
   @apply w-full py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center justify-center gap-2;
+
 }
 
 .order-summary-button-primary {
@@ -60,20 +62,118 @@
 }
 
 /* Responsive Design */
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
   .order-summary-container {
-    @apply p-4;
-  }
-
-  .order-summary-header {
-    @apply mb-4;
+    @apply p-5;
   }
 
   .order-summary-title {
     @apply text-lg;
   }
 
+  .order-item-count {
+    @apply text-xs px-2.5 py-1;
+  }
+}
+
+@media (max-width: 768px) {
+  .order-summary-container {
+    @apply p-4;
+  }
+
+  .order-summary-header {
+    @apply mb-4 pb-3;
+  }
+
+  .order-summary-title {
+    @apply text-base;
+  }
+
+  .order-item-count {
+    @apply text-xs px-2 py-1;
+  }
+
+  .order-summary-items {
+    @apply space-y-3 mb-4;
+  }
+
+  .order-summary-item {
+    @apply py-1.5;
+  }
+
+  .order-summary-item span:first-child {
+    @apply text-xs;
+  }
+
+  .order-summary-item span:last-child {
+    @apply text-xs;
+  }
+
+  .order-summary-total {
+    @apply py-3 mt-3;
+  }
+
+  .order-summary-total span:first-child {
+    @apply text-sm;
+  }
+
+  .order-summary-total span:last-child {
+    @apply text-base;
+  }
+
   .order-summary-button {
-    @apply py-2.5;
+    @apply py-2.5 text-sm;
+  }
+}
+
+@media (max-width: 480px) {
+  .order-summary-container {
+    @apply p-3;
+  }
+
+  .order-summary-header {
+    @apply mb-3 pb-2;
+  }
+
+  .order-summary-title {
+    @apply text-sm;
+  }
+
+  .order-item-count {
+    @apply text-[10px] px-1.5 py-0.5;
+  }
+
+  .order-summary-items {
+    @apply space-y-2 mb-3;
+  }
+
+  .order-summary-item {
+    @apply py-1;
+  }
+
+  .order-summary-item span:first-child,
+  .order-summary-item span:last-child {
+    @apply text-[10px];
+  }
+
+  .order-summary-total {
+    @apply py-2 mt-2;
+  }
+
+  .order-summary-total span:first-child {
+    @apply text-xs;
+  }
+
+  .order-summary-total span:last-child {
+    @apply text-sm;
+  }
+
+  .order-summary-button {
+    @apply py-2 text-xs;
+  }
+  
+  /* Mobil görünümde butonları daha belirgin yap */
+  .order-summary-button-primary {
+    @apply shadow-md;
   }
 } 

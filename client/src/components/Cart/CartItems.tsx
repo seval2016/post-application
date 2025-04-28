@@ -8,7 +8,7 @@ import '../../styles/Cart/CartItems.css';
 const { Text } = Typography;
 
 interface CartItem {
-  id: string;
+  productId: string;
   title: string;
   image: string;
   price: number;
@@ -46,7 +46,7 @@ const CartItems = () => {
             type="link"
             danger
             icon={<DeleteOutlined />}
-            onClick={() => dispatch(removeFromCart(record.id))}
+            onClick={() => dispatch(removeFromCart(record.productId))}
             className="cart-remove-button"
           >
             Kaldır
@@ -62,13 +62,13 @@ const CartItems = () => {
         <div className="cart-quantity-controls">
           <Button
             icon={<MinusOutlined />}
-            onClick={() => dispatch(updateQuantity({ id: record.id, type: 'decrease' }))}
+            onClick={() => dispatch(updateQuantity({ productId: record.productId, type: 'decrease' }))}
             className="cart-quantity-button"
           />
           <Text className="cart-quantity-text">{record.quantity}</Text>
           <Button
             icon={<PlusOutlined />}
-            onClick={() => dispatch(updateQuantity({ id: record.id, type: 'increase' }))}
+            onClick={() => dispatch(updateQuantity({ productId: record.productId, type: 'increase' }))}
             className="cart-quantity-button"
           />
         </div>
@@ -97,7 +97,7 @@ const CartItems = () => {
       <Table
         columns={columns}
         dataSource={items}
-        rowKey="id"
+        rowKey="productId"
         pagination={{
           pageSize: 5,
           showSizeChanger: false,

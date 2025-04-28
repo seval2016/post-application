@@ -17,7 +17,7 @@
 
 /* Statistics Cards */
 .statistics-card {
-  @apply shadow-sm;
+  @apply shadow-sm mb-6 sm:mb-0;
 }
 
 .statistics-growth {
@@ -50,7 +50,7 @@
 }
 
 .chart-section {
-  @apply bg-white p-4 rounded-lg shadow-sm h-[400px];
+  @apply bg-white p-4 rounded-lg shadow-sm h-[400px] mb-8 sm:mb-0;
 }
 
 .chart-heading {
@@ -67,6 +67,37 @@
   @apply h-[85%];
 }
 
+/* Statistics Page Cards */
+.statistics-page-card {
+  @apply shadow-sm mb-8 sm:mb-0;
+}
+
+.statistics-page-card-title {
+  @apply text-lg font-medium mb-4;
+}
+
+.statistics-page-chart {
+  @apply h-[300px] sm:h-[350px];
+}
+
+.statistics-page-table {
+  @apply mt-4;
+}
+
+/* Table Styles */
+.statistics-table-container {
+  @apply overflow-x-auto;
+}
+
+.statistics-table {
+  @apply w-full;
+}
+
+.statistics-table th,
+.statistics-table td {
+  @apply px-3 py-2 text-sm;
+}
+
 /* Responsive Design */
 @media (max-width: 640px) {
   .statistics-header {
@@ -78,6 +109,31 @@
   }
 
   .chart-section {
-    @apply p-3;
+    @apply p-3 mb-8;
+  }
+  
+  .statistics-card {
+    @apply mb-8;
+  }
+  
+  .statistics-content {
+    @apply space-y-8;
+  }
+  
+  .statistics-page-card {
+    @apply mb-8;
+  }
+  
+  .statistics-page-chart {
+    @apply h-[250px];
+  }
+  
+  .statistics-table th,
+  .statistics-table td {
+    @apply px-2 py-1 text-xs;
+  }
+  
+  .statistics-table-container {
+    @apply -mx-4 px-4;
   }
 } 

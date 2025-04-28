@@ -4,7 +4,7 @@
 }
 
 .products-list {
-  @apply grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4;
+  @apply grid grid-cols-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-4 gap-4;
   max-height: calc(100vh - 100px);
  
 } 
@@ -21,7 +21,6 @@
 
 .products-title {
   @apply text-base font-medium text-gray-700;
-  font-family: 'Electrolize', sans-serif;
   letter-spacing: 0.5px;
 }
 

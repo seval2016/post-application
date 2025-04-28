@@ -13,10 +13,8 @@ const Header: React.FC = () => {
       <div className="header-left">
         <Logo />
       </div>
-      <div className="header-center">
-        <Search />
-      </div>
       <div className="header-right">
+        <Search />
         <NavigationMenu />
       </div>
     </AntHeader>

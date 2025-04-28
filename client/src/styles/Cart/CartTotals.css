@@ -11,7 +11,7 @@
   
   .cart-totals-title {
     @apply text-base font-medium text-gray-700;
-    font-family: 'Electrolize', sans-serif;
+ 
     letter-spacing: 0.5px;
   }
   
@@ -100,7 +100,7 @@
   }
   
   .cart-item-delete {
-    @apply text-gray-400 hover:text-red-500 transition-colors duration-200;
+    @apply text-red-500 hover:text-red-700 transition-colors duration-200;
   }
   
   /* Responsive Design */
@@ -110,24 +110,40 @@
     }
     
     .cart-item {
-      @apply p-1.5 gap-2;
+      @apply p-3;
     }
     
     .cart-item-image {
-      @apply w-12 h-12;
+      @apply w-20 h-20;
     }
     
     .cart-item-title {
-      @apply text-xs;
+      @apply text-base;
     }
     
     .cart-item-price {
-      @apply text-xs;
+      @apply text-base;
     }
     
     .cart-totals-row,
     .cart-totals-discount,
     .cart-totals-total {
-      @apply text-xs;
+      @apply text-base;
+    }
+    
+    .cart-totals-title {
+      @apply text-lg;
+    }
+    
+    .cart-totals-count {
+      @apply text-sm;
+    }
+    
+    .cart-item-quantity-text {
+      @apply text-sm w-8;
+    }
+    
+    .cart-item-quantity-button {
+      @apply text-lg;
     }
   } 

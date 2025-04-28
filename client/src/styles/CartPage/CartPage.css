@@ -1,5 +1,6 @@
 .cart-page {
   min-height: 100vh;
+  padding-bottom: 80px; /* Add bottom padding to prevent content from being hidden behind the menu */
 }
 
 .cart-content {
@@ -20,6 +21,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 24px;
+  min-width: 0; /* Prevent flex item from overflowing */
 }
 
 .order-summary-container {
@@ -29,6 +31,28 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 24px;
   height: fit-content;
+  position: sticky;
+  top: 88px; /* 64px header + 24px margin */
+}
+
+/* Tablet ve mobil cihazlar için responsive tasarım */
+@media (max-width: 1024px) {
+  .cart-content {
+    padding: 16px;
+  }
+
+  .cart-container {
+    gap: 16px;
+  }
+
+  .cart-items-container {
+    padding: 16px;
+  }
+
+  .order-summary-container {
+    width: 300px;
+    padding: 16px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -38,5 +62,32 @@
   
   .order-summary-container {
     width: 100%;
+    position: static;
+    margin-top: 16px;
+  }
+
+  .cart-items-container {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-page {
+    padding-bottom: 100px; /* Increase bottom padding for smaller screens */
+  }
+  
+  .cart-content {
+    padding: 12px;
+    margin-top: 56px;
+  }
+
+  .cart-container {
+    gap: 12px;
+  }
+
+  .cart-items-container,
+  .order-summary-container {
+    padding: 12px;
+    border-radius: 6px;
   }
 } 

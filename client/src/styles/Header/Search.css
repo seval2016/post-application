@@ -40,13 +40,53 @@
   @apply hidden;
 }
 
-/* Mobil görünüm */
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .search-wrapper {
+    @apply max-w-lg;
+  }
+}
+
 @media (max-width: 768px) {
+  .search-wrapper {
+    @apply max-w-md px-2;
+  }
+  
   .search-input {
     @apply h-10;
   }
   
   .search-input input.ant-input {
     @apply text-sm py-2;
+  }
+  
+  .search-input .ant-input-suffix {
+    @apply pr-2;
+  }
+  
+  .search-input .search-icon {
+    @apply text-base;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-wrapper {
+    @apply max-w-xs px-1;
+  }
+  
+  .search-input {
+    @apply h-9;
+  }
+  
+  .search-input input.ant-input {
+    @apply text-xs py-1.5 pl-2;
+  }
+  
+  .search-input .ant-input-suffix {
+    @apply pr-1;
+  }
+  
+  .search-input .search-icon {
+    @apply text-sm;
   }
 } 

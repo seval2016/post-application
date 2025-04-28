@@ -5,11 +5,11 @@ import { message, Popconfirm } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { categoryService } from '../../services/categoryService';
 import '../../styles/Categories/Categories.css';
-import { Category } from '../../types/category';
+import { Category } from '../../types/category'; 
 
 interface CategoriesProps {
   selectedCategory: string | undefined;
-  setSelectedCategory: (categoryId: string) => void;
+  setSelectedCategory: (categoryId: string | undefined) => void;
 }
 
 const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCategory }) => {
@@ -84,6 +84,21 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCa
       </div>
       
       <div className="categories-list"> 
+        {/* All Categories Card */}
+        <div
+          className={`category-card ${
+            selectedCategory === undefined ? 'category-card-selected' : 'category-card-default'
+          }`}
+          onClick={() => setSelectedCategory(undefined)}
+        >
+          <div className="category-content">
+            <div className="category-icon-wrapper">
+              <span className="category-icon">🏠</span>
+            </div>
+            <span className="category-title">Tümü</span>
+          </div>
+        </div>
+        
         <div className="categories-scroll-area">
           {categories.length === 0 ? (
             <div className="flex items-center justify-center w-full h-full">

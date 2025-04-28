@@ -18,22 +18,16 @@
   align-items: center;
   gap: 16px;
   width: 200px;
-}
-
-.header-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  max-width: 600px;
-  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .header-right {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  width: 200px;
+  gap: 24px;
+  flex: 1;
+  min-width: 0;
 }
 
 .cart-icon {
@@ -49,16 +43,18 @@
 }
 
 .search-wrapper {
-  @apply flex-1 flex justify-center items-center px-4;
+  @apply flex items-center;
+  min-width: 0;
+  max-width: 600px;
 }
 
 .search-input {
-  @apply rounded-full w-full max-w-2xl;
+  @apply rounded-full w-full;
 }
 
 /* Desktop Menu Styles */
 .desktop-menu {
-  @apply hidden sm:flex items-center gap-8;
+  @apply hidden sm:flex items-center gap-6;
 }
 
 .menu-item {
@@ -66,40 +62,105 @@
 }
 
 .menu-icon {
-  @apply text-lg transition-all duration-300;
+  @apply text-xl transition-all duration-300;
 }
 
 .menu-text {
-  @apply text-xs;
+  @apply text-sm;
 }
 
 /* Mobile Menu Styles */
 .mobile-menu {
-  @apply fixed bottom-0 left-0 right-0 bg-white border-t py-2 sm:hidden z-50;
+  @apply fixed bottom-0 left-0 right-0 bg-white border-t py-3 sm:hidden z-50;
 }
 
 .mobile-menu-container {
   @apply flex items-center justify-around;
 }
 
+.mobile-menu-item {
+  @apply flex flex-col items-center gap-1;
+}
+
+.mobile-menu-icon {
+  @apply text-xl;
+}
+
+.mobile-menu-text {
+  @apply text-sm;
+}
+
 .logout-button {
   @apply hover:text-red-500 transition-all duration-300 ease-in-out flex flex-col items-center gap-1;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0 12px;
+  }
+  
+  .header-left {
+    width: 160px;
+  }
+  
+  .header-right {
+    gap: 16px;
+  }
+  
+  .search-wrapper {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 900px) {
+  .search-wrapper {
+    max-width: 200px;
+  }
+  
+  .desktop-menu {
+    @apply gap-4;
+  }
 }
 
 @media (max-width: 768px) {
   .header {
     padding: 0 8px;
+    height: 56px;
   }
 
   .header-left {
     width: auto;
   }
-
-  .header-center {
-    max-width: none;
-  }
-
+  
   .header-right {
-    width: auto;
+    gap: 12px;
+  }
+  
+  .search-wrapper {
+    max-width: 320px;
+  }
+  
+  .logo {
+    @apply text-xl;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0 6px;
+    height: 50px;
+  }
+  
+  .header-right {
+    gap: 8px;
+  }
+  
+  .search-wrapper {
+    max-width: 250px;
+  }
+  
+  .logo {
+    @apply text-lg;
   }
 } 
