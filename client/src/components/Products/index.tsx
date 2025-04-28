@@ -4,7 +4,7 @@ import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { getProducts, deleteProduct, Product, updateProduct } from '../../services/product';
 import AddProductModal from './AddProductModal';
 import ProductCard from './ProductCard';
-
+import '../../styles/Products/Products.css';
 interface ProductsProps {
   selectedCategory?: string;
 }
@@ -141,11 +141,11 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
     : products;
 
   return (
-    <div className="p-6">
-      <div className="categories-header">
-        <h2 className="categories-title">Ürünler</h2>
+    <div className="products p-6">
+      <div className="products-header">
+        <h2 className="products-title">Ürünler</h2>
         <div className="flex items-center gap-4">
-          <span className="categories-count">{filteredProducts.length}</span>
+          <span className="products-count">{filteredProducts.length}</span>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -155,7 +155,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="products-list">
         {filteredProducts.map((item) => (
           <div key={`product-${item._id}`}>
             <ProductCard 

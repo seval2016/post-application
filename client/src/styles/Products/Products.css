@@ -1,7 +1,13 @@
 .products {
   @apply p-4 h-full flex flex-col;
-  max-height: calc(100vh - 100px);
+  
 }
+
+.products-list {
+  @apply grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4;
+  max-height: calc(100vh - 100px);
+ 
+} 
 
 .products-header {
   @apply flex justify-between items-center mb-4 flex-shrink-0;
@@ -25,10 +31,12 @@
 
 .products-wrapper {
   @apply flex-1 overflow-y-auto;
+ 
 }
 
 .products-grid {
   @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-2;
+  
 }
 
 @media (min-width: 768px) {

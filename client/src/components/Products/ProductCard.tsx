@@ -17,7 +17,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onEdit, onDelete }) => 
 
   const handleAdd = () => {
     dispatch(addToCart({
-      id: item.id,
+      productId: item.id,
       title: item.title,
       price: item.price,
       image: item.image
@@ -32,7 +32,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, onEdit, onDelete }) => 
 
   const CardDescription = (
     <div className="flex justify-between items-center">
-      <span className="text-base font-sans text-gray-600">{Math.floor(item.price).toLocaleString('tr-TR')} TL</span>
+      <span className="text-sm font-sans text-gray-600">{Math.floor(item.price).toLocaleString('tr-TR')} TL</span>
       <Button 
         type="default"
         icon={<ShoppingCartOutlined />}
