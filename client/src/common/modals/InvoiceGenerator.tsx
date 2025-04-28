@@ -42,7 +42,7 @@ const InvoiceGenerator: React.FC<InvoiceGeneratorProps> = ({ invoiceData }) => {
     // Fatura Bilgileri
     doc.setFontSize(12);
     doc.text(`Fatura No: ${invoiceData.orderNumber}`, 20, 40);
-    doc.text(`Tarih: ${invoiceData.date}`, 20, 50);
+    doc.text(`Tarih: ${new Date(invoiceData.date).toLocaleDateString('tr-TR')}`, 20, 50);
     
     // Müşteri Bilgileri
     doc.setFontSize(14);
@@ -100,6 +100,7 @@ const InvoiceGenerator: React.FC<InvoiceGeneratorProps> = ({ invoiceData }) => {
       type="primary" 
       icon={<DownloadOutlined />} 
       onClick={generateInvoice}
+      className="mt-4"
     >
       Faturayı İndir
     </Button>

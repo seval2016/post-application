@@ -6,6 +6,7 @@ import { clearCart } from '../../redux/cartSlice';
 import OrderModal from '../../common/modals/OrderModal';
 import { RootState } from '../../redux/store';
 import { ClearOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 interface CartSummaryProps {
   total: number;
@@ -14,12 +15,12 @@ interface CartSummaryProps {
 
 const CartSummary: React.FC<CartSummaryProps> = ({ total, discount = 0 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [orderModalVisible, setOrderModalVisible] = useState(false);
   const { items } = useSelector((state: RootState) => state.cart);
 
   const handleOrderClick = () => {
     if (items.length === 0) {
-      // Sepet boşsa kullanıcıya bilgi ver
       return;
     }
     setOrderModalVisible(true);
@@ -28,6 +29,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, discount = 0 }) => {
   const handleOrderSuccess = () => {
     setOrderModalVisible(false);
     dispatch(clearCart());
+    navigate('/orders');
   };
 
   return (
@@ -73,6 +75,29 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, discount = 0 }) => {
         isVisible={orderModalVisible}
         onCancel={() => setOrderModalVisible(false)}
         onSuccess={handleOrderSuccess}
+        orderId={`ORD-${Date.now()}`}
+        customerInfo={{
+          name: "",
+          email: "",
+          phone: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: ""
+          }
+        }}
+        items={items.map(item => ({
+          name: item.title,
+          quantity: item.quantity,
+          price: item.price,
+          total: item.price * item.quantity
+        }))}
+        subtotal={total}
+        tax={total * 0.08}
+        shippingCost={15}
+        total={total + (total * 0.08) + 15 - discount}
       />
     </div>
   );

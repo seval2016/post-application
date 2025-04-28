@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Input, Select, DatePicker, Button, Space, Tag, message } from 'antd';
-import { SearchOutlined, ReloadOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { useState, useEffect } from 'react';
+import { Table, Input, Select, DatePicker, Button, Space, Tag, message, Dropdown } from 'antd';
+import { SearchOutlined, ReloadOutlined, ShoppingOutlined, DownOutlined, CheckOutlined } from '@ant-design/icons';
 import type { Dayjs } from 'dayjs';
 import Header from '../../components/Header';
 import PageHeader from '../../common/PageHeader';
-import { getOrders } from '../../services/orderService';
+import { getOrders, updateOrderStatus } from '../../services/orderService';
 
 const { RangePicker } = DatePicker;
 
@@ -74,6 +74,50 @@ const OrdersPage = () => {
     setSearchText('');
     setFilterStatus('all');
     setDateRange(null);
+  };
+
+  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    try {
+      setLoading(true);
+      const response = await updateOrderStatus(orderId, newStatus);
+      
+      if (response.success) {
+        // Yerel state'i güncelle
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order._id === orderId 
+              ? { ...order, status: newStatus } 
+              : order
+          )
+        );
+        
+        message.success('Sipariş durumu güncellendi');
+      } else {
+        message.error(response.error || 'Sipariş durumu güncellenirken bir hata oluştu');
+      }
+    } catch (error) {
+      console.error('Sipariş durumu güncellenirken hata:', error);
+      message.error('Sipariş durumu güncellenirken bir hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusMenuItems = (orderId: string, currentStatus: string) => {
+    const statuses = [
+      { key: 'pending', label: 'Beklemede' },
+      { key: 'processing', label: 'İşleniyor' },
+      { key: 'shipped', label: 'Kargoya Verildi' },
+      { key: 'delivered', label: 'Teslim Edildi' },
+      { key: 'cancelled', label: 'İptal Edildi' }
+    ];
+
+    return statuses.map(status => ({
+      key: status.key,
+      label: status.label,
+      icon: status.key === currentStatus ? <CheckOutlined /> : null,
+      onClick: () => handleStatusUpdate(orderId, status.key)
+    }));
   };
 
   const getStatusColor = (status: string) => {
@@ -153,8 +197,17 @@ const OrdersPage = () => {
       title: 'Durum',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
+      render: (status: string, record: Order) => (
+        <Dropdown 
+          menu={{ items: getStatusMenuItems(record._id, status) }} 
+          trigger={['click']}
+          placement="bottomRight"
+        >
+          <Button type="text" className="flex items-center">
+            <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
+            <DownOutlined className="ml-1" />
+          </Button>
+        </Dropdown>
       ),
     },
   ];

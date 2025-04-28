@@ -78,7 +78,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
         message.success('Ürün başarıyla güncellendi');
       }
       
-      setIsModalVisible(false);
+        setIsModalVisible(false);
       form.resetFields();
       fetchProducts();
     } catch{
