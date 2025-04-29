@@ -5,6 +5,7 @@ import { getProducts, deleteProduct, Product, updateProduct } from '../../servic
 import AddProductModal from './AddProductModal';
 import ProductCard from './ProductCard';
 import '../../styles/Products/Products.css';
+
 interface ProductsProps {
   selectedCategory?: string;
 }
@@ -18,7 +19,6 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   const [form] = Form.useForm();
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [categories, setCategories] = useState<{ id: string; name: string; }[]>([]);
-  const [, setLoading] = useState(false);
 
   const fetchCategories = async () => {
     try {
@@ -71,20 +71,17 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   const handleModalOk = async () => {
     try {
       const formValues = await form.validateFields();
-      setLoading(true);
       
       if (editingProduct) {
         await updateProduct(editingProduct.id, formValues);
         message.success('Ürün başarıyla güncellendi');
       }
       
-        setIsModalVisible(false);
+      setIsModalVisible(false);
       form.resetFields();
       fetchProducts();
     } catch{
       message.error('Ürün güncellenirken bir hata oluştu');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -137,11 +134,11 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
     : products;
 
   return (
-    <div className="products p-6">
+    <div className="products">
       <div className="products-header">
         <h2 className="products-title">Ürünler</h2>
         <div className="flex items-center gap-4">
-          <span className="products-count">{filteredProducts.length}</span>
+          <span className="products-count">{filteredProducts.length} Ürün</span>
           <Button
             type="primary"
             icon={<PlusOutlined />}

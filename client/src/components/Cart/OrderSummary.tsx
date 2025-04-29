@@ -2,10 +2,8 @@ import { useSelector } from 'react-redux';
 import { Button } from 'antd';
 import { RootState } from '../../redux/store';
 import { useState } from 'react';
-import OrderModal from '../../common/modals/OrderModal';
+import OrderModal from '../../common/modals/OrderModal/index';
 import '../../styles/Cart/OrderSummary.css';
-import { message } from 'antd';
-import { createOrder } from '../../services/orderService';
 
 const OrderSummary = () => {
   const { items, total } = useSelector((state: RootState) => state.cart);
@@ -24,29 +22,6 @@ const OrderSummary = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
-  };
-
-  const handleOrderComplete = () => {
-    // Sipariş başarılı olduğunda yapılacak işlemler
-    message.success('Sipariş başarıyla tamamlandı');
-    setIsModalVisible(false);
-    // Sepeti temizle veya başka işlemler yap
-  };
-
-  const handleCompleteOrder = async () => {
-    try {
-      await createOrder({
-        items,
-        total: grandTotal,
-        subtotal,
-        vat,
-        shipping
-      });
-      message.success('Sipariş başarıyla tamamlandı');
-      handleOrderComplete();
-    } catch {
-      message.error('Sipariş tamamlanırken bir hata oluştu');
-    }
   };
 
   return (
@@ -88,32 +63,20 @@ const OrderSummary = () => {
 
       {/* Sipariş Modalı */}
       <OrderModal 
-        isVisible={isModalVisible}
-        onCancel={handleCancel}
-        onSuccess={handleCompleteOrder}
-        orderId=""
-        customerInfo={{
-          name: '',
-          email: '',
-          phone: '',
-          address: {
-            street: '',
-            city: '',
-            state: '',
-            zipCode: '',
-            country: ''
-          }
+        open={isModalVisible}
+        onClose={handleCancel}
+        values={{
+          items: items.map(item => ({
+            id: item.productId,
+            name: item.title,
+            price: item.price,
+            quantity: item.quantity,
+            total: item.price * item.quantity
+          })),
+          subtotal: subtotal,
+          vat: vat,
+          total: grandTotal
         }}
-        items={items.map(item => ({
-          name: item.title,
-          quantity: item.quantity,
-          price: item.price,
-          total: item.price * item.quantity
-        }))}
-        subtotal={subtotal}
-        tax={vat}
-        shippingCost={shipping}
-        total={grandTotal}
       />
     </div>
   );

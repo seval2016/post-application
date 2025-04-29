@@ -1,0 +1,1 @@
+export type PaymentMethodType = 'credit_card' | 'cash_on_delivery' | 'bank_transfer'; 

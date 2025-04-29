@@ -3,10 +3,9 @@ import '../../styles/Cart/CartTotals.css';
 import { Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../../redux/cartSlice';
-import OrderModal from '../../common/modals/OrderModal';
+import OrderModal from '../../common/modals/OrderModal/index';
 import { RootState } from '../../redux/store';
 import { ClearOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 
 interface CartSummaryProps {
   total: number;
@@ -15,7 +14,6 @@ interface CartSummaryProps {
 
 const CartSummary: React.FC<CartSummaryProps> = ({ total, discount = 0 }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [orderModalVisible, setOrderModalVisible] = useState(false);
   const { items } = useSelector((state: RootState) => state.cart);
 
@@ -24,12 +22,6 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, discount = 0 }) => {
       return;
     }
     setOrderModalVisible(true);
-  };
-
-  const handleOrderSuccess = () => {
-    setOrderModalVisible(false);
-    dispatch(clearCart());
-    navigate('/orders');
   };
 
   return (
@@ -71,36 +63,24 @@ const CartSummary: React.FC<CartSummaryProps> = ({ total, discount = 0 }) => {
         Sepeti Temizle
       </Button>
 
-      <OrderModal 
-        isVisible={orderModalVisible}
-        onCancel={() => setOrderModalVisible(false)}
-        onSuccess={handleOrderSuccess}
-        orderId={`ORD-${Date.now()}`}
-        customerInfo={{
-          name: "",
-          email: "",
-          phone: "",
-          address: {
-            street: "",
-            city: "",
-            state: "",
-            zipCode: "",
-            country: ""
-          }
+      <OrderModal
+        open={orderModalVisible}
+        onClose={() => setOrderModalVisible(false)}
+        values={{
+          items: items.map(item => ({
+            id: item.productId,
+            name: item.title,
+            price: item.price,
+            quantity: item.quantity,
+            total: item.price * item.quantity
+          })),
+          subtotal: total,
+          vat: total * 0.18,
+          total: total * 1.18
         }}
-        items={items.map(item => ({
-          name: item.title,
-          quantity: item.quantity,
-          price: item.price,
-          total: item.price * item.quantity
-        }))}
-        subtotal={total}
-        tax={total * 0.08}
-        shippingCost={15}
-        total={total + (total * 0.08) + 15 - discount}
       />
     </div>
   );
 };
 
-export default CartSummary; 
+export default CartSummary;

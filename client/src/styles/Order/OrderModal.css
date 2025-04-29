@@ -128,4 +128,122 @@
 
 .order-modal-summary-amount {
   @apply text-green-600;
+}
+
+.credit-card-form {
+  @apply bg-white p-6 rounded-lg border border-gray-200 mt-4;
+}
+
+.credit-card-form .ant-form-item {
+  @apply mb-4;
+}
+
+.credit-card-form .ant-form-item-label {
+  @apply mb-1;
+}
+
+.credit-card-form .ant-input {
+  @apply rounded-md border-gray-300;
+}
+
+.credit-card-form .ant-input:hover {
+  @apply border-blue-500;
+}
+
+.credit-card-form .ant-input:focus {
+  @apply border-blue-500 shadow-sm;
+}
+
+.credit-card-form .grid {
+  @apply grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.ant-modal-content {
+  padding: 24px;
+}
+
+.ant-steps {
+  margin-bottom: 24px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.text-6xl {
+  font-size: 3.75rem;
+  line-height: 1;
+}
+
+.text-green-500 {
+  color: #10B981;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.text-gray-600 {
+  color: #4B5563;
+}
+
+/* OrderSummary bileşeni için stiller */
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+/* CreditCardForm bileşeni için stiller */
+.max-w-lg {
+  max-width: 32rem;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.w-32 {
+  width: 8rem;
 } 

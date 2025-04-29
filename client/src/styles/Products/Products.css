@@ -1,12 +1,13 @@
 .products {
   @apply p-4 h-full flex flex-col;
-  
+  height: 100%;
+  overflow-y: auto;
 }
 
 .products-list {
-  @apply grid grid-cols-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-4 gap-4;
-  max-height: calc(100vh - 100px);
- 
+  @apply grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  overflow-y: auto;
+  padding-bottom: 20px;
 } 
 
 .products-header {
@@ -20,7 +21,7 @@
 }
 
 .products-title {
-  @apply text-base font-medium text-gray-700;
+  @apply text-xl font-medium text-gray-700;
   letter-spacing: 0.5px;
 }
 
@@ -30,12 +31,12 @@
 
 .products-wrapper {
   @apply flex-1 overflow-y-auto;
- 
+  height: 100%;
 }
 
 .products-grid {
   @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-2;
-  
+  height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -98,136 +99,135 @@
   color: #1890ff;
 }
 
-.product-actions {
-  display: flex;
-  gap: 8px;
-}
-
 .add-to-cart-button {
   background-color: #1890ff;
-  border-color: #1890ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .add-to-cart-button:hover {
   background-color: #40a9ff;
-  border-color: #40a9ff;
 }
 
 .edit-product-button {
-  color: #1890ff;
-  border-color: #1890ff;
+  background-color: #52c41a;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .edit-product-button:hover {
-  color: #40a9ff;
-  border-color: #40a9ff;
+  background-color: #73d13d;
 }
 
 .delete-product-button {
-  color: #ff4d4f;
-  border-color: #ff4d4f;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .delete-product-button:hover {
-  color: #ff7875;
-  border-color: #ff7875;
+  background-color: #ff7875;
 }
 
-/* Loading state */
 .products-loading {
   display: flex;
-  align-items: center;
   justify-content: center;
-  min-height: 200px;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: #1890ff;
 }
 
-/* Empty state */
 .products-empty {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: 300px;
-  color: #666;
+  align-items: center;
+  height: 200px;
+  text-align: center;
+  color: #8c8c8c;
 }
 
-/* Error state */
 .products-error {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: 300px;
+  align-items: center;
+  height: 200px;
+  text-align: center;
   color: #ff4d4f;
 }
 
-/* Scrollbar Styles */
 .products-wrapper::-webkit-scrollbar {
-  @apply w-[6px];
+  width: 6px;
 }
 
 .products-wrapper::-webkit-scrollbar-track {
-  @apply bg-gray-100 rounded-md;
+  background: #f1f1f1;
 }
 
 .products-wrapper::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-md;
+  background: #888;
+  border-radius: 3px;
 }
 
 .products-wrapper::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
+  background: #555;
 }
 
-/* Firefox için */
 .products-wrapper {
-  scrollbar-width: thin;
-  scrollbar-color: #ccc #f1f1f1;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 640px) {
   .products {
-    @apply p-2;
-    max-height: none;
+    padding: 10px;
   }
-
+  
   .products-grid {
-    @apply gap-2;
+    grid-template-columns: repeat(2, 1fr);
   }
-
+  
   .products-header {
-    @apply mb-2;
+    flex-direction: column;
+    align-items: flex-start;
   }
-
+  
   .products-title {
-    @apply text-lg;
+    margin-bottom: 10px;
   }
-
+  
   .product-card {
     padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
   }
-
+  
   .product-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: none;
   }
-
+  
   .product-title {
     font-size: 14px;
-    font-weight: 500;
   }
-
+  
   .product-price {
     font-size: 16px;
-    font-weight: 600;
-    color: #1890ff;
   }
-
+  
   .product-actions button {
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px 12px;
   }
 }

@@ -7,6 +7,7 @@ import RegisterPage from "../pages/auth/RegisterPage";
 import LoginPage from "../pages/auth/LoginPage";
 import OrdersPage from "../pages/OrdersPage";
 import ErrorBoundary from "../components/ErrorBoundary";
+import ErrorPage from "../components/ErrorPage/ErrorPage";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('token');
@@ -22,37 +23,41 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <PrivateRoute><HomePage /></PrivateRoute>,
-    errorElement: <ErrorBoundary><div>Error</div></ErrorBoundary>
+    errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/cart",
     element: <PrivateRoute><CartPage /></PrivateRoute>,
-    errorElement: <ErrorBoundary><div>Error</div></ErrorBoundary>
+    errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/customers",
     element: <PrivateRoute><CustomerPage /></PrivateRoute>,
-    errorElement: <ErrorBoundary><div>Error</div></ErrorBoundary>
+    errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/statistics",
     element: <PrivateRoute><StatisticsPage /></PrivateRoute>,
-    errorElement: <ErrorBoundary><div>Error</div></ErrorBoundary>
+    errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/register",
     element: <RegisterPage />,
-    errorElement: <ErrorBoundary><div>Error</div></ErrorBoundary>
+    errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/login",
     element: <LoginPage />,
-    errorElement: <ErrorBoundary><div>Error</div></ErrorBoundary>
+    errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/orders",
     element: <PrivateRoute><OrdersPage /></PrivateRoute>,
-    errorElement: <ErrorBoundary><div>Error</div></ErrorBoundary>
+    errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
+  },
+  {
+    path: "*",
+    element: <ErrorPage status="404" />
   }
 ]);
 
