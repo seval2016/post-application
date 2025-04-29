@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, InputNumber, Select, message, Upload, Button, Divider, Spin } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { addProduct } from '../../services/product';
-import { getCategories, Category } from '../../services/category';
+import { getCategories } from '../../services/category';
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface AddProductModalProps {
   visible: boolean;

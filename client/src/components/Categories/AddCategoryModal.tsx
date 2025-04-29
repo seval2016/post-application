@@ -1,112 +1,92 @@
-import { useState, useEffect } from 'react';
-import { Form, Input, Button, Modal, message } from 'antd';
-import type { FormProps } from 'antd';
-import { addCategory } from '../../services/category';
+import React from 'react';
+import { Modal, Form, Input, message } from 'antd';
+import { categoryService } from '../../services/categoryService';
 
-interface CategoryFormData {
-  name: string;
-  image: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  image: string;
-}
 
 interface AddCategoryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAdd: (category: Category) => void;
+  visible: boolean;
+  onCancel: () => void;
+  onSuccess: () => void;
 }
 
-export const AddCategoryModal = ({ isOpen, onClose, onAdd }: AddCategoryModalProps) => {
-  const [form] = Form.useForm<CategoryFormData>();
-  const [loading, setLoading] = useState(false);
+const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, onCancel, onSuccess }) => {
+  const [form] = Form.useForm();
 
-  // Modal kapandığında formu sıfırla
-  useEffect(() => {
-    if (!isOpen) {
-      form.resetFields();
-    }
-  }, [isOpen, form]);
-
-  const handleSubmit: FormProps<CategoryFormData>['onFinish'] = async (values) => {
+  const handleSubmit = async () => {
     try {
-      // Boş değerleri kontrol et
-      if (!values.name || values.name.trim() === '') {
+      const values = await form.validateFields();
+      
+      // Boş alanları kontrol et
+      if (!values.name) {
         message.error('Kategori adı boş olamaz');
         return;
       }
       
-      if (!values.image || values.image.trim() === '') {
-        message.error('Görsel URL\'si boş olamaz');
-        return;
-      }
+      // Category tipine uygun veri oluştur (id alanı olmadan)
+      const newCategory = {
+        name: values.name,
+        image: values.image || '',
+        description: values.description || ''
+      };
       
-      setLoading(true);
-      const newCategory = await addCategory(values);
-      onAdd(newCategory);
-      message.success('Kategori başarıyla eklendi');
-      form.resetFields();
-      onClose();
-    } catch {
-      message.error('Kategori eklenirken bir hata oluştu');
-    } finally {
-      setLoading(false);
+      console.log('Eklenen kategori:', newCategory); // Debug için
+      
+      try {
+        const addedCategory = await categoryService.addCategory(newCategory);
+        console.log('Sunucu yanıtı:', addedCategory); // Debug için
+        
+        message.success('Kategori başarıyla eklendi');
+        form.resetFields();
+        onSuccess();
+      } catch (error: unknown) {
+        console.error('Sunucu hatası:', error);
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : typeof error === 'object' && error !== null && 'response' in error
+            ? ((error.response as { data?: { message?: string } })?.data?.message || 'Sunucu hatası')
+            : 'Bilinmeyen hata';
+        message.error(`Kategori eklenirken bir hata oluştu: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error('Form doğrulama hatası:', error);
+      message.error('Lütfen tüm gerekli alanları doldurun');
     }
-  };
-
-  const handleCancel = () => {
-    form.resetFields();
-    onClose();
   };
 
   return (
     <Modal
       title="Yeni Kategori Ekle"
-      open={isOpen}
-      onCancel={handleCancel}
-      footer={null}
-      destroyOnClose
+      open={visible}
+      onCancel={onCancel}
+      onOk={handleSubmit}
+      okText="Ekle"
+      cancelText="İptal"
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        preserve={false}
-        name="addCategoryForm"
-        key="addCategoryForm"
-      >
+      <Form form={form} layout="vertical">
         <Form.Item
-          label="Kategori Adı"
           name="name"
-          rules={[{ required: true, message: 'Lütfen kategori adını girin!' }]}
+          label="Kategori Adı"
+          rules={[{ required: true, message: 'Lütfen kategori adını giriniz' }]}
         >
-          <Input placeholder="Kategori adını girin" />
+          <Input />
+        </Form.Item>
+        
+        <Form.Item
+          name="description"
+          label="Açıklama"
+        >
+          <Input.TextArea />
         </Form.Item>
 
         <Form.Item
-          label="Görsel URL"
           name="image"
-          rules={[{ required: true, message: 'Lütfen geçerli bir URL girin!' }]}
+          label="Kategori Görsel URL"
         >
-          <Input placeholder="Görsel URL'sini girin" />
-        </Form.Item>
-
-        <Form.Item className="mb-0 text-right">
-          <Button 
-            onClick={handleCancel} 
-            className="mr-2" 
-            disabled={loading}
-          >
-            İptal
-          </Button>
-          <Button type="primary" htmlType="submit" loading={loading}>
-            Ekle
-          </Button>
+          <Input placeholder="Görsel URL'sini giriniz" />
         </Form.Item>
       </Form>
     </Modal>
   );
 };
+
+export default AddCategoryModal;

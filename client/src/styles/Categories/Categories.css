@@ -60,7 +60,7 @@
 }
 
 .category-actions {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-2 text-gray-700;
 }
 
 .category-edit-icon,

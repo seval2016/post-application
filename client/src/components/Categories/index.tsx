@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { AddCategoryModal } from './AddCategoryModal';
-import { EditCategoryModal } from './EditCategoryModal';
 import { message, Popconfirm } from 'antd';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { categoryService } from '../../services/categoryService';
+import { Category } from '../../types/category';
+import AddCategoryModal from './AddCategoryModal';
+import { EditCategoryModal } from './EditCategoryModal';
 import '../../styles/Categories/Categories.css';
-import { Category } from '../../types/category'; 
 
 interface CategoriesProps {
-  selectedCategory: string | undefined;
-  setSelectedCategory: (categoryId: string | undefined) => void;
+  selectedCategory?: string;
+  setSelectedCategory?: (categoryId: string | undefined) => void;
+  onCategoryClick?: (category: Category) => void;
 }
 
-const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCategory }) => {
+const Categories: React.FC<CategoriesProps> = ({ 
+  selectedCategory, 
+  setSelectedCategory,
+  onCategoryClick 
+}) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [selectedCategoryForEdit, setSelectedCategoryForEdit] = useState<Category | null>(null);
 
   const fetchCategories = async () => {
     try {
       const data = await categoryService.getCategories();
       setCategories(data);
     } catch (error) {
-      if (error instanceof Error) {
-        message.error(error.message);
-      } else {
-        message.error('Kategoriler yüklenirken bir hata oluştu');
-      }
+      console.error('Error fetching categories:', error);
+      message.error('Kategoriler yüklenirken bir hata oluştu');
     }
   };
 
@@ -34,46 +37,29 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCa
     fetchCategories();
   }, []);
 
-  const handleCategoryClick = (categoryId: string) => {
-    if (categoryId) {
-      setSelectedCategory(categoryId);
+  const handleCategoryClick = (category: Category) => {
+    if (setSelectedCategory) {
+      setSelectedCategory(category.id);
+    }
+    if (onCategoryClick) {
+      onCategoryClick(category);
     }
   };
 
-  const handleAddCategory = async (newCategory: Category) => {
+  const handleDelete = async (id: string) => {
     try {
-      await categoryService.addCategory(newCategory);
-      await fetchCategories();
-      message.success('Kategori başarıyla eklendi');
-    } catch (error) {
-      message.error(error instanceof Error ? error.message : 'Kategori eklenirken bir hata oluştu');
-    }
-  };
-
-  const handleEditCategory = async ({ name, imageUrl }: { name: string; imageUrl: string }) => {
-    if (selectedCategory) {
-      try {
-        await categoryService.updateCategory(selectedCategory, { name, image: imageUrl });
-        await fetchCategories();
-        message.success('Kategori başarıyla güncellendi');
-      } catch (error) {
-        message.error(error instanceof Error ? error.message : 'Kategori güncellenirken bir hata oluştu');
-      }
-    }
-  };
-
-  const handleDeleteCategory = async (categoryId: string) => {
-    try {
-      await categoryService.deleteCategory(categoryId);
-      setCategories(prevCategories => prevCategories.filter(category => category.id !== categoryId));
+      await categoryService.deleteCategory(id);
       message.success('Kategori başarıyla silindi');
+      fetchCategories();
     } catch (error) {
-      if (error instanceof Error) {
-        message.error(error.message);
-      } else {
-        message.error('Kategori silinirken bir hata oluştu');
-      }
+      console.error('Error deleting category:', error);
+      message.error('Kategori silinirken bir hata oluştu');
     }
+  };
+
+  const handleEdit = (category: Category) => {
+    setSelectedCategoryForEdit(category);
+    setIsEditModalVisible(true);
   };
 
   return (
@@ -89,7 +75,7 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCa
           className={`category-card ${
             selectedCategory === undefined ? 'category-card-selected' : 'category-card-default'
           }`}
-          onClick={() => setSelectedCategory(undefined)}
+          onClick={() => setSelectedCategory && setSelectedCategory(undefined)}
         >
           <div className="category-content">
             <div className="category-icon-wrapper">
@@ -111,7 +97,7 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCa
                 className={`category-card ${
                   selectedCategory === category.id ? 'category-card-selected' : 'category-card-default'
                 }`}
-                onClick={() => handleCategoryClick(category.id)}
+                onClick={() => handleCategoryClick(category)}
               >
                 <div className="category-content">
                   <div className="category-icon-wrapper">
@@ -124,25 +110,21 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCa
                   <span className="category-title">{category.name}</span>
                 </div>
                 <div className="category-actions">
-                  <EditOutlined 
-                    className="category-edit-icon" 
+                  <EditOutlined
+                    className="category-edit-icon"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedCategory(category.id);
-                      setIsEditModalOpen(true);
+                      handleEdit(category);
                     }}
                   />
                   <Popconfirm
-                    title="Kategoriyi silmek istediğinize emin misiniz?"
-                    onConfirm={(e) => {
-                      e?.stopPropagation();
-                      handleDeleteCategory(category.id);
-                    }}
+                    title="Kategoriyi silmek istediğinizden emin misiniz?"
+                    onConfirm={() => handleDelete(category.id)}
                     okText="Evet"
                     cancelText="Hayır"
                   >
-                    <DeleteOutlined 
-                      className="category-delete-icon" 
+                    <DeleteOutlined
+                      className="category-edit-icon"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </Popconfirm>
@@ -156,7 +138,7 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCa
       <div className="add-category-wrapper">
         <div
           className="category-card category-card-default"
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={() => setIsAddModalVisible(true)}
         >
           <div className="category-content">
             <div className="category-icon-wrapper">
@@ -168,18 +150,25 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, setSelectedCa
       </div>
       
       <AddCategoryModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddCategory}
+        visible={isAddModalVisible}
+        onCancel={() => setIsAddModalVisible(false)}
+        onSuccess={() => {
+          setIsAddModalVisible(false);
+          fetchCategories();
+        }}
       />
-      
-      <EditCategoryModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onEdit={handleEditCategory}
-        categoryName={categories.find(c => c.id === selectedCategory)?.name || ''}
-        categoryImage={categories.find(c => c.id === selectedCategory)?.image || ''}
-      />
+
+      {selectedCategoryForEdit && (
+        <EditCategoryModal
+          isOpen={isEditModalVisible}
+          onClose={() => {
+            setIsEditModalVisible(false);
+            setSelectedCategoryForEdit(null);
+          }}
+          category={selectedCategoryForEdit}
+          onSuccess={fetchCategories}
+        />
+      )}
     </div>
   );
 };

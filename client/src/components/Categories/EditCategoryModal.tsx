@@ -1,46 +1,52 @@
 import { Modal, Form, Input, Button, message } from 'antd';
 import { useState, useEffect } from 'react';
+import { categoryService } from '../../services/categoryService';
+import { Category } from '../../types/category';
 
 interface EditCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (values: { name: string; imageUrl: string }) => void;
-  categoryName: string;
-  categoryImage: string;
+  category: Category;
+  onSuccess: () => void;
 }
 
 export const EditCategoryModal = ({ 
   isOpen, 
   onClose, 
-  onEdit, 
-  categoryName, 
-  categoryImage 
+  category,
+  onSuccess
 }: EditCategoryModalProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  // Form değerlerini prop'lardan güncelle
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && category) {
       form.setFieldsValue({
-        name: categoryName,
-        imageUrl: categoryImage
+        name: category.name,
+        image: category.image || '',
+        description: category.description || ''
       });
     }
-  }, [isOpen, categoryName, categoryImage, form]);
+  }, [isOpen, category, form]);
 
-  const handleSubmit = async (values: { name: string; imageUrl: string }) => {
+  const handleSubmit = async () => {
     try {
       setLoading(true);
-      onEdit(values);
+      const values = await form.validateFields();
+      
+      const updatedCategory: Partial<Category> = {
+        name: values.name,
+        image: values.image,
+        description: values.description
+      };
+
+      await categoryService.updateCategory(category.id, updatedCategory);
       message.success('Kategori başarıyla güncellendi');
+      onSuccess();
       handleClose();
     } catch (error) {
-      if (error instanceof Error) {
-        message.error(error.message);
-      } else {
-        message.error('Bir hata oluştu');
-      }
+      console.error('Error updating category:', error);
+      message.error('Kategori güncellenirken bir hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -77,10 +83,16 @@ export const EditCategoryModal = ({
         </Form.Item>
 
         <Form.Item
-          name="imageUrl"
+          name="description"
+          label="Açıklama"
+        >
+          <Input.TextArea placeholder="Kategori açıklaması" />
+        </Form.Item>
+
+        <Form.Item
+          name="image"
           label="Resim URL"
           rules={[
-            { required: true, message: 'Lütfen resim URL\'sini girin' },
             { type: 'url', message: 'Geçerli bir URL girin' }
           ]}
         >

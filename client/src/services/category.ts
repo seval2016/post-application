@@ -1,15 +1,7 @@
 import axios from 'axios';
+import { Category } from '../types/category';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5174/api';
-
-export interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  image: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
@@ -52,5 +44,18 @@ export const deleteCategory = async (id: string): Promise<void> => {
     await axios.delete(`${API_URL}/categories/${id}`, { headers });
   } catch{
     throw new Error('Kategori silinirken bir hata oluştu');
+  }
+};
+
+export const fetchCategories = async (): Promise<Category[]> => {
+  try {
+    const response = await fetch(`${API_URL}/categories`);
+    if (!response.ok) {
+      throw new Error('Kategoriler yüklenirken bir hata oluştu');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Kategoriler yüklenirken hata:', error);
+    throw error;
   }
 }; 

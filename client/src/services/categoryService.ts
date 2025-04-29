@@ -1,49 +1,64 @@
+import axios from 'axios';
 import { Category } from '../types/category';
 
-const BASE_URL = 'http://localhost:5000/api/categories';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5174/api';
 
-const getToken = () => localStorage.getItem('token');
+// Axios instance oluştur
+const axiosInstance = axios.create({
+  baseURL: API_URL
+});
+
+// Request interceptor ekle
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export const categoryService = {
-  async getCategories(): Promise<Category[]> {
-    const response = await fetch(BASE_URL, {
-      headers: { 'Authorization': `Bearer ${getToken()}` }
-    });
-    if (!response.ok) throw new Error('Kategoriler yüklenirken hata oluştu');
-    return response.json();
+  getCategories: async (): Promise<Category[]> => {
+    try {
+      const response = await axiosInstance.get('/categories');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
   },
 
-  async addCategory(category: Category): Promise<Category> {
-    const response = await fetch(BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(category)
-    });
-    if (!response.ok) throw new Error('Kategori eklenirken hata oluştu');
-    return response.json();
+  addCategory: async (category: Omit<Category, 'id'>): Promise<Category> => {
+    try {
+      const response = await axiosInstance.post('/categories', category);
+      return response.data;
+    } catch (error) {
+      console.error('Error adding category:', error);
+      throw error;
+    }
   },
 
-  async updateCategory(id: string, category: Partial<Category>): Promise<Category> {
-    const response = await fetch(`${BASE_URL}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(category)
-    });
-    if (!response.ok) throw new Error('Kategori güncellenirken hata oluştu');
-    return response.json();
+  updateCategory: async (id: string, category: Partial<Category>): Promise<Category> => {
+    try {
+      const response = await axiosInstance.put(`/categories/${id}`, category);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating category:', error);
+      throw error;
+    }
   },
 
-  async deleteCategory(id: string): Promise<void> {
-    const response = await fetch(`${BASE_URL}/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${getToken()}` }
-    });
-    if (!response.ok) throw new Error('Kategori silinirken hata oluştu');
+  deleteCategory: async (id: string): Promise<void> => {
+    try {
+      await axiosInstance.delete(`/categories/${id}`);
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
   }
 }; 
