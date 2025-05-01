@@ -1,77 +1,78 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
+const logger = require('../utils/logger');
 
 const auth = async (req, res, next) => {
     try {
         // Token'ı header'dan al
-        const authHeader = req.header('Authorization');
-        if (!authHeader) {
-            console.log('No Authorization header found');
-            return res.status(401).json({
-                success: false,
-                message: 'Yetkilendirme token\'ı gerekli'
-            });
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        
+        if (!token) {
+            logger.warn('Auth attempt without token', { ip: req.ip });
+            return res.status(401).json({ message: 'Yetkilendirme başarısız' });
         }
 
-        let token = authHeader;
-        // Bearer prefix varsa kaldır
-        if (authHeader.startsWith('Bearer ')) {
-            token = authHeader.replace('Bearer ', '');
-        }
-        
-        console.log('Processing token:', token); // Hata ayıklama için
+        logger.info('Processing token:', { token });
 
         // Token'ı doğrula
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('Decoded token:', decoded); // Hata ayıklama için
+        logger.info('Decoded token:', decoded);
+        
+        // Token'ın süresi dolmuş mu kontrol et
+        if (decoded.exp < Date.now() / 1000) {
+            logger.warn('Expired token attempt', { ip: req.ip });
+            return res.status(401).json({ message: 'Token süresi dolmuş' });
+        }
+
+        // Kullanıcı ID'sini ObjectId'ye çevir
+        let userId;
+        try {
+            userId = new mongoose.Types.ObjectId(decoded.userId);
+            logger.info('Converted userId to ObjectId:', { userId: userId.toString() });
+        } catch (error) {
+            logger.error('Invalid userId format:', { error: error.message, userId: decoded.userId });
+            return res.status(401).json({ message: 'Geçersiz kullanıcı kimliği' });
+        }
 
         // Kullanıcıyı bul
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(userId).select('-password');
+        logger.info('User lookup result:', { 
+            found: !!user, 
+            userId: userId.toString(),
+            user: user ? { _id: user._id, email: user.email, role: user.role } : null
+        });
+
         if (!user) {
-            console.log('No user found for id:', decoded.id);
-            return res.status(401).json({
-                success: false,
-                message: 'Geçersiz token'
-            });
+            logger.warn('Invalid user token', { userId: userId.toString(), ip: req.ip });
+            return res.status(401).json({ message: 'Yetkilendirme başarısız' });
         }
 
-        // Kullanıcı aktif değilse
+        // Kullanıcı hesabı aktif mi kontrol et
         if (!user.isActive) {
-            console.log('User account is inactive:', decoded.id);
-            return res.status(401).json({
-                success: false,
-                message: 'Hesabınız devre dışı bırakılmış'
-            });
+            logger.warn('Inactive account attempt', { userId: user._id, ip: req.ip });
+            return res.status(401).json({ message: 'Hesabınız aktif değil' });
         }
 
-        // Request'e user bilgisini ekle
-        req.user = {
-            id: user._id,
-            role: user.role
-        };
+        // Kullanıcı bilgilerini request'e ekle
+        req.user = user;
+        req.token = token;
+
+        // Rate limiting için IP'yi logla
+        logger.info('Successful authentication', { 
+            userId: user._id, 
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        });
 
         next();
     } catch (error) {
-        console.error('Auth middleware error:', error);
-        if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({
-                success: false,
-                message: 'Geçersiz token formatı',
-                error: error.message
-            });
-        }
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({
-                success: false,
-                message: 'Token süresi dolmuş',
-                error: error.message
-            });
-        }
-        res.status(401).json({
-            success: false,
-            message: 'Yetkilendirme başarısız',
-            error: error.message
+        logger.error('Auth middleware error:', { 
+            error: error.message,
+            stack: error.stack,
+            ip: req.ip
         });
+        res.status(401).json({ message: 'Yetkilendirme başarısız' });
     }
 };
 

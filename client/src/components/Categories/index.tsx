@@ -1,48 +1,60 @@
 import React, { useState, useEffect } from 'react';
-import { message, Popconfirm } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { categoryService } from '../../services/categoryService';
+import { Button, Modal, Form, Input, message, Popconfirm } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { Category } from '../../types/category';
-import AddCategoryModal from './AddCategoryModal';
-import { EditCategoryModal } from './EditCategoryModal';
+import { categoryService } from '../../services/categoryService';
 import '../../styles/Categories/Categories.css';
 
-interface CategoriesProps {
-  selectedCategory?: string;
-  setSelectedCategory?: (categoryId: string | undefined) => void;
-  onCategoryClick?: (category: Category) => void;
-}
-
-const Categories: React.FC<CategoriesProps> = ({ 
-  selectedCategory, 
-  setSelectedCategory,
-  onCategoryClick 
-}) => {
+const Categories: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [selectedCategoryForEdit, setSelectedCategoryForEdit] = useState<Category | null>(null);
-
-  const fetchCategories = async () => {
-    try {
-      const data = await categoryService.getCategories();
-      setCategories(data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      message.error('Kategoriler yüklenirken bir hata oluştu');
-    }
-  };
+  const [loading, setLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
-  const handleCategoryClick = (category: Category) => {
-    if (setSelectedCategory) {
-      setSelectedCategory(category.id);
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const data = await categoryService.getCategories();
+      setCategories(data);
+    } catch (error: unknown) {
+      console.error('Kategoriler yüklenirken hata:', error);
+      message.error('Kategoriler yüklenirken bir hata oluştu');
+    } finally {
+      setLoading(false);
     }
-    if (onCategoryClick) {
-      onCategoryClick(category);
+  };
+
+  const handleAdd = async (values: { name: string; image: string }) => {
+    try {
+      await categoryService.addCategory(values);
+      message.success('Kategori başarıyla eklendi');
+      fetchCategories();
+      setIsModalVisible(false);
+      form.resetFields();
+    } catch (error: unknown) {
+      console.error('Kategori eklenirken hata:', error);
+      message.error('Kategori eklenirken bir hata oluştu');
+    }
+  };
+
+  const handleEdit = async (values: { name: string; image: string }) => {
+    if (!editingCategory) return;
+    
+    try {
+      await categoryService.updateCategory(editingCategory.id, values);
+      message.success('Kategori başarıyla güncellendi');
+      fetchCategories();
+      setIsModalVisible(false);
+      form.resetFields();
+      setEditingCategory(null);
+    } catch (error: unknown) {
+      console.error('Kategori güncellenirken hata:', error);
+      message.error('Kategori güncellenirken bir hata oluştu');
     }
   };
 
@@ -51,124 +63,131 @@ const Categories: React.FC<CategoriesProps> = ({
       await categoryService.deleteCategory(id);
       message.success('Kategori başarıyla silindi');
       fetchCategories();
-    } catch (error) {
-      console.error('Error deleting category:', error);
+    } catch (error: unknown) {
+      console.error('Kategori silinirken hata:', error);
       message.error('Kategori silinirken bir hata oluştu');
     }
   };
 
-  const handleEdit = (category: Category) => {
-    setSelectedCategoryForEdit(category);
-    setIsEditModalVisible(true);
+  const showModal = (category?: Category) => {
+    if (category) {
+      setEditingCategory(category);
+      form.setFieldsValue(category);
+    } else {
+      setEditingCategory(null);
+      form.resetFields();
+    }
+    setIsModalVisible(true);
+  };
+
+  const handleModalOk = () => {
+    form.submit();
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+    setEditingCategory(null);
   };
 
   return (
     <div className="categories-container">
       <div className="categories-header">
-        <h2 className="categories-title">Kategoriler</h2>
-        <span className="categories-count">{categories.length} kategori</span>
-      </div>
-      
-      <div className="categories-list"> 
-        {/* All Categories Card */}
-        <div
-          className={`category-card ${
-            selectedCategory === undefined ? 'category-card-selected' : 'category-card-default'
-          }`}
-          onClick={() => setSelectedCategory && setSelectedCategory(undefined)}
-        >
-          <div className="category-content">
-            <div className="category-icon-wrapper">
-              <span className="category-icon">🏠</span>
-            </div>
-            <span className="category-title">Tümü</span>
-          </div>
+        <div>
+          <h2 className="categories-title">Kategoriler</h2>
+          <p className="categories-count">{categories.length} kategori</p>
         </div>
-        
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => showModal()}
+        >
+          Yeni Kategori
+        </Button>
+      </div>
+
+      <div className="categories-list">
         <div className="categories-scroll-area">
-          {categories.length === 0 ? (
-            <div className="flex items-center justify-center w-full h-full">
-              <p className="text-gray-500">Henüz kategori eklenmemiş</p>
-            </div>
-          ) : (
-            categories.map(category => (
-              <div
-                key={category.id}
-                className={`category-card ${
-                  selectedCategory === category.id ? 'category-card-selected' : 'category-card-default'
-                }`}
-                onClick={() => handleCategoryClick(category)}
-              >
-                <div className="category-content">
-                  <div className="category-icon-wrapper">
-                    {category.image ? (
-                      <img src={category.image} alt={category.name} className="category-image" />
-                    ) : (
-                      <span className="category-icon">📁</span>
-                    )}
-                  </div>
-                  <span className="category-title">{category.name}</span>
+          <div className="category-card">
+            <div className="category-content">
+              <div className="category-icon-wrapper">
+                <div className="category-icon">
+                  <AppstoreOutlined />
                 </div>
+              </div>
+              <h3 className="category-title">Tümü</h3>
+            </div>
+          </div>
+          {categories.map(category => (
+            <div key={category.id} className="category-card">
+              <div className="category-content">
+                <div className="category-icon-wrapper">
+                  {category.image ? (
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="category-image"
+                    />
+                  ) : (
+                    <div className="category-icon">
+                      <EditOutlined />
+                    </div>
+                  )}
+                </div>
+                <h3 className="category-title">{category.name}</h3>
                 <div className="category-actions">
-                  <EditOutlined
-                    className="category-edit-icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(category);
-                    }}
+                  <Button
+                    type="text"
+                    icon={<EditOutlined />}
+                    onClick={() => showModal(category)}
                   />
                   <Popconfirm
-                    title="Kategoriyi silmek istediğinizden emin misiniz?"
+                    title="Kategoriyi silmek istediğinize emin misiniz?"
                     onConfirm={() => handleDelete(category.id)}
                     okText="Evet"
                     cancelText="Hayır"
                   >
-                    <DeleteOutlined
-                      className="category-edit-icon"
-                      onClick={(e) => e.stopPropagation()}
+                    <Button
+                      type="text"
+                      icon={<DeleteOutlined />}
                     />
                   </Popconfirm>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      </div>
-      
-      <div className="add-category-wrapper">
-        <div
-          className="category-card category-card-default"
-          onClick={() => setIsAddModalVisible(true)}
-        >
-          <div className="category-content">
-            <div className="category-icon-wrapper">
-              <span className="category-icon">+</span>
             </div>
-            <span className="category-title">Yeni Kategori Ekle</span>
-          </div>
+          ))}
         </div>
       </div>
-      
-      <AddCategoryModal
-        visible={isAddModalVisible}
-        onCancel={() => setIsAddModalVisible(false)}
-        onSuccess={() => {
-          setIsAddModalVisible(false);
-          fetchCategories();
-        }}
-      />
 
-      {selectedCategoryForEdit && (
-        <EditCategoryModal
-          isOpen={isEditModalVisible}
-          onClose={() => {
-            setIsEditModalVisible(false);
-            setSelectedCategoryForEdit(null);
-          }}
-          category={selectedCategoryForEdit}
-          onSuccess={fetchCategories}
-        />
-      )}
+      <Modal
+        title={editingCategory ? 'Kategori Düzenle' : 'Yeni Kategori Ekle'}
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+        confirmLoading={loading}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={editingCategory ? handleEdit : handleAdd}
+        >
+          <Form.Item
+            name="name"
+            label="Kategori Adı"
+            rules={[{ required: true, message: 'Lütfen kategori adını girin!' }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="image"
+            label="Kategori Görseli"
+            rules={[{ required: true, message: 'Lütfen kategori görseli yükleyin!' }]}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

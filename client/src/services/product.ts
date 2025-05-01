@@ -8,7 +8,7 @@ export interface Product {
   title: string;
   price: number;
   image: string;
-  category: string;
+  categoryId: string;
   description?: string;
 }
 
@@ -17,7 +17,7 @@ interface ApiResponse {
   title: string;
   price: number;
   image: string;
-  category: string;
+  categoryId: string;
 }
 
 export const getProducts = async (): Promise<Product[]> => {
@@ -33,7 +33,8 @@ export const getProducts = async (): Promise<Product[]> => {
       id: product._id
     }));
     return productsWithId;
-  } catch{
+  } catch (error: unknown) {
+    console.error('Ürünler getirilirken hata:', error);
     throw new Error('Ürünler getirilirken bir hata oluştu');
   }
 };
@@ -47,7 +48,8 @@ export const addProduct = async (productData: Omit<Product, '_id'>): Promise<Pro
       },
     });
     return response.data;
-  } catch{
+  } catch (error: unknown) {
+    console.error('Ürün eklenirken hata:', error);
     throw new Error('Ürün eklenirken bir hata oluştu');
   }
 };
@@ -61,7 +63,8 @@ export const updateProduct = async (id: string, productData: Partial<Product>): 
       },
     });
     return response.data;
-  } catch{
+  } catch (error: unknown) {
+    console.error('Ürün güncellenirken hata:', error);
     throw new Error('Ürün güncellenirken bir hata oluştu');
   }
 };
@@ -74,7 +77,8 @@ export const deleteProduct = async (id: string): Promise<void> => {
         Authorization: `Bearer ${token}`
       }
     });
-  } catch{
+  } catch (error: unknown) {
+    console.error('Ürün silinirken hata:', error);
     throw new Error('Ürün silinirken bir hata oluştu');
   }
 }; 

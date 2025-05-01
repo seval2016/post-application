@@ -1,147 +1,96 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const authService = require('../services/authService');
+const { AppError } = require('../utils/errorHandler');
 
 // Register new user
-const register = async (req, res) => {
+const register = async (req, res, next) => {
     try {
-        const { firstName, lastName, email, password, phone, role } = req.body;
-
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'Bu email adresi zaten kullanımda' });
-        }
-
-        // Create new user
-        const user = new User({
-            firstName,
-            lastName,
-            email,
-            password,
-            phone,
-            role: role || 'user' // Eğer role belirtilmemişse varsayılan olarak 'user'
-        });
-
-        // Save user
-        await user.save();
-        console.log('User saved successfully:', user._id);
-
-        // Generate JWT token
-        const token = jwt.sign(
-            { id: user._id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-        console.log('JWT token generated');
-
+        const { user, token } = await authService.register(req.body);
         res.status(201).json({
-            message: 'Kullanıcı başarıyla oluşturuldu',
-            token,
-            user: {
-                id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                phone: user.phone,
-                role: user.role
-            }
+            success: true,
+            data: { user, token }
         });
     } catch (error) {
-        console.error('Register error:', error);
-        res.status(500).json({ message: 'Sunucu hatası', error: error.message });
+        next(error);
     }
 };
 
 // Login user
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     try {
-        console.log('Login attempt with email:', req.body.email);
         const { email, password } = req.body;
-
-        // Find user
-        const user = await User.findOne({ email });
-        if (!user) {
-            console.log('User not found with email:', email);
-            return res.status(401).json({ message: 'Geçersiz email veya şifre' });
-        }
-
-        console.log('User found:', user._id, 'Role:', user.role);
-
-        // Check password
-        const isMatch = await user.comparePassword(password);
-        if (!isMatch) {
-            console.log('Password mismatch for user:', user._id);
-            return res.status(401).json({ message: 'Geçersiz email veya şifre' });
-        }
-
-        console.log('Password verified for user:', user._id);
-
-        // Update last login
-        user.lastLogin = new Date();
-        await user.save();
-
-        // Generate JWT token
-        const token = jwt.sign(
-            { id: user._id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-
-        console.log('JWT token generated for user:', user._id);
-
+        const { user, token } = await authService.login(email, password);
         res.json({
-            message: 'Giriş başarılı',
-            token,
-            user: {
-                id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                phone: user.phone,
-                role: user.role
-            }
+            success: true,
+            data: { user, token }
         });
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ message: 'Sunucu hatası', error: error.message });
+        next(error);
     }
 };
 
 // Get current user
-const getCurrentUser = async (req, res) => {
+const getCurrentUser = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
-        }
-        res.json(user);
+        const user = await authService.getCurrentUser(req.user.id);
+        res.json({
+            success: true,
+            data: user
+        });
     } catch (error) {
-        console.error('Get current user error:', error);
-        res.status(500).json({ message: 'Sunucu hatası', error: error.message });
+        next(error);
     }
 };
 
-// Update user profile
+// Profil güncelleme yardımcı fonksiyonları
+const validateProfileUpdate = (updates) => {
+    const allowedFields = ['firstName', 'lastName', 'phone', 'addresses', 'paymentMethods'];
+    const validatedUpdates = {};
+
+    for (const field of allowedFields) {
+        if (updates[field] !== undefined) {
+            validatedUpdates[field] = updates[field];
+        }
+    }
+
+    return validatedUpdates;
+};
+
+const updateUserProfile = async (userId, updates) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new AppError('Kullanıcı bulunamadı', 404);
+    }
+
+    const validatedUpdates = validateProfileUpdate(updates);
+    Object.assign(user, validatedUpdates);
+
+    return await user.save();
+};
+
+// Profil güncelleme ana fonksiyonu
 const updateProfile = async (req, res) => {
     try {
-        const { firstName, lastName, phone } = req.body;
-        const user = await User.findById(req.user.id);
+        const userId = req.user.id;
+        const updates = req.body;
 
-        if (!user) {
-            return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
-        }
+        const updatedUser = await updateUserProfile(userId, updates);
+        
+        // Hassas bilgileri response'dan çıkar
+        const userResponse = updatedUser.toObject();
+        delete userResponse.password;
+        delete userResponse.resetPasswordToken;
+        delete userResponse.resetPasswordExpires;
 
-        // Update fields
-        if (firstName) user.firstName = firstName;
-        if (lastName) user.lastName = lastName;
-        if (phone) user.phone = phone;
-
-        await user.save();
-        res.json({ message: 'Profil başarıyla güncellendi', user });
+        res.json({
+            success: true,
+            message: 'Profil başarıyla güncellendi',
+            data: userResponse
+        });
     } catch (error) {
-        console.error('Update profile error:', error);
-        res.status(500).json({ message: 'Sunucu hatası', error: error.message });
+        next(error);
     }
 };
 

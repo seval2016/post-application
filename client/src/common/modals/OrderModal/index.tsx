@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Modal, Steps, Form, Radio, Button, Result, message } from 'antd';
 import OrderSummary from './OrderSummary';
 import DeliveryInfo from './DeliveryInfo';
-import CreditCardForm from './CreditCardForm';
 import CustomerInfo from './CustomerInfo';
 import { PaymentMethodType } from '../../../types';
 import { DownloadOutlined } from '@ant-design/icons';
 import { generateAndDownloadInvoice, InvoiceData } from '../../../utils/invoiceGenerator';
+import { createOrder } from '../../../services/orderService';
 
 interface FormValues {
   fullName: string;
@@ -20,6 +20,7 @@ interface FormValues {
   taxNumber?: string;
   taxOffice?: string;
   paymentMethod: PaymentMethodType;
+  notes?: string;
 }
 
 interface OrderModalProps {
@@ -56,26 +57,85 @@ const OrderModal: React.FC<OrderModalProps> = ({
 
   const handleFinish = async () => {
     try {
-      // Form validasyonunu kontrol et
+      // Tüm form değerlerini al
       const values = await form.validateFields();
-      console.log('Form values:', values);
+      console.log('Form değerleri:', values);
+
+      // Form değerlerinin varlığını kontrol et
+      if (!values.fullName || !values.email || !values.phone || 
+          !values.address || !values.city || !values.district || !values.postalCode) {
+        message.error('Lütfen tüm gerekli alanları doldurun');
+        return;
+      }
+
+      // Ad ve soyadı ayır
+      const nameParts = values.fullName.trim().split(' ');
+      if (nameParts.length < 2) {
+        message.error('Lütfen hem adınızı hem soyadınızı giriniz');
+        return;
+      }
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
       
-      // Rastgele sipariş numarası oluştur
-      const newOrderNumber = `ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-      console.log('Order completed, number:', newOrderNumber);
+      // Telefon numarasını formatla
+      const phone = values.phone.replace(/\D/g, '');
+      if (phone.length !== 10) {
+        message.error('Telefon numarası 10 haneli olmalıdır');
+        return;
+      }
+
+      const orderData = {
+        customer: {
+          firstName,
+          lastName,
+          email: values.email,
+          phone: phone,
+          address: values.address,
+          city: values.city,
+          district: values.district,
+          postalCode: values.postalCode,
+          country: 'Turkey',
+          companyName: values.companyName,
+          taxNumber: values.taxNumber,
+          taxOffice: values.taxOffice
+        },
+        items: cartItems.map(item => ({
+          productId: item.id.toString(),
+          title: item.name,
+          quantity: Number(item.quantity),
+          price: Number(item.price)
+        })),
+        subtotal: Number(subTotal),
+        vat: Number(vat),
+        shipping: 0,
+        grandTotal: Number(total),
+        paymentMethod: paymentMethod,
+        shippingMethod: 'standard',
+        status: 'pending',
+        notes: values.notes
+      };
+
+      console.log('Gönderilen sipariş verisi:', orderData);
+
+      const response = await createOrder(orderData);
       
-      // State'leri güncelle
-      setOrderNumber(newOrderNumber);
-      setOrderCompleted(true);
-      
-      // Başarı callback'ini çağırma - yönlendirme olmayacak
-      // if (onSuccess) {
-      //   onSuccess();
-      // }
+      if (response && response.success) {
+        setOrderNumber(response.orderNumber);
+        setOrderCompleted(true);
+        message.success('Siparişiniz başarıyla oluşturuldu!');
+        form.resetFields();
+        onClose();
+        window.location.href = `/order-success?orderNumber=${response.orderNumber}`;
+      } else {
+        throw new Error(response?.message || 'Sipariş oluşturulurken bir hata oluştu');
+      }
     } catch (error) {
-      console.error('Validation failed:', error);
-      // Hata mesajını göster
-      message.error('Lütfen tüm zorunlu alanları doldurunuz');
+      console.error('Sipariş oluşturma hatası:', error);
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error('Sipariş oluşturulurken bir hata oluştu');
+      }
     }
   };
 
@@ -114,7 +174,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
     },
     {
       title: 'Müşteri Bilgileri',
-      content: <CustomerInfo form={form} />,
+      content: <CustomerInfo />,
     },
     {
       title: 'Teslimat Bilgileri',
@@ -123,7 +183,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
     {
       title: 'Ödeme',
       content: (
-        <Form form={form} layout="vertical">
+        <>
           <Form.Item
             name="paymentMethod"
             label="Ödeme Yöntemi"
@@ -135,7 +195,6 @@ const OrderModal: React.FC<OrderModalProps> = ({
               <Radio.Button value="bank_transfer">Havale/EFT</Radio.Button>
             </Radio.Group>
           </Form.Item>
-          {paymentMethod === 'credit_card' && <CreditCardForm form={form} onFinish={handleFinish} />}
           {paymentMethod === 'bank_transfer' && (
             <div style={{ marginTop: 16 }}>
               <h4>Banka Hesap Bilgileri</h4>
@@ -150,7 +209,7 @@ const OrderModal: React.FC<OrderModalProps> = ({
               <p>Kapıda ödeme seçeneğini seçtiniz. Siparişiniz teslim edildiğinde ödeme yapabilirsiniz.</p>
             </div>
           )}
-        </Form>
+        </>
       ),
     },
   ];
@@ -191,10 +250,10 @@ const OrderModal: React.FC<OrderModalProps> = ({
           ]}
         />
       ) : (
-        <>
+        <Form form={form} layout="vertical">
           <Steps current={currentStep} items={steps} style={{ marginBottom: 24 }} />
           <div>{steps[currentStep].content}</div>
-        </>
+        </Form>
       )}
     </Modal>
   );

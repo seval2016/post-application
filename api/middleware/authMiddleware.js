@@ -18,22 +18,28 @@ const verifyToken = async (req, res, next) => {
             token = authHeader.replace('Bearer ', '');
         }
         
-        console.log('Processing token:', token); // Hata ayıklama için
+        console.log('Processing token:', token);
 
         // Token'ı doğrula
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('Decoded token:', decoded); // Hata ayıklama için
+        console.log('Decoded token:', decoded);
 
-        // Kullanıcıyı bul
-        const user = await User.findById(decoded.id).select('-password');
+        // Kullanıcıyı bul (hem userId hem id alanlarını kontrol et)
+        const userId = decoded.userId || decoded.id;
+        if (!userId) {
+            console.log('No userId found in token');
+            return res.status(401).json({ message: 'Geçersiz token' });
+        }
+
+        const user = await User.findById(userId).select('-password');
         if (!user) {
-            console.log('No user found for id:', decoded.id);
+            console.log('No user found for id:', userId);
             return res.status(401).json({ message: 'Geçersiz token' });
         }
 
         // Kullanıcı aktif değilse
         if (!user.isActive) {
-            console.log('User account is inactive:', decoded.id);
+            console.log('User account is inactive:', userId);
             return res.status(401).json({ message: 'Hesabınız devre dışı bırakılmış' });
         }
 

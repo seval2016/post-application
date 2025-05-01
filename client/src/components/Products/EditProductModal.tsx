@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, InputNumber, Select, message, Upload, Button, Divider } from 'antd';
 import { UploadOutlined, CloseOutlined } from '@ant-design/icons';
 import { Product, updateProduct } from '../../services/product';
-import { getCategories, Category } from '../../services/category';
+import { categoryService } from '../../services/categoryService';
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
+import { Category } from '../../types/category';
 
 interface EditProductModalProps {
   visible: boolean;
@@ -30,9 +31,10 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     const fetchCategories = async () => {
       try {
         setLoadingCategories(true);
-        const data = await getCategories();
+        const data = await categoryService.getCategories();
         setCategories(data);
-      } catch{
+      } catch (error: unknown) {
+        console.error('Kategoriler yüklenirken hata:', error);
         message.error('Kategoriler yüklenirken bir hata oluştu');
       } finally {
         setLoadingCategories(false);
@@ -49,7 +51,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       form.setFieldsValue({
         title: product.title,
         price: product.price,
-        category: product.category,
+        categoryId: product.category,
         description: product.description,
       });
       setImageUrl(product.image);
@@ -169,7 +171,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       
       const data = await response.json();
       setCategories([...categories, data]);
-      form.setFieldValue('category', data.id);
+      form.setFieldValue('categoryId', data.id);
       setNewCategory('');
     } catch{
       message.error('Yeni kategori eklenirken bir hata oluştu');
@@ -371,7 +373,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
               </Form.Item>
 
               <Form.Item
-                name="category"
+                name="categoryId"
                 label={<span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>Kategori</span>}
                 rules={[{ required: true, message: 'Lütfen kategori seçin' }]}
               >
@@ -484,4 +486,4 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   );
 };
 
-export default EditProductModal; 
+export default EditProductModal;

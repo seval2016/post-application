@@ -1,43 +1,39 @@
 import React from 'react';
-import { Form, Input, Button, message, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, ShopOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Form, Input, Button, message } from 'antd';
+import { UserOutlined, LockOutlined, PhoneOutlined, ShopOutlined } from '@ant-design/icons';
+import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/auth/RegisterForm.css';
 import Logo from "../Header/Logo";
-import { register } from '../../services/auth';
+import { authService } from '../../services/authService';
+import { validationUtils } from '../../utils/validationUtils';
+import { storageUtils } from '../../utils/storageUtils';
 
 interface RegisterFormData {
-  businessName: string;
-  fullName: string;
-  phone: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
-  confirmPassword: string;
-  agreement: boolean;
+  phone: string;
+  businessName: string;
 }
 
-const RegisterForm = () => {
+const RegisterForm: React.FC = () => {
+  const navigate = useNavigate();
   const [form] = Form.useForm();
 
   const onFinish = async (values: RegisterFormData) => {
     try {
-      const [firstName, ...lastNameParts] = values.fullName.split(' ');
-      const lastName = lastNameParts.join(' ');
-
-      await register({
-        firstName,
-        lastName,
-        email: values.email,
-        password: values.password,
-        phone: values.phone,
-        businessName: values.businessName
-      });
-
-      message.success("Kayıt başarılı!");
-      // Başarılı kayıt sonrası login sayfasına yönlendir
-      window.location.href = '/login';
+      console.log('Register form values:', values);
+      const response = await authService.register(values);
+      storageUtils.setToken(response.data.token);
+      message.success('Kayıt başarılı!');
+      navigate('/');
     } catch (error) {
-      message.error(error instanceof Error ? error.message : "Kayıt sırasında bir hata oluştu.");
+      if (error instanceof Error) {
+        message.error(error.message);
+      } else {
+        message.error('Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.');
+      }
     }
   };
 
@@ -49,11 +45,11 @@ const RegisterForm = () => {
             <Logo />
           </div>
 
-          <h2 className="register-title">Kayıt Ol</h2>
+          <h2 className="register-title">Hesap Oluştur</h2>
           <p className="register-subtitle">
             veya{" "}
             <Link to="/login" className="register-link">
-              hesabınız varsa giriş yapın
+              zaten hesabınız varsa giriş yapın
             </Link>
           </p>
 
@@ -63,150 +59,97 @@ const RegisterForm = () => {
               name="register"
               onFinish={onFinish}
               layout="vertical"
-              size="large"
+              className="w-full max-w-md"
             >
               <Form.Item
-                name="businessName"
+                name="firstName"
                 rules={[
-                  {
-                    required: true,
-                    message: "Lütfen işletme adını giriniz!",
-                  },
+                  { required: true, message: validationUtils.name.required },
+                  { min: validationUtils.name.minLength.value, message: validationUtils.name.minLength.message },
+                  { pattern: /^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/, message: 'Ad sadece harf içermelidir (Türkçe karakterler kabul edilir)' }
                 ]}
-                className="register-form-item"
               >
                 <Input
-                  prefix={<ShopOutlined className="register-icon" />}
-                  placeholder="İşletme Adı"
-                  className="register-input"
+                  prefix={<UserOutlined />}
+                  placeholder="Ad"
+                  size="large"
                 />
               </Form.Item>
 
               <Form.Item
-                name="fullName"
+                name="lastName"
                 rules={[
-                  {
-                    required: true,
-                    message: "Lütfen ad soyadınızı giriniz!",
-                  },
+                  { required: true, message: validationUtils.name.required },
+                  { min: validationUtils.name.minLength.value, message: validationUtils.name.minLength.message },
+                  { pattern: /^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/, message: 'Soyad sadece harf içermelidir (Türkçe karakterler kabul edilir)' }
                 ]}
-                className="register-form-item"
               >
                 <Input
-                  prefix={<UserOutlined className="register-icon" />}
-                  placeholder="Ad Soyad"
-                  className="register-input"
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="phone"
-                rules={[
-                  {
-                    required: true,
-                    message: "Lütfen telefon numaranızı giriniz!",
-                  },
-                ]}
-                className="register-form-item"
-              >
-                <Input
-                  prefix={<PhoneOutlined className="register-icon" />}
-                  placeholder="Telefon"
-                  className="register-input"
+                  prefix={<UserOutlined />}
+                  placeholder="Soyad"
+                  size="large"
                 />
               </Form.Item>
 
               <Form.Item
                 name="email"
                 rules={[
-                  {
-                    required: true,
-                    message: "Lütfen email adresinizi giriniz!",
-                  },
-                  {
-                    type: "email",
-                    message: "Geçerli bir email adresi giriniz!",
-                  },
+                  { required: true, message: validationUtils.email.required },
+                  { pattern: validationUtils.email.pattern.value, message: validationUtils.email.pattern.message }
                 ]}
-                className="register-form-item"
               >
                 <Input
-                  prefix={<MailOutlined className="register-icon" />}
-                  placeholder="Email"
-                  className="register-input"
+                  prefix={<UserOutlined />}
+                  placeholder="E-posta"
+                  size="large"
                 />
               </Form.Item>
 
               <Form.Item
                 name="password"
                 rules={[
-                  { required: true, message: "Lütfen şifrenizi giriniz!" },
-                  { min: 6, message: "Şifre en az 6 karakter olmalıdır!" },
+                  { required: true, message: validationUtils.password.required },
+                  { min: validationUtils.password.minLength.value, message: validationUtils.password.minLength.message },
+                  { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, message: 'Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir (örn: Test123)' }
                 ]}
-                className="register-form-item"
               >
                 <Input.Password
-                  prefix={<LockOutlined className="register-icon" />}
+                  prefix={<LockOutlined />}
                   placeholder="Şifre"
-                  className="register-input"
+                  size="large"
                 />
               </Form.Item>
 
               <Form.Item
-                name="confirmPassword"
-                dependencies={["password"]}
+                name="phone"
                 rules={[
-                  {
-                    required: true,
-                    message: "Lütfen şifrenizi tekrar giriniz!",
-                  },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("password") === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error("Şifreler eşleşmiyor!"));
-                    },
-                  }),
+                  { required: true, message: 'Telefon numarası gereklidir' },
+                  { pattern: /^[0-9]{10}$/, message: 'Geçerli bir telefon numarası giriniz (10 haneli, örn: 05551234567)' }
                 ]}
-                className="register-form-item"
               >
-                <Input.Password
-                  prefix={<LockOutlined className="register-icon" />}
-                  placeholder="Şifreyi Tekrarla"
-                  className="register-input"
+                <Input
+                  prefix={<PhoneOutlined />}
+                  placeholder="Telefon"
+                  size="large"
                 />
               </Form.Item>
 
               <Form.Item
-                name="agreement"
-                valuePropName="checked"
+                name="businessName"
                 rules={[
-                  {
-                    validator: (_, value) =>
-                      value
-                        ? Promise.resolve()
-                        : Promise.reject(
-                            new Error("Kullanım koşullarını kabul etmelisiniz!")
-                          ),
-                  },
+                  { required: true, message: 'İşletme adı gereklidir' },
+                  { min: 2, message: 'İşletme adı en az 2 karakter olmalıdır' }
                 ]}
-                className="register-form-item"
               >
-                <Checkbox className="register-checkbox-text">
-                  <Link to="/terms" className="register-link">
-                    Kullanım Koşulları
-                  </Link>
-                  'nı okudum ve kabul ediyorum
-                </Checkbox>
+                <Input
+                  prefix={<ShopOutlined />}
+                  placeholder="İşletme Adı"
+                  size="large"
+                />
               </Form.Item>
 
-              <Form.Item className="mb-0">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="register-submit-button"
-                >
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="w-full" size="large">
                   Kayıt Ol
                 </Button>
               </Form.Item>
@@ -216,7 +159,7 @@ const RegisterForm = () => {
       </div>
 
       <div className="register-footer">
-        © 2023 - 2023 POS (Point Of Sales) v1.0.0
+        © 2024 - 2025 POS (Point Of Sales) v1.0.0
         <br />
         Designed & Developed by: MIRA IutaR-furaS
       </div>

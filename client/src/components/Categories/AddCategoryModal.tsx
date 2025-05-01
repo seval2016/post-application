@@ -1,92 +1,140 @@
-import React from 'react';
-import { Modal, Form, Input, message } from 'antd';
-import { categoryService } from '../../services/categoryService';
+import { useState, useEffect } from 'react';
+import { Form, Input, Button, Modal, message } from 'antd';
+import type { FormProps } from 'antd';
+import { categoryService, Category } from '../../services/categoryService';
+import axios from 'axios';
 
-
-interface AddCategoryModalProps {
-  visible: boolean;
-  onCancel: () => void;
-  onSuccess: () => void;
+interface CategoryFormData {
+  name: string;
+  image: string;
 }
 
-const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ visible, onCancel, onSuccess }) => {
-  const [form] = Form.useForm();
+interface AddCategoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdd: (category: Category) => void;
+}
 
-  const handleSubmit = async () => {
+export const AddCategoryModal = ({ isOpen, onClose, onAdd }: AddCategoryModalProps) => {
+  const [form] = Form.useForm<CategoryFormData>();
+  const [loading, setLoading] = useState(false);
+
+  // Modal kapandığında formu sıfırla
+  useEffect(() => {
+    if (!isOpen) {
+      form.resetFields();
+    }
+  }, [isOpen, form]);
+
+  const handleSubmit: FormProps<CategoryFormData>['onFinish'] = async (values) => {
     try {
-      const values = await form.validateFields();
-      
-      // Boş alanları kontrol et
-      if (!values.name) {
+      // Boş değerleri kontrol et
+      if (!values.name || values.name.trim() === '') {
         message.error('Kategori adı boş olamaz');
         return;
       }
       
-      // Category tipine uygun veri oluştur (id alanı olmadan)
-      const newCategory = {
-        name: values.name,
-        image: values.image || '',
-        description: values.description || ''
+      if (!values.image || values.image.trim() === '') {
+        message.error('Görsel URL\'si boş olamaz');
+        return;
+      }
+      
+      setLoading(true);
+      
+      // Backend'e gönderilecek veri yapısı
+      const categoryData = {
+        name: values.name.trim(),
+        image: values.image.trim()
       };
       
-      console.log('Eklenen kategori:', newCategory); // Debug için
+      console.log('Gönderilen veri:', categoryData);
       
-      try {
-        const addedCategory = await categoryService.addCategory(newCategory);
-        console.log('Sunucu yanıtı:', addedCategory); // Debug için
-        
-        message.success('Kategori başarıyla eklendi');
-        form.resetFields();
-        onSuccess();
-      } catch (error: unknown) {
-        console.error('Sunucu hatası:', error);
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : typeof error === 'object' && error !== null && 'response' in error
-            ? ((error.response as { data?: { message?: string } })?.data?.message || 'Sunucu hatası')
-            : 'Bilinmeyen hata';
-        message.error(`Kategori eklenirken bir hata oluştu: ${errorMessage}`);
-      }
+      const newCategory = await categoryService.addCategory(categoryData);
+      console.log('Backend yanıtı:', newCategory);
+      
+      onAdd(newCategory);
+      message.success('Kategori başarıyla eklendi');
+      form.resetFields();
+      onClose();
     } catch (error) {
-      console.error('Form doğrulama hatası:', error);
-      message.error('Lütfen tüm gerekli alanları doldurun');
+      if (axios.isAxiosError(error)) {
+        console.error('Backend hatası:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+        
+        if (error.response?.status === 400) {
+          const errorMessage = error.response.data?.message || 'Geçersiz veri formatı. Lütfen tüm alanları doğru şekilde doldurun.';
+          message.error(errorMessage);
+        } else {
+          message.error('Kategori eklenirken bir hata oluştu: ' + error.message);
+        }
+      } else {
+        console.error('Beklenmeyen hata:', error);
+        message.error('Kategori eklenirken bir hata oluştu');
+      }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    form.resetFields();
+    onClose();
   };
 
   return (
     <Modal
       title="Yeni Kategori Ekle"
-      open={visible}
-      onCancel={onCancel}
-      onOk={handleSubmit}
-      okText="Ekle"
-      cancelText="İptal"
+      open={isOpen}
+      onCancel={handleCancel}
+      footer={null}
+      destroyOnClose
     >
-      <Form form={form} layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        preserve={false}
+        name="addCategoryForm"
+        key="addCategoryForm"
+      >
         <Form.Item
-          name="name"
           label="Kategori Adı"
-          rules={[{ required: true, message: 'Lütfen kategori adını giriniz' }]}
+          name="name"
+          rules={[
+            { required: true, message: 'Lütfen kategori adını girin!' },
+            { min: 2, message: 'Kategori adı en az 2 karakter olmalıdır!' }
+          ]}
         >
-          <Input />
-        </Form.Item>
-        
-        <Form.Item
-          name="description"
-          label="Açıklama"
-        >
-          <Input.TextArea />
+          <Input placeholder="Kategori adını girin" />
         </Form.Item>
 
         <Form.Item
+          label="Görsel URL"
           name="image"
-          label="Kategori Görsel URL"
+          rules={[
+            { required: true, message: 'Lütfen geçerli bir URL girin!' },
+            { type: 'url', message: 'Geçerli bir URL girin!' }
+          ]}
         >
-          <Input placeholder="Görsel URL'sini giriniz" />
+          <Input placeholder="Görsel URL'sini girin" />
+        </Form.Item>
+
+        <Form.Item className="mb-0 text-right">
+          <Button 
+            onClick={handleCancel} 
+            className="mr-2" 
+            disabled={loading}
+          >
+            İptal
+          </Button>
+          <Button type="primary" htmlType="submit" loading={loading}>
+            Ekle
+          </Button>
         </Form.Item>
       </Form>
     </Modal>
   );
 };
-
-export default AddCategoryModal;

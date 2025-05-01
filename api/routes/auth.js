@@ -8,48 +8,199 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { auth } = require('../middleware/auth');
-require('dotenv').config();
+const { registerValidation, loginValidation } = require('../validators/authValidator');
+const validate = require('../middleware/validationMiddleware');
+const { generateToken, sendVerificationEmail } = require('../utils/authUtils');
+const { body, validationResult } = require('express-validator');
+const logger = require('../utils/logger');
 
-// JWT token oluşturma fonksiyonu
-const generateToken = (userId) => {
-  try {
-    console.log('Generating token for userId:', userId); // Hata ayıklama için
-    console.log('JWT_SECRET:', process.env.JWT_SECRET); // Hata ayıklama için
-
-    if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET is not defined in environment variables');
-    }
-
-    const token = jwt.sign(
-      { userId },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    console.log('Token generated successfully:', token); // Hata ayıklama için
-    return token;
-  } catch (error) {
-    console.error('Token generation error:', error); // Hata ayıklama için
-    throw error;
+// Input validation middleware
+const validateInput = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.error('Validation errors:', JSON.stringify(errors.array(), null, 2));
+    console.error('Request body:', JSON.stringify(req.body, null, 2));
+    return res.status(400).json({ 
+      success: false,
+      message: 'Geçersiz giriş',
+      errors: errors.array()
+    });
   }
+  next();
 };
 
-// Email gönderme fonksiyonu
-const sendVerificationEmail = async (email, token) => {
-  // Gerçek uygulamada burada email gönderme işlemi yapılır
-  console.log(`Doğrulama linki: http://localhost:3000/verify-email/${token}`);
-};
+// Sanitize email and password
+const sanitizeAuthInput = [
+  body('email')
+    .trim()
+    .normalizeEmail()
+    .isEmail()
+    .withMessage('Geçerli bir e-posta adresi giriniz'),
+  body('password')
+    .trim()
+    .notEmpty()
+    .withMessage('Şifre gereklidir')
+];
+
+// Sanitize registration input
+const sanitizeRegisterInput = [
+  body('email')
+    .trim()
+    .normalizeEmail()
+    .isEmail()
+    .withMessage('Geçerli bir e-posta adresi giriniz (örn: test@example.com)'),
+  body('password')
+    .trim()
+    .isLength({ min: 6 })
+    .withMessage('Şifre en az 6 karakter olmalıdır')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .withMessage('Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir (örn: Test123)'),
+  body('firstName')
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage('Ad en az 2 karakter olmalıdır')
+    .matches(/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/)
+    .withMessage('Ad sadece harf içermelidir (Türkçe karakterler kabul edilir)'),
+  body('lastName')
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage('Soyad en az 2 karakter olmalıdır')
+    .matches(/^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/)
+    .withMessage('Soyad sadece harf içermelidir (Türkçe karakterler kabul edilir)'),
+  body('phone')
+    .trim()
+    .matches(/^[0-9]{10}$/)
+    .withMessage('Geçerli bir telefon numarası giriniz (10 haneli, örn: 05551234567)'),
+  body('businessName')
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage('İşletme adı en az 2 karakter olmalıdır')
+];
 
 // Public routes
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', sanitizeRegisterInput, validateInput, async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, phone, businessName } = req.body;
+
+    console.log('Register attempt for email:', email);
+    console.log('Register data:', { email, firstName, lastName, phone, businessName });
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+    if (user) {
+      console.log('Email already exists:', email);
+      return res.status(400).json({ 
+        success: false,
+        message: 'Bu e-posta adresi zaten kullanılıyor',
+        errors: [{ msg: 'Bu e-posta adresi zaten kullanılıyor' }]
+      });
+    }
+
+    // Create new user
+    user = new User({
+      email,
+      password,
+      firstName,
+      lastName,
+      phone,
+      businessName,
+      isVerified: true // Skip email verification for now
+    });
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    await user.save();
+    console.log('User registered successfully:', user._id);
+
+    // Generate token
+    const token = generateToken(user._id);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        user: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role
+        },
+        token
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Sunucu hatası',
+      errors: [{ msg: error.message }]
+    });
+  }
+});
+
+router.post('/login', sanitizeAuthInput, validateInput, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    console.log('Login attempt for email:', email);
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log('User not found for email:', email);
+      return res.status(400).json({ 
+        success: false,
+        message: 'Geçersiz kimlik bilgileri',
+        errors: [{ msg: 'Kullanıcı bulunamadı' }]
+      });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      console.log('Invalid password for user:', user._id);
+      return res.status(400).json({ 
+        success: false,
+        message: 'Geçersiz kimlik bilgileri',
+        errors: [{ msg: 'Şifre yanlış' }]
+      });
+    }
+
+    // Generate token
+    const token = generateToken(user._id);
+    console.log('Login successful for user:', user._id);
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role
+        },
+        token
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Sunucu hatası',
+      errors: [{ msg: error.message }]
+    });
+  }
+});
 
 // Protected routes
 router.get('/me', verifyToken, getCurrentUser);
 router.patch('/profile', verifyToken, updateProfile);
 router.patch('/change-password', verifyToken, changePassword);
 
-// Email doğrulama
+// Email verification
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const user = await User.findOne({
@@ -82,7 +233,7 @@ router.get('/verify-email/:token', async (req, res) => {
   }
 });
 
-// Şifre sıfırlama talebi endpoint'i
+// Password reset request
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -102,16 +253,13 @@ router.post('/forgot-password', async (req, res) => {
       });
     }
 
-    // Rastgele token oluştur
     const resetToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
-    // Token'ı kullanıcıya kaydet
     user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 saat geçerli
+    user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    // TODO: Email gönderme işlemi eklenecek
     console.log('Reset password token:', resetToken);
 
     res.json({
@@ -129,7 +277,7 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
-// Şifre sıfırlama endpoint'i
+// Password reset
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, newPassword } = req.body;
@@ -141,10 +289,8 @@ router.post('/reset-password', async (req, res) => {
       });
     }
 
-    // Token'ı hashle
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-    // Token'a sahip ve süresi geçmemiş kullanıcıyı bul
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() }
@@ -157,7 +303,6 @@ router.post('/reset-password', async (req, res) => {
       });
     }
 
-    // Yeni şifreyi kaydet
     user.password = newPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
@@ -196,7 +341,7 @@ router.get('/', verifyToken, isAdmin, async (req, res) => {
     }
 });
 
-// Tek bir kullanıcı getir
+// Get single user
 router.get('/:id', async (req, res) => {
     try {
         const user = await User.findById(req.params.id).select('-password');
@@ -220,7 +365,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Kullanıcı güncelle
+// Update user
 router.patch('/:id', async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -231,7 +376,6 @@ router.patch('/:id', async (req, res) => {
             });
         }
 
-        // Güncellenebilir alanlar
         const updateFields = [
             'firstName', 'lastName', 'phone', 'addresses', 
             'paymentMethods', 'role'
@@ -243,7 +387,6 @@ router.patch('/:id', async (req, res) => {
             }
         });
 
-        // Şifre güncelleme
         if (req.body.password) {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(req.body.password, salt);
@@ -251,7 +394,6 @@ router.patch('/:id', async (req, res) => {
 
         const updatedUser = await user.save();
         
-        // Şifreyi response'dan çıkar
         const userResponse = updatedUser.toObject();
         delete userResponse.password;
         
@@ -269,7 +411,7 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-// Kullanıcı sil
+// Delete user
 router.delete('/:id', async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -294,10 +436,9 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// Logout endpoint
+// Logout
 router.post('/logout', async (req, res) => {
   try {
-    // Client tarafında token'ı silmek yeterli olacaktır
     res.json({
       success: true,
       message: 'Çıkış başarılı'
@@ -312,12 +453,10 @@ router.post('/logout', async (req, res) => {
   }
 });
 
-// Kullanıcı profili görüntüleme endpoint'i
+// Get user profile
 router.get('/profile', auth, async (req, res) => {
   try {
-    const userId = req.user.userId; // Auth middleware'den gelen user bilgisi
-    console.log('Fetching profile for userId:', userId);
-
+    const userId = req.user.userId;
     const user = await User.findById(userId).select('-password -resetPasswordToken -resetPasswordExpires');
     
     if (!user) {
@@ -342,14 +481,12 @@ router.get('/profile', auth, async (req, res) => {
   }
 });
 
-// Kullanıcı profili güncelleme endpoint'i
+// Update user profile
 router.patch('/profile', auth, async (req, res) => {
   try {
-    const userId = req.user.userId; // Auth middleware'den gelen user bilgisi
+    const userId = req.user.userId;
     const updates = req.body;
-    console.log('Updating profile for userId:', userId);
 
-    // Güvenlik için hassas alanların güncellenmesini engelle
     delete updates.password;
     delete updates.email;
     delete updates.role;
@@ -387,12 +524,11 @@ router.patch('/profile', auth, async (req, res) => {
   }
 });
 
-// Şifre değiştirme endpoint'i
+// Change password
 router.post('/change-password', auth, async (req, res) => {
   try {
-    const userId = req.user.userId; // Auth middleware'den gelen user bilgisi
+    const userId = req.user.userId;
     const { currentPassword, newPassword } = req.body;
-    console.log('Changing password for userId:', userId);
 
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
@@ -409,7 +545,6 @@ router.post('/change-password', auth, async (req, res) => {
       });
     }
 
-    // Mevcut şifreyi kontrol et
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
       return res.status(401).json({
@@ -418,7 +553,6 @@ router.post('/change-password', auth, async (req, res) => {
       });
     }
 
-    // Yeni şifreyi kaydet
     user.password = newPassword;
     await user.save();
 
@@ -437,12 +571,11 @@ router.post('/change-password', auth, async (req, res) => {
   }
 });
 
-// Adres ekleme endpoint'i
+// Add address
 router.post('/addresses', auth, async (req, res) => {
   try {
     const userId = req.user.userId;
     const addressData = req.body;
-    console.log('Adding address for userId:', userId);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -471,13 +604,12 @@ router.post('/addresses', auth, async (req, res) => {
   }
 });
 
-// Adres güncelleme endpoint'i
+// Update address
 router.patch('/addresses/:addressId', auth, async (req, res) => {
   try {
     const userId = req.user.userId;
     const { addressId } = req.params;
     const updates = req.body;
-    console.log('Updating address for userId:', userId, 'addressId:', addressId);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -514,12 +646,11 @@ router.patch('/addresses/:addressId', auth, async (req, res) => {
   }
 });
 
-// Adres silme endpoint'i
+// Delete address
 router.delete('/addresses/:addressId', auth, async (req, res) => {
   try {
     const userId = req.user.userId;
     const { addressId } = req.params;
-    console.log('Deleting address for userId:', userId, 'addressId:', addressId);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -555,12 +686,11 @@ router.delete('/addresses/:addressId', auth, async (req, res) => {
   }
 });
 
-// Ödeme yöntemi ekleme endpoint'i
+// Add payment method
 router.post('/payment-methods', auth, async (req, res) => {
   try {
     const userId = req.user.userId;
     const paymentData = req.body;
-    console.log('Adding payment method for userId:', userId);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -570,7 +700,6 @@ router.post('/payment-methods', auth, async (req, res) => {
       });
     }
 
-    // Kredi kartı numarasını maskele
     if (paymentData.cardNumber) {
       paymentData.cardNumber = paymentData.cardNumber.slice(-4).padStart(16, '*');
     }
@@ -594,13 +723,12 @@ router.post('/payment-methods', auth, async (req, res) => {
   }
 });
 
-// Ödeme yöntemi güncelleme endpoint'i
+// Update payment method
 router.patch('/payment-methods/:paymentId', auth, async (req, res) => {
   try {
     const userId = req.user.userId;
     const { paymentId } = req.params;
     const updates = req.body;
-    console.log('Updating payment method for userId:', userId, 'paymentId:', paymentId);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -618,7 +746,6 @@ router.patch('/payment-methods/:paymentId', auth, async (req, res) => {
       });
     }
 
-    // Kredi kartı numarası güncellenmişse maskele
     if (updates.cardNumber) {
       updates.cardNumber = updates.cardNumber.slice(-4).padStart(16, '*');
     }
@@ -642,12 +769,11 @@ router.patch('/payment-methods/:paymentId', auth, async (req, res) => {
   }
 });
 
-// Ödeme yöntemi silme endpoint'i
+// Delete payment method
 router.delete('/payment-methods/:paymentId', auth, async (req, res) => {
   try {
     const userId = req.user.userId;
     const { paymentId } = req.params;
-    console.log('Deleting payment method for userId:', userId, 'paymentId:', paymentId);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -685,5 +811,17 @@ router.delete('/payment-methods/:paymentId', auth, async (req, res) => {
 
 // Make user admin
 router.patch('/make-admin/:id', verifyToken, isAdmin, makeAdmin);
+
+// Tüm kullanıcıları listele (sadece admin)
+router.get('/users', auth, isAdmin, async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        logger.info('Users fetched successfully', { count: users.length });
+        res.json(users);
+    } catch (error) {
+        logger.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Kullanıcılar getirilirken bir hata oluştu' });
+    }
+});
 
 module.exports = router; 

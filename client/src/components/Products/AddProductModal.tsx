@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, InputNumber, Select, message, Upload, Button, Divider, Spin } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { addProduct } from '../../services/product';
-import { getCategories } from '../../services/category';
+import { categoryService } from '../../services/categoryService';
 import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
-
-interface Category {
-  id: string;
-  name: string;
-}
+import { Category } from '../../types/category';
 
 interface AddProductModalProps {
   visible: boolean;
@@ -33,7 +29,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
     const fetchCategories = async () => {
       try {
         setLoadingCategories(true);
-        const data = await getCategories();
+        const data = await categoryService.getCategories();
         setCategories(data);
       } catch {
         message.error('Kategoriler yüklenirken bir hata oluştu');
@@ -222,7 +218,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         </Form.Item>
         
         <Form.Item
-          name="category"
+          name="categoryId"
           label="Kategori"
           rules={[{ required: true, message: 'Lütfen kategori seçin' }]}
         >
@@ -320,4 +316,4 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   );
 };
 
-export default AddProductModal; 
+export default AddProductModal;

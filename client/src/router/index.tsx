@@ -1,13 +1,17 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import HomePage from "../pages/HomePage";
-import CartPage from "../pages/CartPage";
-import CustomerPage from "../pages/CustomerPage";
-import StatisticsPage from "../pages/StatisticsPage";
-import RegisterPage from "../pages/auth/RegisterPage";
-import LoginPage from "../pages/auth/LoginPage";
-import OrdersPage from "../pages/OrdersPage";
+import { lazy, Suspense } from "react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import ErrorPage from "../components/ErrorPage/ErrorPage";
+import LoadingSpinner from "../components/LoadingSpinner";
+
+// Lazy load pages
+const HomePage = lazy(() => import("../pages/HomePage"));
+const CartPage = lazy(() => import("../pages/CartPage"));
+const CustomerPage = lazy(() => import("../pages/CustomerPage"));
+const StatisticsPage = lazy(() => import("../pages/StatisticsPage"));
+const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
+const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
+const OrdersPage = lazy(() => import("../pages/OrdersPage"));
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('token');
@@ -19,40 +23,84 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<LoadingSpinner />}>
+    {children}
+  </Suspense>
+);
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <PrivateRoute><HomePage /></PrivateRoute>,
+    element: (
+      <PrivateRoute>
+        <SuspenseWrapper>
+          <HomePage />
+        </SuspenseWrapper>
+      </PrivateRoute>
+    ),
     errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/cart",
-    element: <PrivateRoute><CartPage /></PrivateRoute>,
+    element: (
+      <PrivateRoute>
+        <SuspenseWrapper>
+          <CartPage />
+        </SuspenseWrapper>
+      </PrivateRoute>
+    ),
     errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/customers",
-    element: <PrivateRoute><CustomerPage /></PrivateRoute>,
+    element: (
+      <PrivateRoute>
+        <SuspenseWrapper>
+          <CustomerPage />
+        </SuspenseWrapper>
+      </PrivateRoute>
+    ),
     errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/statistics",
-    element: <PrivateRoute><StatisticsPage /></PrivateRoute>,
+    element: (
+      <PrivateRoute>
+        <SuspenseWrapper>
+          <StatisticsPage />
+        </SuspenseWrapper>
+      </PrivateRoute>
+    ),
     errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/register",
-    element: <RegisterPage />,
+    element: (
+      <SuspenseWrapper>
+        <RegisterPage />
+      </SuspenseWrapper>
+    ),
     errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/login",
-    element: <LoginPage />,
+    element: (
+      <SuspenseWrapper>
+        <LoginPage />
+      </SuspenseWrapper>
+    ),
     errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {
     path: "/orders",
-    element: <PrivateRoute><OrdersPage /></PrivateRoute>,
+    element: (
+      <PrivateRoute>
+        <SuspenseWrapper>
+          <OrdersPage />
+        </SuspenseWrapper>
+      </PrivateRoute>
+    ),
     errorElement: <ErrorBoundary><ErrorPage /></ErrorBoundary>
   },
   {

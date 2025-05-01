@@ -10,9 +10,12 @@ interface OrderData {
     phone: string;
     address: string;
     city: string;
-    state: string;
-    zipCode: string;
+    district: string;
+    postalCode: string;
     country: string;
+    companyName?: string;
+    taxNumber?: string;
+    taxOffice?: string;
   };
   items: Array<{
     productId: string;
@@ -33,9 +36,16 @@ interface OrderData {
 // Sipariş oluştur
 export const createOrder = async (orderData: OrderData) => {
   try {
+    console.log('Sipariş servisine gönderilen veri:', orderData);
     const response = await axios.post(`${API_URL}/orders`, orderData);
+    console.log('Sipariş servisi yanıtı:', response.data);
     return response.data;
-  } catch{
+  } catch (error: unknown) {
+    const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+    console.error('Sipariş servisi hatası:', axiosError.response?.data || axiosError.message);
+    if (axiosError.response?.data?.message) {
+      throw new Error(axiosError.response.data.message);
+    }
     throw new Error('Sipariş oluşturulurken bir hata oluştu');
   }
 };

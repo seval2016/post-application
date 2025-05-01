@@ -12,7 +12,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = token;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -30,14 +30,9 @@ api.interceptors.response.use(
     if (error.response) {
       // Token expired veya geçersiz token
       if (error.response.status === 401) {
-        // Token süresi dolmuşsa veya geçersizse
-        if (error.response.data.message && 
-            (error.response.data.message.includes('token') || 
-             error.response.data.message.includes('Token'))) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
-        }
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
       }
       return Promise.reject(error.response.data);
     }

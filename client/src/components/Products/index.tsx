@@ -2,16 +2,14 @@ import { useState, useEffect } from 'react';
 import { Button, message, Modal, Form, Input, InputNumber, Upload, Select } from 'antd';
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { getProducts, deleteProduct, Product, updateProduct } from '../../services/product';
+import { categoryService } from '../../services/categoryService';
 import AddProductModal from './AddProductModal';
 import ProductCard from './ProductCard';
 import '../../styles/Products/Products.css';
 
-interface ProductsProps {
-  selectedCategory?: string;
-}
-
-const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
+const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedCategory] = useState<string | undefined>(undefined);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -23,10 +21,10 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await fetch('http://localhost:5000/api/categories');
-      const data = await response.json();
+      const data = await categoryService.getCategories();
       setCategories(data);
-    } catch{
+    } catch (error: unknown) {
+      console.error('Kategoriler yüklenirken hata:', error);
       message.error('Kategoriler yüklenirken bir hata oluştu');
     } finally {
       setLoadingCategories(false);
@@ -41,7 +39,8 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
     try {
       const data = await getProducts();
       setProducts(data);
-    } catch{
+    } catch (error: unknown) {
+      console.error('Ürünler yüklenirken hata:', error);
       message.error('Ürünler yüklenirken bir hata oluştu');
     }
   };
@@ -56,7 +55,8 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
       await deleteProduct(id);
       await fetchProducts(); // Ürünleri yeniden yükle
       message.success('Ürün başarıyla silindi');
-    } catch{
+    } catch (error: unknown) {
+      console.error('Ürün silinirken hata:', error);
       message.error('Ürün silinirken bir hata oluştu');
     }
   };
@@ -80,7 +80,8 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
       setIsModalVisible(false);
       form.resetFields();
       fetchProducts();
-    } catch{
+    } catch (error: unknown) {
+      console.error('Ürün güncellenirken hata:', error);
       message.error('Ürün güncellenirken bir hata oluştu');
     }
   };
@@ -100,37 +101,21 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
         body: formData
       });
       
-      const data = await response.json();
-      if (data.url) {
-        setImageUrl(data.url);
-        form.setFieldValue('image', data.url);
-        message.success('Görsel başarıyla yüklendi');
+      if (!response.ok) {
+        throw new Error('Resim yüklenirken bir hata oluştu');
       }
-    } catch{
-      message.error('Görsel yüklenirken bir hata oluştu');
+      
+      const data = await response.json();
+      setImageUrl(data.url);
+      form.setFieldsValue({ image: data.url });
+    } catch (error: unknown) {
+      console.error('Resim yüklenirken hata:', error);
+      message.error('Resim yüklenirken bir hata oluştu');
     }
   };
 
-  const uploadProps = {
-    beforeUpload: (file: File) => {
-      const isImage = file.type.startsWith('image/');
-      if (!isImage) {
-        message.error('Sadece resim dosyaları yükleyebilirsiniz!');
-        return false;
-      }
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isLt2M) {
-        message.error('Resim 2MB\'dan küçük olmalıdır!');
-        return false;
-      }
-      handleUpload(file);
-      return false;
-    },
-    showUploadList: false
-  };
-
   const filteredProducts = selectedCategory
-    ? products.filter(product => product.category === selectedCategory)
+    ? products.filter(product => product.categoryId === selectedCategory)
     : products;
 
   return (
@@ -185,7 +170,7 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
           onFinish={handleModalOk}
         >
           <Form.Item
-            name="category"
+            name="categoryId"
             label="Kategori"
             rules={[{ required: true, message: 'Lütfen kategori seçin!' }]}
           >
@@ -226,7 +211,23 @@ const Products: React.FC<ProductsProps> = ({ selectedCategory }) => {
                   />
                 </div>
               )}
-              <Upload {...uploadProps} id="product-image">
+              <Upload
+                beforeUpload={(file) => {
+                  const isImage = file.type.startsWith('image/');
+                  if (!isImage) {
+                    message.error('Sadece resim dosyaları yükleyebilirsiniz!');
+                    return false;
+                  }
+                  const isLt2M = file.size / 1024 / 1024 < 2;
+                  if (!isLt2M) {
+                    message.error('Resim 2MB\'dan küçük olmalıdır!');
+                    return false;
+                  }
+                  handleUpload(file);
+                  return false;
+                }}
+                showUploadList={false}
+              >
                 <Button icon={<UploadOutlined />} className="w-full">
                   {imageUrl || editingProduct?.image ? 'Görseli Değiştir' : 'Görsel Yükle'}
                 </Button>
