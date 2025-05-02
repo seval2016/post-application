@@ -30,7 +30,6 @@ React, Node.js ve modern web teknolojileriyle geliştirdiğim kapsamlı POS sist
 - ESLint & Prettier ile temiz ve tutarlı kod yapısı
 - Component-based mimari
 - Modern TypeScript/JavaScript teknikleri
-- Ayrıca geliştirme sürecinde Cursor yapay zekâ desteğinden faydalandım 💻🤖
 
 🎯 Modern e-ticaret işletmeleri için hızlı, güvenli ve ölçeklenebilir bir çözüm sundum.
 
