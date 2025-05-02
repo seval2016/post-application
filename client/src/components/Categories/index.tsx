@@ -134,7 +134,7 @@ const Categories: React.FC = () => {
                     </div>
                   )}
                 </div>
-                <h3 className="category-title">{category.name}</h3>
+                <h3 className="category-title">{category.name.charAt(0).toUpperCase() + category.name.slice(1)}</h3>
                 <div className="category-actions">
                   <Button
                     type="text"

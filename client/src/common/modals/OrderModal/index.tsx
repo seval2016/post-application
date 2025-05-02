@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Steps, Form, Radio, Button, Result, message } from 'antd';
+import { Modal, Steps, Form, Radio, Button, Result, message, Input } from 'antd';
 import OrderSummary from './OrderSummary';
 import DeliveryInfo from './DeliveryInfo';
 import CustomerInfo from './CustomerInfo';
@@ -195,6 +195,87 @@ const OrderModal: React.FC<OrderModalProps> = ({
               <Radio.Button value="bank_transfer">Havale/EFT</Radio.Button>
             </Radio.Group>
           </Form.Item>
+          {paymentMethod === 'credit_card' && (
+            <div className="credit-card-form" style={{ marginTop: 16 }}>
+              <Form.Item
+                name="cardNumber"
+                label="Kart Numarası"
+                rules={[
+                  { required: true, message: 'Lütfen kart numaranızı giriniz' },
+                  { pattern: /^[0-9]{16}$/, message: 'Kart numarası 16 haneli olmalıdır' }
+                ]}
+              >
+                <Input 
+                  placeholder="1234 5678 9012 3456" 
+                  maxLength={16}
+                  style={{ 
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #d9d9d9',
+                    transition: 'all 0.3s'
+                  }}
+                />
+              </Form.Item>
+
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <Form.Item
+                  name="expiryDate"
+                  label="Son Kullanma Tarihi"
+                  rules={[
+                    { required: true, message: 'Lütfen son kullanma tarihini giriniz' },
+                    { pattern: /^(0[1-9]|1[0-2])\/([0-9]{2})$/, message: 'MM/YY formatında giriniz' }
+                  ]}
+                >
+                  <Input 
+                    placeholder="MM/YY" 
+                    maxLength={5}
+                    style={{ 
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid #d9d9d9',
+                      transition: 'all 0.3s'
+                    }}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="cvv"
+                  label="CVV"
+                  rules={[
+                    { required: true, message: 'Lütfen CVV kodunu giriniz' },
+                    { pattern: /^[0-9]{3,4}$/, message: 'CVV 3 veya 4 haneli olmalıdır' }
+                  ]}
+                >
+                  <Input 
+                    placeholder="123" 
+                    maxLength={4}
+                    style={{ 
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid #d9d9d9',
+                      transition: 'all 0.3s'
+                    }}
+                  />
+                </Form.Item>
+              </div>
+
+              <Form.Item
+                name="cardHolder"
+                label="Kart Sahibinin Adı"
+                rules={[{ required: true, message: 'Lütfen kart sahibinin adını giriniz' }]}
+              >
+                <Input 
+                  placeholder="Ad Soyad"
+                  style={{ 
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #d9d9d9',
+                    transition: 'all 0.3s'
+                  }}
+                />
+              </Form.Item>
+            </div>
+          )}
           {paymentMethod === 'bank_transfer' && (
             <div style={{ marginTop: 16 }}>
               <h4>Banka Hesap Bilgileri</h4>

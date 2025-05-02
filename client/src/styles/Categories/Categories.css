@@ -1,6 +1,8 @@
 .categories-container {
   @apply bg-white p-4 rounded-lg shadow-sm h-full flex flex-col;
   max-height: calc(100vh - 100px);
+  min-width: 320px;
+  width: 100%;
 }
 
 /* Header Styles */
@@ -9,7 +11,7 @@
 }
 
 .categories-title {
-  @apply text-lg font-medium text-gray-700;
+  @apply text-sm font-sans text-gray-600;
   letter-spacing: 0.5px;
 }
 
@@ -56,11 +58,11 @@
 }
 
 .category-title {
-  @apply text-base font-medium text-gray-700 flex-1;
+  @apply text-sm font-medium text-gray-700 flex-1 min-w-0;
 }
 
 .category-actions {
-  @apply flex space-x-2;
+  @apply flex space-x-2 w-24 justify-end;
 }
 
 .category-actions .ant-btn {
@@ -91,6 +93,10 @@
 
 /* Responsive Styles */
 @media (max-width: 768px) {
+  .categories-container {
+    @apply min-w-0;
+  }
+
   .categories-title {
     @apply text-base;
   }
