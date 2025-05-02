@@ -1,6 +1,6 @@
 # 🛒 Modern E-Ticaret POS Sistemi | Fullstack Proje
 
-React, Node.js ve modern web teknolojileriyle geliştirdiğim kapsamlı POS sistemimi tamamladım!
+React, Node.js ve modern web teknolojileriyle geliştirdiğim kapsamlı POS sistemimi!
 
 ## 🔹 Frontend (React + TypeScript)
 - React 18, TypeScript ve Vite ile hızlı ve modüler yapı
@@ -31,7 +31,7 @@ React, Node.js ve modern web teknolojileriyle geliştirdiğim kapsamlı POS sist
 - Component-based mimari
 - Modern TypeScript/JavaScript teknikleri
 
-🎯 Modern e-ticaret işletmeleri için hızlı, güvenli ve ölçeklenebilir bir çözüm sundum.
+🎯 Modern e-ticaret işletmeleri için hızlı, güvenli ve ölçeklenebilir bir çözüm...
 
 ---
 
@@ -40,23 +40,3 @@ React, Node.js ve modern web teknolojileriyle geliştirdiğim kapsamlı POS sist
 `React` `TypeScript` `Vite` `Redux Toolkit` `Ant Design`  
 `Node.js` `Express` `MongoDB` `JWT` `Multer`
 
----
-
-### 📷 Ekran Görüntüleri
-
-> (Buraya projenin ekran görüntülerini ekleyebilirsin)
-
----
-
-### 📦 Kurulum
-
-```bash
-# Frontend
-cd frontend
-npm install
-npm run dev
-
-# Backend
-cd backend
-npm install
-npm run dev
